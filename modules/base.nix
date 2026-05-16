@@ -94,6 +94,8 @@
     jq
     yq
     tmux
+    gnupg
+    pinentry-qt
 
     # Hardware/disco
     pciutils
@@ -114,6 +116,11 @@
     nh                # wrapper moderno para nixos-rebuild
     nixfmt
   ];
+
+  programs.gnupg.agent = {
+    enable = true;
+    pinentryPackage = pkgs.pinentry-qt;
+  };
 
   # zram swap (50% RAM, comprimido)
   zramSwap = {

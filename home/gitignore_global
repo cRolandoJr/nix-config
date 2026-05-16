@@ -1,0 +1,13 @@
+# Archivos personales y temporales
+Pasted image *.png
+
+# Herramientas locales
+.claude/
+.obsidian/
+
+# Basura comun de editores y sistema
+.DS_Store
+Thumbs.db
+*~
+*.swp
+*.swo

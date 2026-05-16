@@ -17,9 +17,14 @@
       init.defaultBranch = "main";
       pull.rebase = true;
       push.autoSetupRemote = true;
-      core.editor = "vim";
+      core = {
+      	editor = "vim";
+	excludesfile = "${config.home.homeDirectory}/.gitignore_global";
+      };
+      includeIf."gitdir:~/projects-old/windconsul/**".path = "${config.home.homeDirectory}/projects-old/windconsul/.gitconfig-empresa";
     };
   };
+  home.file.".gitignore_global".source = ./gitignore_global;
   # === zsh con plugins ===
   programs.zsh = {
     enable = true;
