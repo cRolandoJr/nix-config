@@ -158,9 +158,28 @@
     duf
     fastfetch
     vscode
-    # Capturas y screenshots
-    flameshot
+    ghostty
+    wl-clipboard
+    fuzzel
+    grim
+    slurp
+    cliphist
+    hyprpaper
+    mako
+    swayosd
+    playerctl
+    libnotify
+    brightnessctl
+    pavucontrol
   ];
+
+  home.sessionVariables = {
+    NIXOS_OZONE_WL = "1";
+    ELECTRON_OZONE_PLATFORM_HINT = "wayland";
+    MOZ_ENABLE_WAYLAND = "1";
+    QT_QPA_PLATFORM = "wayland;xcb";
+    QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
+  };
 
   # Override .desktop de Telegram: KDE no soporta bien DBusActivatable=true del paquete oficial
  xdg.desktopEntries."org.telegram.desktop" = {
