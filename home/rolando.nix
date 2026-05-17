@@ -9,22 +9,28 @@
   programs.home-manager.enable = true;
 
   # === Git ===
-  programs.git = {
+ programs.git = {
     enable = true;
     settings = {
-      user.name = "rolando";
+      user.name = "Rolando Cobis";
       user.email = "cobiscalleja@gmail.com";
       init.defaultBranch = "main";
       pull.rebase = true;
       push.autoSetupRemote = true;
       core = {
-      	editor = "vim";
-	excludesfile = "${config.home.homeDirectory}/.gitignore_global";
+        editor = "vim";
+        excludesfile = "${config.home.homeDirectory}/.gitignore_global";
       };
-      includeIf."gitdir:~/projects-old/windconsul/**".path = "${config.home.homeDirectory}/projects-old/windconsul/.gitconfig-empresa";
     };
+    includes = [
+      {
+        condition = "gitdir:~/work/**";
+        path = "${config.home.homeDirectory}/work/.gitconfig-empresa";
+      }
+    ];
   };
-  home.file.".gitignore_global".source = ./gitignore_global;
+     
+
   # === zsh con plugins ===
   programs.zsh = {
     enable = true;
@@ -65,6 +71,8 @@
     initContent = ''
       # Prompt: starship lo maneja, no escribimos PS1 acá
       # Mejor uso del historial
+      setopt INTERACTIVE_COMMENTS    # permite # como comentario
+      unsetopt NOMATCH               # ? y * literales no rompen el comando
       bindkey '^[[A' history-substring-search-up
       bindkey '^[[B' history-substring-search-down
     '';
@@ -132,7 +140,7 @@
   home.packages = with pkgs; [
     # Comunicación
     discord
-    # zoom-us             # descomentá si lo usás
+    telegram-desktop
 
     # Productividad
     obsidian
@@ -146,11 +154,36 @@
     gh                    # GitHub CLI
     lazygit
     httpie
-    dust                  # du moderno
-    duf                   # df moderno
-
+    dust
+    duf
+    fastfetch
+    vscode
     # Capturas y screenshots
     flameshot
   ];
 
+  # Override .desktop de Telegram: KDE no soporta bien DBusActivatable=true del paquete oficial
+ xdg.desktopEntries."org.telegram.desktop" = {
+    name = "Telegram";
+    comment = "New era of messaging";
+    icon = "org.telegram.desktop";
+    exec = "Telegram -- %U";
+    terminal = false;
+    type = "Application";
+    categories = [ "Chat" "Network" "InstantMessaging" "Qt" ];
+    mimeType = [ "x-scheme-handler/tg" "x-scheme-handler/tonsite" ];
+    startupNotify = true;
+    settings = {
+      TryExec = "Telegram";
+      DBusActivatable = "false";
+      StartupWMClass = "TelegramDesktop";
+      SingleMainWindow = "true";
+      Keywords = "tg;chat;im;messaging;messenger;sms;tdesktop;";
+    };
+    actions.quit = {
+      name = "Quit Telegram";
+      exec = "Telegram -quit";
+      icon = "application-exit";
+    };
+  };
 }
