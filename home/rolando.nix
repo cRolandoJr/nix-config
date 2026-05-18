@@ -3,7 +3,7 @@
 {
   home.username = "rolando";
   home.homeDirectory = "/home/rolando";
-  home.stateVersion = "25.11";   # NO TOCAR después de instalar
+  home.stateVersion = "25.11"; # NO TOCAR después de instalar
 
   # Programas Home Manager-managed
   programs.home-manager.enable = true;
@@ -82,13 +82,6 @@
   programs.starship = {
     enable = true;
     enableZshIntegration = true;
-    settings = {
-      add_newline = true;
-      character = {
-        success_symbol = "[➜](bold green)";
-        error_symbol = "[➜](bold red)";
-      };
-    };
   };
 
   # === direnv (carga flakes por proyecto automáticamente) ===
@@ -104,31 +97,21 @@
     enableZshIntegration = true;
   };
 
-  # === Editor: neovim ===
-  programs.neovim = {
-    enable = true;
-    defaultEditor = true;
-    viAlias = true;
-    vimAlias = true;
-    withRuby = false;
-    withPython3 = true;
-  };
-
   # === Terminal: kitty ===
-  programs.kitty = {
-    enable = true;
-    font = {
-      name = "JetBrainsMono Nerd Font";
-      size = 11;
-    };
-    settings = {
-      enable_audio_bell = false;
-      window_padding_width = 6;
-      background_opacity = "0.95";
-      confirm_os_window_close = 0;
-    };
-    themeFile = "Catppuccin-Mocha";
-  };
+ # programs.kitty = {
+ #   enable = true;
+ #   font = {
+ #     name = "JetBrainsMono Nerd Font";
+ #     size = 11;
+ #   };
+ #   settings = {
+ #     enable_audio_bell = false;
+ #     window_padding_width = 6;
+ #     background_opacity = "0.75";
+ #     confirm_os_window_close = 0;
+ #   };
+ #   themeFile = "Catppuccin-Mocha";
+ # };
 
   # === Firefox (config mínima, agregar perfiles después) ===
   programs.firefox = {
@@ -138,40 +121,48 @@
 
   # === Paquetes user-level (no necesitás recompilar el sistema para cambiarlos) ===
   home.packages = with pkgs; [
-    # Comunicación
+    # --- Hyprland session tools ---
+    rofi
+    imagemagick
+    waybar
+    mako
+    awww
+    hypridle
+    swayosd
+    thunar
+    grim
+    slurp
+    wl-clipboard
+    cliphist
+    neovim
+    python3
+
+    playerctl
+    networkmanagerapplet
+    # Comunicación (ya tenías)
     discord
     telegram-desktop
 
     # Productividad
     obsidian
-    #libreoffice-qt6-fresh
 
     # Multimedia
     vlc
     mpv
 
     # Dev / utils
-    gh                    # GitHub CLI
+    gh
     lazygit
     httpie
     dust
     duf
     fastfetch
     vscode
-    ghostty
-    wl-clipboard
-    fuzzel
-    grim
-    slurp
-    cliphist
-    hyprpaper
-    mako
-    swayosd
-    playerctl
-    libnotify
-    brightnessctl
+
+    # (Recomendado)
     pavucontrol
-  ];
+    stow
+    ];
 
   home.sessionVariables = {
     NIXOS_OZONE_WL = "1";
@@ -179,9 +170,35 @@
     MOZ_ENABLE_WAYLAND = "1";
     QT_QPA_PLATFORM = "wayland;xcb";
     QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
+    EDITOR = "neovim";
+    VISUAL = "neovim";
   };
 
-  # Override .desktop de Telegram: KDE no soporta bien DBusActivatable=true del paquete oficial
+# === Dotfiles como symlinks editables ===
+xdg.configFile = {
+    "hypr".source = config.lib.file.mkOutOfStoreSymlink
+      "${config.home.homeDirectory}/projects/dotfiles/hypr/.config/hypr";
+
+    "waybar".source = config.lib.file.mkOutOfStoreSymlink
+      "${config.home.homeDirectory}/projects/dotfiles/waybar/.config/waybar";
+
+    "rofi".source = config.lib.file.mkOutOfStoreSymlink
+      "${config.home.homeDirectory}/projects/dotfiles/rofi/.config/rofi";
+
+    "fastfetch".source = config.lib.file.mkOutOfStoreSymlink
+      "${config.home.homeDirectory}/projects/dotfiles/fastfetch/.config/fastfetch";
+
+    "nvim".source = config.lib.file.mkOutOfStoreSymlink
+      "${config.home.homeDirectory}/projects/dotfiles/nvim/.config/nvim";
+
+    "kitty".source = config.lib.file.mkOutOfStoreSymlink
+      "${config.home.homeDirectory}/projects/dotfiles/kitty/.config/kitty";
+  };
+
+  home.file.".config/starship.toml".source = config.lib.file.mkOutOfStoreSymlink
+    "${config.home.homeDirectory}/projects/dotfiles/starship/.config/starship.toml"; 
+
+    # Override .desktop de Telegram: KDE no soporta bien DBusActivatable=true del paquete oficial
  xdg.desktopEntries."org.telegram.desktop" = {
     name = "Telegram";
     comment = "New era of messaging";

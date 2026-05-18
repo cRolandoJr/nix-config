@@ -2,7 +2,10 @@
 
 {
   # Hyprland (Wayland compositor)
-  programs.hyprland.enable = true;
+  programs.hyprland = {
+    enable = true;
+    withUWSM = false;
+  };
 
   # XDG portals: necesarios para screen sharing (Teams/Meet), file pickers, etc.
   xdg.portal = {
@@ -40,7 +43,7 @@
   };
 
   # (Opcional) Si querés asegurar que apps X11 funcionen bien
-  services.xserver.enable = true;
+#  services.xserver.enable = true;
 
   # (Opcional) xwaylandvideobridge, si llega a existir en tu nixpkgs
   # environment.systemPackages = with pkgs; [

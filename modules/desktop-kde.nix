@@ -3,7 +3,6 @@
 {
   # X11 base (necesario aunque uses Wayland — algunos componentes)
   services.xserver = {
-    enable = true;
     xkb = {
       layout = "us";
       variant = "";
