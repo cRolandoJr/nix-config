@@ -136,6 +136,9 @@
     cliphist
     neovim
     python3
+    kitty
+    hypridle
+    hyprlock
 
     playerctl
     networkmanagerapplet
@@ -149,6 +152,7 @@
     # Multimedia
     vlc
     mpv
+    spotify
 
     # Dev / utils
     gh
@@ -158,6 +162,7 @@
     duf
     fastfetch
     vscode
+    claude-code
 
     # (Recomendado)
     pavucontrol
