@@ -38,7 +38,7 @@
     syntaxHighlighting.enable = true;
     enableCompletion = true;
     historySubstringSearch.enable = true;
-
+    
     history = {
       size = 100000;
       save = 100000;
@@ -68,6 +68,7 @@
       gl = "git pull";
     };
 
+
     initContent = ''
       # Prompt: starship lo maneja, no escribimos PS1 acá
       # Mejor uso del historial
@@ -75,6 +76,8 @@
       unsetopt NOMATCH               # ? y * literales no rompen el comando
       bindkey '^[[A' history-substring-search-up
       bindkey '^[[B' history-substring-search-down
+      export ANDROID_SDK_ROOT="/home/rolando/Android/Sdk"
+      export ANDROID_HOME="/home/rolando/Android/Sdk"
     '';
   };
 
@@ -139,6 +142,8 @@
     kitty
     hypridle
     hyprlock
+    tzdata
+
 
     playerctl
     networkmanagerapplet
@@ -148,7 +153,6 @@
 
     # Productividad
     obsidian
-
     # Multimedia
     vlc
     mpv
@@ -163,6 +167,7 @@
     fastfetch
     vscode
     claude-code
+    android-tools
 
     # (Recomendado)
     pavucontrol
@@ -177,6 +182,8 @@
     QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
     EDITOR = "neovim";
     VISUAL = "neovim";
+    ANDROID_SDK_ROOT = "/home/rolando/Android/Sdk";
+    ANDROID_HOME = "/home/rolando/Android/Sdk";
   };
 
 # === Dotfiles como symlinks editables ===

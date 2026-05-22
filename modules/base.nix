@@ -44,6 +44,13 @@
   # Auto-upgrade del store
   nix.optimise.automatic = true;
 
+  boot.kernel.sysctl = {
+    "vm.overcommit_memory" = 1;
+    "vm.swappiness" = 1;
+  };
+
+  boot.kernelParams = [ "transparent_hugepage=always" ];
+
   # Unfree packages (drivers, etc.)
   nixpkgs.config.allowUnfree = true;
 
@@ -59,6 +66,9 @@
       "libvirtd"        # KVM/QEMU
       "kvm"
       "input"
+      "bluetooth"
+      "podman"
+      "adbusers"
     ];
     shell = pkgs.zsh;
   };

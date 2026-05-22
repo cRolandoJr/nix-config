@@ -17,6 +17,12 @@
   # USB passthrough a VMs
   virtualisation.spiceUSBRedirection.enable = true;
 
+  virtualisation.podman = {
+    enable = true;
+    dockerCompat = true;
+    defaultNetwork.settings.dns_enabled = true;
+  };
+
   # Paquetes útiles
   environment.systemPackages = with pkgs; [
     virt-viewer

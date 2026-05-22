@@ -3,14 +3,12 @@
 {
   networking.networkmanager = {
     enable = true;
-    wifi.powersave = false;   # CRÍTICO: RTL8852BE se cuelga con powersave on
-    wifi.backend = "iwd";     # backend moderno, más estable que wpa_supplicant
+    wifi.powersave = false;
+    wifi.backend = "iwd";
   };
 
-  # Firmware redistribuible (necesario para Realtek WiFi, AMD GPU, etc.)
   hardware.enableRedistributableFirmware = true;
 
-  # Firewall básico
   networking.firewall = {
     enable = true;
     allowedTCPPorts = [ ];
@@ -23,13 +21,19 @@
     powerOnBoot = true;
     settings = {
       General = {
-        Experimental = true;   # habilita features modernos (battery indicator, etc.)
+        controllerMode = "le";
       };
     };
   };
   services.blueman.enable = true;
 
-  # DNS rápido y resolución resiliente
+  systemd.services.bluetooth.serviceConfig = {
+    ExecStart = lib.mkForce [
+      ""
+      "${pkgs.bluez}/libexec/bluetooth/bluetoothd -f /etc/bluetooth/main.conf --noplugin=sap"
+    ];
+  };
+
   services.resolved = {
     enable = true;
     settings.Resolve = {
