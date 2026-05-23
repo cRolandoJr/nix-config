@@ -28,4 +28,19 @@
   boot.kernel.sysctl = {
     "vm.max_map_count" = 2147483642;     # Star Citizen, algunos juegos modernos
   };
+
+  # Ananicy-cpp: prioridad nice/ionice automática por categoría de proceso.
+  # Mantiene a los juegos con CPU/IO priority alta y al background bajo.
+  services.ananicy = {
+    enable = true;
+    package = pkgs.ananicy-cpp;
+    rulesProvider = pkgs.ananicy-rules-cachyos;
+  };
+
+  # sched-ext: scheduler en userspace. scx_lavd = latency-aware, ideal gaming.
+  # Requiere kernel ≥ 6.12 (corremos linuxPackages_latest = 7.x).
+  services.scx = {
+    enable = true;
+    scheduler = "scx_lavd";
+  };
 }

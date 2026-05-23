@@ -5,11 +5,10 @@
   home.homeDirectory = "/home/rolando";
   home.stateVersion = "25.11"; # NO TOCAR después de instalar
 
-  # Programas Home Manager-managed
   programs.home-manager.enable = true;
 
   # === Git ===
- programs.git = {
+  programs.git = {
     enable = true;
     settings = {
       user.name = "Rolando Cobis";
@@ -29,7 +28,6 @@
       }
     ];
   };
-     
 
   # === zsh con plugins ===
   programs.zsh = {
@@ -38,7 +36,7 @@
     syntaxHighlighting.enable = true;
     enableCompletion = true;
     historySubstringSearch.enable = true;
-    
+
     history = {
       size = 100000;
       save = 100000;
@@ -68,12 +66,10 @@
       gl = "git pull";
     };
 
-
     initContent = ''
       # Prompt: starship lo maneja, no escribimos PS1 acá
-      # Mejor uso del historial
-      setopt INTERACTIVE_COMMENTS    # permite # como comentario
-      unsetopt NOMATCH               # ? y * literales no rompen el comando
+      setopt INTERACTIVE_COMMENTS
+      unsetopt NOMATCH
       bindkey '^[[A' history-substring-search-up
       bindkey '^[[B' history-substring-search-down
       export ANDROID_SDK_ROOT="/home/rolando/Android/Sdk"
@@ -87,7 +83,7 @@
     enableZshIntegration = true;
   };
 
-  # === direnv (carga flakes por proyecto automáticamente) ===
+  # === direnv ===
   programs.direnv = {
     enable = true;
     enableZshIntegration = true;
@@ -100,31 +96,15 @@
     enableZshIntegration = true;
   };
 
-  # === Terminal: kitty ===
- # programs.kitty = {
- #   enable = true;
- #   font = {
- #     name = "JetBrainsMono Nerd Font";
- #     size = 11;
- #   };
- #   settings = {
- #     enable_audio_bell = false;
- #     window_padding_width = 6;
- #     background_opacity = "0.75";
- #     confirm_os_window_close = 0;
- #   };
- #   themeFile = "Catppuccin-Mocha";
- # };
-
-  # === Firefox (config mínima, agregar perfiles después) ===
+  # === Firefox ===
   programs.firefox = {
-  	enable = true;
-	configPath = ".mozilla/firefox";
+    enable = true;
+    configPath = ".mozilla/firefox";
   };
 
-  # === Paquetes user-level (no necesitás recompilar el sistema para cambiarlos) ===
+  # === Paquetes user-level ===
   home.packages = with pkgs; [
-    # --- Hyprland session tools ---
+    # Hyprland session tools
     rofi
     imagemagick
     waybar
@@ -140,19 +120,20 @@
     neovim
     python3
     kitty
-    hypridle
     hyprlock
     tzdata
-
-
     playerctl
     networkmanagerapplet
-    # Comunicación (ya tenías)
+    wlogout
+    libnotify
+
+    # Comunicación
     discord
     telegram-desktop
 
     # Productividad
     obsidian
+
     # Multimedia
     vlc
     mpv
@@ -168,11 +149,10 @@
     vscode
     claude-code
     android-tools
-
-    # (Recomendado)
     pavucontrol
     stow
-    ];
+    claude-code
+  ];
 
   home.sessionVariables = {
     NIXOS_OZONE_WL = "1";
@@ -186,8 +166,8 @@
     ANDROID_HOME = "/home/rolando/Android/Sdk";
   };
 
-# === Dotfiles como symlinks editables ===
-xdg.configFile = {
+  # === Dotfiles como symlinks editables ===
+  xdg.configFile = {
     "hypr".source = config.lib.file.mkOutOfStoreSymlink
       "${config.home.homeDirectory}/projects/dotfiles/hypr/.config/hypr";
 
@@ -205,13 +185,16 @@ xdg.configFile = {
 
     "kitty".source = config.lib.file.mkOutOfStoreSymlink
       "${config.home.homeDirectory}/projects/dotfiles/kitty/.config/kitty";
+
+    "wlogout".source = config.lib.file.mkOutOfStoreSymlink
+      "${config.home.homeDirectory}/projects/dotfiles/wlogout/.config/wlogout";  
   };
 
   home.file.".config/starship.toml".source = config.lib.file.mkOutOfStoreSymlink
-    "${config.home.homeDirectory}/projects/dotfiles/starship/.config/starship.toml"; 
+    "${config.home.homeDirectory}/projects/dotfiles/starship/.config/starship.toml";
 
-    # Override .desktop de Telegram: KDE no soporta bien DBusActivatable=true del paquete oficial
- xdg.desktopEntries."org.telegram.desktop" = {
+  # Override .desktop de Telegram
+  xdg.desktopEntries."org.telegram.desktop" = {
     name = "Telegram";
     comment = "New era of messaging";
     icon = "org.telegram.desktop";

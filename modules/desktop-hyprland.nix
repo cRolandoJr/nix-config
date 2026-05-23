@@ -7,17 +7,13 @@
     withUWSM = false;
   };
 
-  # XDG portals: necesarios para screen sharing (Teams/Meet), file pickers, etc.
+  # XDG portals: el portal-kde lo aporta desktop-kde.nix (NixOS merge de listas).
+  # Si en el futuro sacás KDE, agregá xdg-desktop-portal-gtk acá como fallback.
   xdg.portal = {
     enable = true;
-
-    # En Hyprland, este portal es el importante.
-    # (Si todavía mantenés KDE, podés dejar el portal KDE también.)
     extraPortals = with pkgs; [
       xdg-desktop-portal-hyprland
-    ] ++ (with pkgs.kdePackages; [
-      xdg-desktop-portal-kde
-    ]);
+    ];
   };
 
   # Polkit (autorizaciones: mounts, network, etc.)

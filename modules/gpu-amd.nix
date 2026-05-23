@@ -1,16 +1,17 @@
 { config, pkgs, lib, ... }:
 
 {
-  # Driver amdgpu para iGPU (Radeon 680M) y dGPU (RX 6500M)
   services.xserver.videoDrivers = [ "amdgpu" ];
 
-  # OpenGL / Vulkan
+  # Cargar amdgpu en initrd (mejor estabilidad)
+  boot.initrd.kernelModules = [ "amdgpu" ];
+
   hardware.graphics = {
     enable = true;
-    enable32Bit = true;     # Steam, juegos de 32 bits
+    enable32Bit = true;
     extraPackages = with pkgs; [
-      rocmPackages.clr.icd  # OpenCL para AMD
-      libva-vdpau-driver            # decoding de video
+      rocmPackages.clr.icd
+      libva-vdpau-driver
       libvdpau-va-gl
     ];
     extraPackages32 = with pkgs.driversi686Linux; [
@@ -18,21 +19,23 @@
     ];
   };
 
-  # Variables de entorno para Wayland + AMD
+  # LACT — control de GPU AMD (overclock, power limit, fan curves)
+  services.lact.enable = true;
+
   environment.sessionVariables = {
     LIBVA_DRIVER_NAME = "radeonsi";
     VDPAU_DRIVER = "radeonsi";
+    AMD_VULKAN_ICD = "RADV";       # forzar RADV, no amdvlk
+    RADV_PERFTEST = "gpl";         # gpl=graphics pipeline library; SAM/ReBAR ya manejado por RADV en kernel 7+
   };
 
-  # Herramientas útiles para AMD
   environment.systemPackages = with pkgs; [
-    radeontop          # monitor de uso GPU
-    vulkan-tools       # vulkaninfo, vkcube
-    mesa-demos            # info OpenGL
-    libva-utils        # vainfo
+    radeontop
+    vulkan-tools
+    mesa-demos
+    libva-utils
+    lact                           # GUI para controlar la GPU
   ];
 
-  # Power management para laptop (tlp es bueno pero choca con power-profiles-daemon de KDE)
-  # KDE 6 usa power-profiles-daemon por defecto, lo dejamos así.
   services.power-profiles-daemon.enable = true;
 }

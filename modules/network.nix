@@ -21,7 +21,8 @@
     powerOnBoot = true;
     settings = {
       General = {
-        controllerMode = "le";
+        # "dual" habilita BR/EDR (audífonos A2DP/aptX) + BLE (controllers, mouse).
+        controllerMode = "dual";
       };
     };
   };

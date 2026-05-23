@@ -46,10 +46,16 @@
 
   boot.kernel.sysctl = {
     "vm.overcommit_memory" = 1;
-    "vm.swappiness" = 1;
+    # zram es RAM comprimida: querés que el kernel lo use agresivamente.
+    "vm.swappiness" = 180;
+    "vm.page-cluster" = 0;            # zram = random-access, sin read-ahead
+    "vm.watermark_boost_factor" = 0;
+    "vm.watermark_scale_factor" = 125;
   };
 
-  boot.kernelParams = [ "transparent_hugepage=always" ];
+  # THP en "madvise": evita compactación global que produce stutter en juegos.
+  # Apps que se benefician (jemalloc, juegos modernos) lo activan via madvise().
+  boot.kernelParams = [ "transparent_hugepage=madvise" ];
 
   # Unfree packages (drivers, etc.)
   nixpkgs.config.allowUnfree = true;
@@ -68,14 +74,12 @@
       "input"
       "bluetooth"
       "podman"
-      "adbusers"
     ];
     shell = pkgs.zsh;
   };
 
   # Habilitar zsh a nivel sistema (necesario para users.shell = pkgs.zsh)
   programs.zsh.enable = true;
-
   # sudo sin password para el grupo wheel (cómodo; sacalo si querés más seguro)
   security.sudo.wheelNeedsPassword = false;
 
