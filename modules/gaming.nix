@@ -5,7 +5,15 @@
     enable = true;
     remotePlay.openFirewall = true;
     dedicatedServer.openFirewall = false;
-    gamescopeSession.enable = true;       # sesión gamescope para juegos
+    gamescopeSession.enable = true;       # sesión gamescope como compositor (boot to game)
+  };
+
+  # gamescope como WRAPPER (para usar desde Steam launch options).
+  # capSysNice = true le da CAP_SYS_NICE al binary → puede subir prioridad de CPU/GPU
+  # y abrir nested correctamente bajo Wayland (Hyprland).
+  programs.gamescope = {
+    enable = true;
+    capSysNice = true;
   };
 
   # Soporte Vulkan 32-bit ya está en gpu-amd.nix con extraPackages32
@@ -19,6 +27,7 @@
     protonup-qt          # gestor de versiones Proton-GE
     wineWow64Packages.stable
     winetricks
+    # gamescope ya viene via programs.gamescope.enable — no duplicar acá
   ];
 
   # Controles (Xbox, PlayStation, etc.)

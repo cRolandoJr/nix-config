@@ -14,8 +14,12 @@
   boot.extraModulePackages = [ ];
 
   # LUKS - reemplazá el UUID con el tuyo
-  boot.initrd.luks.devices."cryptroot".device =
-    "/dev/disk/by-uuid/6956c372-5707-4921-90b0-ce7484f16e07";
+  boot.initrd.luks.devices."cryptroot" = {
+    device = "/dev/disk/by-uuid/6956c372-5707-4921-90b0-ce7484f16e07";
+    # Auto-unlock con TPM2: el initrd intenta liberar la clave sellada al TPM.
+    # Si falla (firmware update, PCR 7 cambió, etc.) cae al prompt de passphrase.
+    crypttabExtraOpts = [ "tpm2-device=auto" ];
+  };
 
   fileSystems."/" = {
     device = "/dev/mapper/cryptroot";

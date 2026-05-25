@@ -26,6 +26,12 @@
     "rd.udev.log_level=3"
   ];
 
+  # Silenciar consola en boot. Los mensajes siguen registrados en
+  # dmesg / journalctl -kb; solo se ocultan visualmente antes de Plymouth.
+  # Un kernel panic real sigue mostrándose (va por otro path).
+  boot.consoleLogLevel = 0;
+  boot.initrd.verbose = false;
+
   # initrd: prompt de LUKS visible y funcional
   boot.initrd.systemd.enable = true;
 

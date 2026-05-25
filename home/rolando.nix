@@ -57,6 +57,12 @@
       update = "cd ~/projects/nix-config && nix flake update";
       gc = "sudo nix-collect-garbage -d && nix-collect-garbage -d";
 
+      # scrcpy con perfil optimizado para Hyprland/Wayland + monitor 144Hz
+      # uhid = mouse como HID físico (clicks normales, sin re-mappings).
+      # shortcut-mod=lsuper = toggle de captura con Super solo (no choca con grp:alt_shift_toggle).
+      # render-driver=opengl = evita stutter del default de SDL3 en Wayland.
+      scrcpy = "scrcpy --mouse=uhid --shortcut-mod=lsuper --no-audio --max-fps=60 --render-driver=opengl";
+
       # Git rápido
       gs = "git status";
       gd = "git diff";
@@ -126,6 +132,7 @@
     networkmanagerapplet
     wlogout
     libnotify
+    yazi
 
     # Comunicación
     discord
@@ -151,7 +158,7 @@
     android-tools
     pavucontrol
     stow
-    claude-code
+    scrcpy
   ];
 
   home.sessionVariables = {
@@ -187,7 +194,10 @@
       "${config.home.homeDirectory}/projects/dotfiles/kitty/.config/kitty";
 
     "wlogout".source = config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/projects/dotfiles/wlogout/.config/wlogout";  
+      "${config.home.homeDirectory}/projects/dotfiles/wlogout/.config/wlogout";
+
+    "mako".source = config.lib.file.mkOutOfStoreSymlink
+      "${config.home.homeDirectory}/projects/dotfiles/mako/.config/mako";
   };
 
   home.file.".config/starship.toml".source = config.lib.file.mkOutOfStoreSymlink

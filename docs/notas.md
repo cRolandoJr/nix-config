@@ -200,3 +200,204 @@ Checklist en orden:
 4. Verificar que `ls .fvm/versions/3.35.7/bin/flutter` resuelve al nix-store actual.
 5. Verificar que el `ndkVersion` del flake matchea `FlutterExtension.kt` de la versión actual de Flutter.
 6. En VSCode: `Ctrl+Shift+P` → "Developer: Reload Window".
+
+---
+
+## 7. Waybar + Hyprland — gotchas que costaron tiempo
+
+### 7.1 Tilde (`~`) en `exec` de módulos custom NO se expande
+
+Waybar 0.15 pasa el `exec` field a `popen()` sin shell expansion confiable.
+
+**Síntoma**: el script funciona perfecto si lo invocás a mano, pero apenas waybar arranca via
+`exec-once` de Hyprland tras un reboot, el custom module no se renderiza (silenciosamente, sin
+error en logs).
+
+**Regla**: **path absoluto siempre en cualquier `exec`/`exec-once` que apunte a un script**.
+
+Mal:
+```jsonc
+"exec": "stdbuf -oL ~/.config/hypr/scripts/waybar-layout.sh"
+```
+
+Bien:
+```jsonc
+"exec": "stdbuf -oL /home/rolando/.config/hypr/scripts/waybar-layout.sh"
+```
+
+Hyprland sí expande `~` en `exec-once` (versiones recientes), así que ahí es opcional — pero por
+consistencia uso paths absolutos en scripts.
+
+### 7.2 Streaming custom modules necesitan `stdbuf -oL` o se traga el output
+
+Cuando un script emite JSON continuo (waybar `return-type: "json"`), glibc usa **block-buffering
+4KB** porque stdout no es un tty → la primera línea queda en buffer y waybar nunca recibe el primer
+estado. El módulo aparece **vacío** o **clipea** a otra cosa.
+
+Fix: `stdbuf -oL ./script.sh` fuerza line-buffering del stdout del proceso hijo.
+
+### 7.3 Custom module suscrito al socket Hyprland — patrón
+
+Patrón canónico para escuchar eventos Hyprland desde un script bash:
+
+```bash
+socat -U - "UNIX-CONNECT:${XDG_RUNTIME_DIR}/hypr/${HYPRLAND_INSTANCE_SIGNATURE}/.socket2.sock" \
+| while IFS= read -r line; do
+    case "$line" in
+      eventname\>\>*)
+        payload="${line#*>>}"
+        # ... procesar
+        ;;
+    esac
+done
+```
+
+Eventos útiles: `activelayout`, `workspace`, `focusedmon`, `activewindow`, `submap`, `urgent`.
+
+### 7.4 `SIGUSR2` (reload config) NO respawna procesos `exec` continuos
+
+Si tocás un custom module con `exec` long-running y mandás `pkill -SIGUSR2 waybar`, la nueva config
+se carga pero los procesos exec del módulo **siguen siendo los viejos**. Resultado: el cambio
+parece no haber tenido efecto.
+
+**Para custom modules con exec continuo: full restart** (`pkill waybar; setsid -f waybar`).
+
+### 7.5 Cache de fontconfig corrupto rompe glyphs MDI selectivamente
+
+**Síntoma**: algunos íconos Nerd Font aparecen, otros no — sin patrón obvio. Después de un rebuild
+que actualiza la fuente, fontconfig cache queda desincronizado del store.
+
+Fix:
+```bash
+rm -rf ~/.cache/fontconfig
+fc-cache -fv
+pkill waybar; setsid -f waybar
+```
+
+### 7.6 Strings de íconos en `format-icons` se pierden silenciosamente al editar
+
+Si abrís `config.jsonc` en un editor que no maneja bien chars UTF-8 plane 15 (U+F0000-U+FFFFF),
+los glyphs MDI se pueden **borrar silenciosamente** al guardar → el array queda
+`["","","","",...]` con strings vacíos.
+
+Para verificar:
+```bash
+python3 -c "
+import json, re
+text = open('/home/rolando/.config/waybar/config.jsonc').read()
+clean = re.sub(r'//[^\n]*', '', text)
+clean = re.sub(r'/\*.*?\*/', '', clean, flags=re.S)
+data = json.loads(clean)
+for mod in ('temperature','backlight','pulseaudio','battery'):
+    print(mod, data.get(mod, {}).get('format-icons'))
+"
+```
+
+Si los items son vacíos, restaurar con `chr(0xCODEPOINT)` directo en Python (no usar `\u` escapes
+en heredocs bash — se rompen).
+
+### 7.7 `time.timeZone` de NixOS != timezone que ve waybar
+
+NixOS setea la zona del sistema vía `time.timeZone`. Pero waybar cuando se lanza fuera de
+`exec-once` (ej: manualmente desde una terminal sin TZ propagada) puede usar UTC.
+
+Fix robusto: declarar la zona **explícita en el módulo clock** del config:
+```jsonc
+"clock": {
+  "timezone": "America/Argentina/Buenos_Aires",
+  ...
+}
+```
+
+Así es inmune a cómo se lance waybar.
+
+### 7.8 Codepoints útiles MDI (Nerd Fonts 3.x)
+
+Material Design Icons cambiaron de codepoints en Nerd Fonts 3.x. Los rangos vigentes:
+
+| Símbolo | Codepoint | Glyph name |
+|---|---|---|
+| Termómetro empty | U+F2CB | fa-thermometer_empty (legacy FA, sigue funcionando) |
+| Brightness 1-7 | U+F00DA → U+F00E0 | md-brightness_1 .. md-brightness_7 |
+| Volume mute | U+F075F | md-volume_mute |
+| Volume low/medium/high | U+F057F / U+F0580 / U+F057E | md-volume_low/medium/high |
+| Battery 50% | U+F007E | md-battery_50 |
+| Leaf | U+F032A | md-leaf |
+| Rocket launch | U+F14DE | md-rocket_launch |
+| Power settings | U+F0426 | md-power_settings |
+| Clock | U+F0954 | md-clock |
+| Memory | U+F035B | md-memory |
+| WiFi strength | U+F091F → U+F0928 | md-wifi_strength_0 .. _4 |
+
+Cómo encontrar nuevos:
+```bash
+nix-shell -p python3Packages.fonttools --run 'python3 -c "
+from fontTools.ttLib import TTFont
+f = TTFont(\"$(fc-match -f \"%{file}\" \"JetBrainsMono Nerd Font\")\")
+for code, name in sorted(f.getBestCmap().items()):
+    if \"BUSCAR\" in name.lower():
+        print(f\"  U+{code:05X} → {name}\")"'
+```
+
+### 7.9 Reloj y zona horaria en autostart
+
+El `exec-once` del autostart le pasa `env TZ=...` a waybar:
+```
+exec-once = env TZ=America/Argentina/Buenos_Aires waybar
+```
+
+Eso + el `"timezone"` explícito del módulo = doble defensa. No confiar solo en `time.timeZone`.
+
+---
+
+## 8. Bluetooth — `blueman-applet` con duplicate `ExecStart` (nixpkgs unstable)
+
+### Síntoma
+
+`services.blueman.enable = true;` deja el unit user en `bad-setting`:
+
+```
+blueman-applet.service: Service has more than one ExecStart= setting,
+which is only allowed for Type=oneshot services. Refusing.
+```
+
+→ no hay tray icon, no hay notificaciones de pairing, `systemctl --user status
+blueman-applet` muestra `Loaded: bad-setting`.
+
+### Causa
+
+El unit user upstream (`blueman-2.4.6/share/systemd/user/blueman-applet.service`)
+trae `Type=dbus` + un `ExecStart=`. NixOS genera un drop-in
+`.service.d/overrides.conf` que **suma** otro `ExecStart=` (sin resetearlo
+antes con `ExecStart=` vacío). Systemd con `Type=dbus` permite solo uno → rechaza.
+
+Visto en: nixos-unstable 26.05, build `2026-05-15` (`d233902`).
+**Importante**: no es bug de tu config — viene de nixpkgs. Si upstream lo arregla,
+este workaround se vuelve no-op y se puede borrar.
+
+### Workaround — `modules/network.nix`
+
+Mismo patrón que ya usamos para `bluetoothd` (resetear con `""` + redeclarar):
+
+```nix
+systemd.user.services.blueman-applet.serviceConfig.ExecStart = lib.mkForce [
+  ""
+  "${pkgs.blueman}/bin/blueman-applet"
+];
+```
+
+Después del rebuild:
+
+```bash
+systemctl --user daemon-reload
+systemctl --user restart blueman-applet
+```
+
+### Detalle ortogonal: el widget de waybar NO depende del applet
+
+El módulo `"bluetooth"` de waybar habla directo a BlueZ por DBus. Si solo querés
+el ícono en la barra (con click a `blueman-manager`), no necesitás el applet.
+El applet agrega tray icon + notificaciones de pairing — opcional.
+
+En `~/.config/waybar/config.jsonc` el módulo tiene que estar **listado en
+`modules-right`**, no alcanza con definir el bloque (un día costó descubrirlo).
