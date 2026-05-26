@@ -7,12 +7,25 @@
     withUWSM = false;
   };
 
-  # XDG portals: el portal-kde lo aporta desktop-kde.nix (NixOS merge de listas).
-  # Si en el futuro sacás KDE, agregá xdg-desktop-portal-gtk acá como fallback.
+  # Display manager: SDDM con soporte Wayland. No depende de Plasma.
+  services.displayManager.sddm = {
+    enable = true;
+    wayland.enable = true;
+  };
+
+  # Keyboard layout para XWayland (apps X11 corriendo bajo Hyprland).
+  services.xserver.xkb = {
+    layout = "us";
+    variant = "";
+  };
+
+  # XDG portals: hyprland (nativo) + gtk (fallback para apps que no
+  # implementan los interfaces que ofrece hyprland).
   xdg.portal = {
     enable = true;
     extraPortals = with pkgs; [
       xdg-desktop-portal-hyprland
+      xdg-desktop-portal-gtk
     ];
   };
 
@@ -23,6 +36,13 @@
   # Usamos polkit_gnome y lo autostarteamos.
   environment.systemPackages = with pkgs; [
     polkit_gnome
+
+    # === Apps GUI (reemplazos post-KDE) ===
+    qalculate-gtk          # ex kcalc
+    gparted                # ex kde partitionmanager
+    baobab                 # ex filelight (disk usage)
+    zathura                # ex okular (PDF, vim-like)
+    kdePackages.kdeconnect-kde   # sync con celular (funciona en Hyprland)
   ];
 
   # Autostart del polkit agent (systemd --user)
@@ -38,11 +58,9 @@
     };
   };
 
-  # (Opcional) Si querés asegurar que apps X11 funcionen bien
-#  services.xserver.enable = true;
-
-  # (Opcional) xwaylandvideobridge, si llega a existir en tu nixpkgs
-  # environment.systemPackages = with pkgs; [
-  #   xwaylandvideobridge
-  # ];
+  # KDEConnect: puertos en firewall
+  networking.firewall = {
+    allowedTCPPortRanges = [ { from = 1714; to = 1764; } ];
+    allowedUDPPortRanges = [ { from = 1714; to = 1764; } ];
+  };
 }

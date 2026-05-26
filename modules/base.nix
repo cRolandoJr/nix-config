@@ -136,6 +136,10 @@
     pinentryPackage = pkgs.pinentry-qt;
   };
 
+  # ssh-agent a nivel de sesión: cachea la passphrase de la key
+  # para que VS Code / Git Graph la usen sin ssh-askpass.
+  programs.ssh.startAgent = true;
+
   # zram swap (50% RAM, comprimido)
   zramSwap = {
     enable = true;
