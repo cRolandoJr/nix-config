@@ -57,6 +57,11 @@
       update = "cd ~/projects/nix-config && nix flake update";
       gc = "sudo nix-collect-garbage -d && nix-collect-garbage -d";
 
+      # btrbk snapshots (@home)
+      snap     = "sudo btrbk -c /etc/btrbk/home.conf run --progress";
+      snap-ls  = "sudo btrbk -c /etc/btrbk/home.conf list snapshots";
+      snap-dry = "sudo btrbk -c /etc/btrbk/home.conf dryrun";
+
       # scrcpy con perfil optimizado para Hyprland/Wayland + monitor 144Hz
       # uhid = mouse como HID físico (clicks normales, sin re-mappings).
       # shortcut-mod=lsuper = toggle de captura con Super solo (no choca con grp:alt_shift_toggle).
@@ -159,6 +164,42 @@
     pavucontrol
     stow
     scrcpy
+
+    # === Neovim toolchain (LSPs, formatters, linters) ===
+    # Build / runtime deps
+    gcc                                       # compilar parsers treesitter + telescope-fzf-native
+    gnumake
+    tree-sitter
+    nodejs                                    # base para LSPs/formatters Node
+    ripgrep                                   # Telescope live_grep
+    fd                                        # Telescope find_files
+
+    # Language servers
+    gopls
+    pyright
+    rust-analyzer
+    typescript-language-server
+    vscode-langservers-extracted              # html, cssls, jsonls, eslint
+    yaml-language-server
+    bash-language-server
+    lua-language-server
+
+    # Formatters (conform.nvim)
+    stylua
+    ruff
+    gofumpt
+    (lib.lowPrio gotools)                     # goimports (lowPrio: gopls gana en /modernize)
+    rustfmt
+    prettierd                                 # prettier en daemon (más rápido)
+    shfmt
+
+    # Linters (nvim-lint)
+    golangci-lint
+    eslint_d
+    shellcheck
+    markdownlint-cli
+    yamllint
+    hadolint
   ];
 
   home.sessionVariables = {

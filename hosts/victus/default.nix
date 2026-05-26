@@ -7,11 +7,12 @@
     ../../modules/boot.nix
     ../../modules/network.nix
     ../../modules/audio.nix
-    ../../modules/desktop-kde.nix
+    ../../modules/fonts.nix
     ../../modules/desktop-hyprland.nix
     ../../modules/gpu-amd.nix
     ../../modules/virtualisation.nix
     ../../modules/gaming.nix
+    ../../modules/btrbk.nix
   ];
 
   networking.hostName = "victus";
