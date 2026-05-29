@@ -126,7 +126,13 @@
     thunar
     grim
     slurp
+    satty                  # editor de anotaciones para screenshots (grim | satty)
     wl-clipboard
+
+    # Kubernetes (cluster k3s configurado en modules/k3s.nix)
+    kubectl                # CLI principal de K8s
+    k9s                    # TUI navegable sobre el cluster
+    kubernetes-helm        # package manager (charts)
     cliphist
     neovim
     python3
@@ -212,6 +218,11 @@
     VISUAL = "neovim";
     ANDROID_SDK_ROOT = "/home/rolando/Android/Sdk";
     ANDROID_HOME = "/home/rolando/Android/Sdk";
+
+    # Kubernetes: usar el kubeconfig que escribe k3s en /etc/rancher/k3s/k3s.yaml
+    # (modo 644 → legible por user rolando). Permite que `kubectl`/`k9s`/`helm`
+    # funcionen sin pasar KUBECONFIG inline.
+    KUBECONFIG = "/etc/rancher/k3s/k3s.yaml";
   };
 
   # === Dotfiles como symlinks editables ===

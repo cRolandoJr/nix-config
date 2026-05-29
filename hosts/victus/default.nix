@@ -13,6 +13,7 @@
     ../../modules/virtualisation.nix
     ../../modules/gaming.nix
     ../../modules/btrbk.nix
+    ../../modules/k3s.nix
   ];
 
   networking.hostName = "victus";

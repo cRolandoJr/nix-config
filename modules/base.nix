@@ -140,6 +140,20 @@
   # para que VS Code / Git Graph la usen sin ssh-askpass.
   programs.ssh.startAgent = true;
 
+  # nix-ld: provee un loader real en /lib64/ld-linux-x86-64.so.2 para
+  # correr binarios dinámicamente linkeados que no fueron empaquetados
+  # con autoPatchelfHook. Necesario para Android NDK (clang/ld.lld del
+  # SDK descargado por Flutter en ~/Android/Sdk/), VSCode extensions
+  # con binarios pre-compilados, etc.
+  programs.nix-ld = {
+    enable = true;
+    libraries = with pkgs; [
+      stdenv.cc.cc.lib   # glibc + libgcc_s — cubre libpthread/librt/libdl/libm/libc
+      zlib               # libz.so.1
+      libxml2            # libxml2.so.2 — usado por ld.lld del NDK
+    ];
+  };
+
   # zram swap (50% RAM, comprimido)
   zramSwap = {
     enable = true;
