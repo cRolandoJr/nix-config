@@ -1,6 +1,7 @@
-{ lib, stdenv, fetchurl, dpkg, autoPatchelfHook, makeWrapper
+{ lib, stdenv, fetchurl, autoPatchelfHook, makeWrapper, zstd
 , gtk3, glib, nss, nspr, atk, cups, libdrm, dbus, expat
-, xorg, mesa, alsa-lib, libpulseaudio, udev
+, libx11, libxcomposite, libxdamage, libxext, libxfixes, libxrandr, libxcb
+, mesa, alsa-lib, libpulseaudio, udev
 }:
 
 stdenv.mkDerivation rec {
@@ -12,23 +13,33 @@ stdenv.mkDerivation rec {
     sha256 = "105p85gmx9n1w2jmqxijihm4pcwh51i7vv0i5x01i285vzj5nkpb";
   };
 
-  nativeBuildInputs = [ dpkg autoPatchelfHook makeWrapper ];
+  nativeBuildInputs = [ autoPatchelfHook makeWrapper zstd ];
 
   buildInputs = [
     gtk3 glib nss nspr atk cups libdrm dbus expat
-    xorg.libX11 xorg.libXcomposite xorg.libXdamage
-    xorg.libXext xorg.libXfixes xorg.libXrandr
-    xorg.libxcb mesa alsa-lib libpulseaudio udev
+    libx11 libxcomposite libxdamage libxext libxfixes libxrandr libxcb
+    mesa alsa-lib libpulseaudio udev
   ];
 
-  unpackPhase = "dpkg-deb -x $src $out";
+  # El .deb trae chrome-sandbox con setuid (rwsr-xr-x); el builder de Nix no
+  # permite crear setuid en /nix/store. Extraemos con ar+tar ignorando perms;
+  # en runtime se compensa con --no-sandbox en el wrapper.
+  unpackPhase = ''
+    mkdir -p $out
+    ar x $src
+    tar -xf data.tar.* -C $out --no-same-permissions --no-same-owner
+  '';
 
   installPhase = ''
-    mkdir -p $out/bin
-    mv $out/usr/* $out/ 2>/dev/null || true
-    mv $out/opt/boundary-desktop $out/opt/boundary-desktop 2>/dev/null || true
-    
-    makeWrapper $out/opt/boundary-desktop/boundary-desktop $out/bin/boundary-desktop \
+    mv $out/usr/* $out/
+    rmdir $out/usr
+
+    # El .deb instala bin/boundary-desktop como symlink al binario Electron en
+    # lib/boundary-desktop/. Lo reemplazamos por un wrapper que añade flags y
+    # env vars para Wayland nativo y para saltarse el setuid sandbox ausente.
+    rm $out/bin/boundary-desktop
+    makeWrapper $out/lib/boundary-desktop/boundary-desktop $out/bin/boundary-desktop \
+      --add-flags "--no-sandbox" \
       --set NIXOS_OZONE_WL 1 \
       --set ELECTRON_OZONE_PLATFORM_HINT wayland
   '';

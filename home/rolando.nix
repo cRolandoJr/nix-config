@@ -119,6 +119,7 @@
     rofi
     imagemagick
     waybar
+    eww                    # widgets custom (calendar popup, futuros: clima/agenda)
     mako
     awww
     hypridle
@@ -165,11 +166,21 @@
     duf
     fastfetch
     vscode
+    khal                   # calendario CLI (CalDAV-compat), backend del widget eww
     claude-code
     android-tools
     pavucontrol
     stow
     scrcpy
+
+    # Acceso / identity (HashiCorp)
+    (callPackage ../pkgs/boundary-desktop.nix {})  # custom: no está en nixpkgs
+
+    # Qt theming: usamos Qt Fusion (built-in, sin engine externo) con paleta
+    # configurada via qt6ct. Suficiente para apps Qt efímeras como
+    # hyprland-share-picker; el aesthetic "neon islands" del calendar
+    # (double box-shadow offset) no es replicable en Qt sin SVG custom.
+    kdePackages.qt6ct
 
     # === Neovim toolchain (LSPs, formatters, linters) ===
     # Build / runtime deps
@@ -214,6 +225,12 @@
     MOZ_ENABLE_WAYLAND = "1";
     QT_QPA_PLATFORM = "wayland;xcb";
     QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
+    # Style Qt: Fusion (built-in, sin engine externo). qt6ct lee
+    # ~/.config/qt6ct/qt6ct.conf y aplica la paleta neon-islands.
+    # QT_QPA_PLATFORMTHEME=qt6ct le dice a Qt6 que use qt6ct para
+    # palette/fonts/icons en vez de los defaults.
+    QT_STYLE_OVERRIDE = "Fusion";
+    QT_QPA_PLATFORMTHEME = "qt6ct";
     EDITOR = "neovim";
     VISUAL = "neovim";
     ANDROID_SDK_ROOT = "/home/rolando/Android/Sdk";
@@ -233,6 +250,9 @@
     "waybar".source = config.lib.file.mkOutOfStoreSymlink
       "${config.home.homeDirectory}/projects/dotfiles/waybar/.config/waybar";
 
+    "eww".source = config.lib.file.mkOutOfStoreSymlink
+      "${config.home.homeDirectory}/projects/dotfiles/eww/.config/eww";
+
     "rofi".source = config.lib.file.mkOutOfStoreSymlink
       "${config.home.homeDirectory}/projects/dotfiles/rofi/.config/rofi";
 
@@ -250,6 +270,12 @@
 
     "mako".source = config.lib.file.mkOutOfStoreSymlink
       "${config.home.homeDirectory}/projects/dotfiles/mako/.config/mako";
+
+    "khal".source = config.lib.file.mkOutOfStoreSymlink
+      "${config.home.homeDirectory}/projects/dotfiles/khal/.config/khal";
+
+    "qt6ct".source = config.lib.file.mkOutOfStoreSymlink
+      "${config.home.homeDirectory}/projects/dotfiles/qt6ct/.config/qt6ct";
   };
 
   home.file.".config/starship.toml".source = config.lib.file.mkOutOfStoreSymlink

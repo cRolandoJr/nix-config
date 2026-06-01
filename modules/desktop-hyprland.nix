@@ -82,8 +82,15 @@ in
 
   # XDG portals: hyprland (nativo) + gtk (fallback para apps que no
   # implementan los interfaces que ofrece hyprland).
+  # config.hyprland fija explícitamente ScreenCast/Screenshot al backend
+  # hyprland — sin esto, apps Electron/Chrome enrutan al picker GTK feo.
   xdg.portal = {
     enable = true;
+    config.hyprland = {
+      default = [ "hyprland" "gtk" ];
+      "org.freedesktop.impl.portal.ScreenCast" = [ "hyprland" ];
+      "org.freedesktop.impl.portal.Screenshot" = [ "hyprland" ];
+    };
     extraPortals = with pkgs; [
       xdg-desktop-portal-hyprland
       xdg-desktop-portal-gtk

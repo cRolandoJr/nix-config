@@ -38,7 +38,7 @@
   nix.gc = {
     automatic = true;
     dates = "weekly";
-    options = "--delete-older-than 14d";
+    options = "--delete-older-than 7d";
   };
 
   # Auto-upgrade del store
@@ -139,6 +139,9 @@
   # ssh-agent a nivel de sesión: cachea la passphrase de la key
   # para que VS Code / Git Graph la usen sin ssh-askpass.
   programs.ssh.startAgent = true;
+  # askpass GUI Qt minimalista (reemplaza el x11-ssh-askpass viejo de Motif).
+  # Se invoca cuando VS Code / Git Graph piden passphrase sin TTY.
+  programs.ssh.askPassword = "${pkgs.lxqt.lxqt-openssh-askpass}/bin/lxqt-openssh-askpass";
 
   # nix-ld: provee un loader real en /lib64/ld-linux-x86-64.so.2 para
   # correr binarios dinámicamente linkeados que no fueron empaquetados
