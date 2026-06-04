@@ -97,6 +97,15 @@ in
     ];
   };
 
+  # El unit que genera el paquete xdg-desktop-portal-hyprland es Type=dbus
+  # sin WantedBy: solo arranca cuando alguien pide su bus name. Si una app
+  # consulta ScreenCast antes de la primera activation (o el backend muere
+  # en un rebuild y nadie lo vuelve a pedir), el frontend resuelve el
+  # impl a "no hay backend" y el picker de captura nunca aparece. Forzar
+  # WantedBy=graphical-session.target lo levanta junto con la sesión.
+  systemd.user.services.xdg-desktop-portal-hyprland.wantedBy =
+    [ "graphical-session.target" ];
+
   # Polkit (autorizaciones: mounts, network, etc.)
   security.polkit.enable = true;
 

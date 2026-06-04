@@ -113,13 +113,37 @@
     configPath = ".mozilla/firefox";
   };
 
+  # === Cursor: Bibata Modern Classic ===
+  # home.pointerCursor configura GTK + XCursor (XWayland) + hyprcursor (Hyprland
+  # nativo) en un solo bloque. Sin esto, cada toolkit usa su propio default.
+  # `hyprcursor.enable = true` exporta HYPRCURSOR_THEME/SIZE env vars y
+  # hace que Hyprland use el cursor vector (más crisp al cambiar de escala).
+  home.pointerCursor = {
+    package = pkgs.bibata-cursors;
+    name = "Bibata-Modern-Classic";
+    size = 24;
+    gtk.enable = true;
+    x11.enable = true;
+    hyprcursor.enable = true;
+  };
+
+  # === Hyprsunset: blue-light filter a nivel de gamma del compositor ===
+  # El módulo HM normalmente auto-genera hyprsunset.conf vía xdg.configFile,
+  # pero eso choca con nuestro symlink mkOutOfStoreSymlink de `hypr/` completo
+  # (HM no puede meter un archivo dentro de un symlink que apunta fuera).
+  # Solución: dejamos al módulo encargado del paquete + systemd service,
+  # y el config (`hyprsunset.conf`) lo escribimos a mano en dotfiles/hypr/.config/hypr/.
+  # IPC en runtime: `hyprctl hyprsunset temperature 3500`.
+  services.hyprsunset.enable = true;
+
   # === Paquetes user-level ===
   home.packages = with pkgs; [
     # Hyprland session tools
     rofi
     imagemagick
     waybar
-    eww                    # widgets custom (calendar popup, futuros: clima/agenda)
+    eww                    # widgets custom (calendar popup, hub)
+    brightnessctl          # CLI de brillo de pantalla; usado por slider del hub
     mako
     awww
     hypridle
@@ -142,7 +166,6 @@
     tzdata
     playerctl
     networkmanagerapplet
-    wlogout
     libnotify
     yazi
 
@@ -264,9 +287,6 @@
 
     "kitty".source = config.lib.file.mkOutOfStoreSymlink
       "${config.home.homeDirectory}/projects/dotfiles/kitty/.config/kitty";
-
-    "wlogout".source = config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/projects/dotfiles/wlogout/.config/wlogout";
 
     "mako".source = config.lib.file.mkOutOfStoreSymlink
       "${config.home.homeDirectory}/projects/dotfiles/mako/.config/mako";

@@ -8,6 +8,12 @@
     gamescopeSession.enable = true;       # sesión gamescope como compositor (boot to game)
   };
 
+  # programs.steam fuerza security.wrappers.bwrap.setuid = true, pero
+  # nixpkgs compila bubblewrap 0.11+ sin -Dpriv_mode=setuid → al ejecutarse
+  # con bit setuid aborta con "setuid use of bubblewrap is not supported
+  # in this build". User namespaces están habilitados, así que no lo necesitamos.
+  security.wrappers.bwrap.setuid = lib.mkForce false;
+
   # gamescope como WRAPPER (para usar desde Steam launch options).
   # capSysNice = true le da CAP_SYS_NICE al binary → puede subir prioridad de CPU/GPU
   # y abrir nested correctamente bajo Wayland (Hyprland).
