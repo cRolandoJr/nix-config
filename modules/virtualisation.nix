@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   # libvirt + QEMU/KVM
@@ -7,7 +12,7 @@
     qemu = {
       package = pkgs.qemu_kvm;
       runAsRoot = true;
-      swtpm.enable = true;        # TPM emulado para VMs (Windows 11)
+      swtpm.enable = true; # TPM emulado para VMs (Windows 11)
     };
   };
 
@@ -29,7 +34,7 @@
     spice
     spice-gtk
     spice-protocol
-    virtio-win          # drivers virtio para Windows guests
+    virtio-win # drivers virtio para Windows guests
     win-spice
   ];
 }

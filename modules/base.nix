@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   # Locale y zona horaria
@@ -21,9 +26,15 @@
 
   # Nix settings
   nix.settings = {
-    experimental-features = [ "nix-command" "flakes" ];
+    experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
     auto-optimise-store = true;
-    trusted-users = [ "root" "rolando" ];
+    trusted-users = [
+      "root"
+      "rolando"
+    ];
     substituters = [
       "https://cache.nixos.org"
       "https://nix-community.cachix.org"
@@ -48,7 +59,7 @@
     "vm.overcommit_memory" = 1;
     # zram es RAM comprimida: querés que el kernel lo use agresivamente.
     "vm.swappiness" = 180;
-    "vm.page-cluster" = 0;            # zram = random-access, sin read-ahead
+    "vm.page-cluster" = 0; # zram = random-access, sin read-ahead
     "vm.watermark_boost_factor" = 0;
     "vm.watermark_scale_factor" = 125;
   };
@@ -65,11 +76,11 @@
     isNormalUser = true;
     description = "Rolando";
     extraGroups = [
-      "wheel"           # sudo
+      "wheel" # sudo
       "networkmanager"
       "video"
       "audio"
-      "libvirtd"        # KVM/QEMU
+      "libvirtd" # KVM/QEMU
       "kvm"
       "input"
       "bluetooth"
@@ -127,7 +138,7 @@
 
     # Nix tooling
     nix-tree
-    nh                # wrapper moderno para nixos-rebuild
+    nh # wrapper moderno para nixos-rebuild
     nixfmt
   ];
 
@@ -151,9 +162,9 @@
   programs.nix-ld = {
     enable = true;
     libraries = with pkgs; [
-      stdenv.cc.cc.lib   # glibc + libgcc_s — cubre libpthread/librt/libdl/libm/libc
-      zlib               # libz.so.1
-      libxml2            # libxml2.so.2 — usado por ld.lld del NDK
+      stdenv.cc.cc.lib # glibc + libgcc_s — cubre libpthread/librt/libdl/libm/libc
+      zlib # libz.so.1
+      libxml2 # libxml2.so.2 — usado por ld.lld del NDK
     ];
   };
 

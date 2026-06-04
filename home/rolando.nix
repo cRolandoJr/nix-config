@@ -1,4 +1,10 @@
-{ config, pkgs, lib, inputs, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  inputs,
+  ...
+}:
 
 {
   home.username = "rolando";
@@ -51,15 +57,17 @@
       cat = "bat";
 
       # Nix
-      rebuild = "sudo nixos-rebuild switch --flake ~/projects/nix-config#victus";
-      rebuild-test = "sudo nixos-rebuild test --flake ~/projects/nix-config#victus";
-      rebuild-boot = "sudo nixos-rebuild boot --flake ~/projects/nix-config#victus";
+      # nh = wrapper de nixos-rebuild con diff coloreado pre/post switch.
+      # Detecta el host por hostname (no hace falta #victus).
+      rebuild = "nh os switch ~/projects/nix-config";
+      rebuild-test = "nh os test ~/projects/nix-config";
+      rebuild-boot = "nh os boot ~/projects/nix-config";
       update = "cd ~/projects/nix-config && nix flake update";
       gc = "sudo nix-collect-garbage -d && nix-collect-garbage -d";
 
       # btrbk snapshots (@home)
-      snap     = "sudo btrbk -c /etc/btrbk/home.conf run --progress";
-      snap-ls  = "sudo btrbk -c /etc/btrbk/home.conf list snapshots";
+      snap = "sudo btrbk -c /etc/btrbk/home.conf run --progress";
+      snap-ls = "sudo btrbk -c /etc/btrbk/home.conf list snapshots";
       snap-dry = "sudo btrbk -c /etc/btrbk/home.conf dryrun";
 
       # scrcpy con perfil optimizado para Hyprland/Wayland + monitor 144Hz
@@ -142,8 +150,8 @@
     rofi
     imagemagick
     waybar
-    eww                    # widgets custom (calendar popup, hub)
-    brightnessctl          # CLI de brillo de pantalla; usado por slider del hub
+    eww # widgets custom (calendar popup, hub)
+    brightnessctl # CLI de brillo de pantalla; usado por slider del hub
     mako
     awww
     hypridle
@@ -151,13 +159,13 @@
     thunar
     grim
     slurp
-    satty                  # editor de anotaciones para screenshots (grim | satty)
+    satty # editor de anotaciones para screenshots (grim | satty)
     wl-clipboard
 
     # Kubernetes (cluster k3s configurado en modules/k3s.nix)
-    kubectl                # CLI principal de K8s
-    k9s                    # TUI navegable sobre el cluster
-    kubernetes-helm        # package manager (charts)
+    kubectl # CLI principal de K8s
+    k9s # TUI navegable sobre el cluster
+    kubernetes-helm # package manager (charts)
     cliphist
     neovim
     python3
@@ -189,14 +197,14 @@
     duf
     fastfetch
     vscode
-    khal                   # calendario CLI (CalDAV-compat), backend del widget eww
+    khal # calendario CLI (CalDAV-compat), backend del widget eww
     claude-code
     android-tools
     pavucontrol
     scrcpy
 
     # Acceso / identity (HashiCorp)
-    (callPackage ../pkgs/boundary-desktop.nix {})  # custom: no está en nixpkgs
+    (callPackage ../pkgs/boundary-desktop.nix { }) # custom: no está en nixpkgs
 
     # Qt theming: usamos Qt Fusion (built-in, sin engine externo) con paleta
     # configurada via qt6ct. Suficiente para apps Qt efímeras como
@@ -206,19 +214,19 @@
 
     # === Neovim toolchain (LSPs, formatters, linters) ===
     # Build / runtime deps
-    gcc                                       # compilar parsers treesitter + telescope-fzf-native
+    gcc # compilar parsers treesitter + telescope-fzf-native
     gnumake
     tree-sitter
-    nodejs                                    # base para LSPs/formatters Node
-    ripgrep                                   # Telescope live_grep
-    fd                                        # Telescope find_files
+    nodejs # base para LSPs/formatters Node
+    ripgrep # Telescope live_grep
+    fd # Telescope find_files
 
     # Language servers
     gopls
     pyright
     rust-analyzer
     typescript-language-server
-    vscode-langservers-extracted              # html, cssls, jsonls, eslint
+    vscode-langservers-extracted # html, cssls, jsonls, eslint
     yaml-language-server
     bash-language-server
     lua-language-server
@@ -227,9 +235,9 @@
     stylua
     ruff
     gofumpt
-    (lib.lowPrio gotools)                     # goimports (lowPrio: gopls gana en /modernize)
+    (lib.lowPrio gotools) # goimports (lowPrio: gopls gana en /modernize)
     rustfmt
-    prettierd                                 # prettier en daemon (más rápido)
+    prettierd # prettier en daemon (más rápido)
     shfmt
 
     # Linters (nvim-lint)
@@ -266,39 +274,39 @@
 
   # === Dotfiles como symlinks editables ===
   xdg.configFile = {
-    "hypr".source = config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/projects/dotfiles/hypr/.config/hypr";
+    "hypr".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/hypr/.config/hypr";
 
-    "waybar".source = config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/projects/dotfiles/waybar/.config/waybar";
+    "waybar".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/waybar/.config/waybar";
 
-    "eww".source = config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/projects/dotfiles/eww/.config/eww";
+    "eww".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/eww/.config/eww";
 
-    "rofi".source = config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/projects/dotfiles/rofi/.config/rofi";
+    "rofi".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/rofi/.config/rofi";
 
-    "fastfetch".source = config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/projects/dotfiles/fastfetch/.config/fastfetch";
+    "fastfetch".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/fastfetch/.config/fastfetch";
 
-    "nvim".source = config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/projects/dotfiles/nvim/.config/nvim";
+    "nvim".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/nvim/.config/nvim";
 
-    "kitty".source = config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/projects/dotfiles/kitty/.config/kitty";
+    "kitty".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/kitty/.config/kitty";
 
-    "mako".source = config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/projects/dotfiles/mako/.config/mako";
+    "mako".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/mako/.config/mako";
 
-    "khal".source = config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/projects/dotfiles/khal/.config/khal";
+    "khal".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/khal/.config/khal";
 
-    "qt6ct".source = config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/projects/dotfiles/qt6ct/.config/qt6ct";
+    "qt6ct".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/qt6ct/.config/qt6ct";
   };
 
-  home.file.".config/starship.toml".source = config.lib.file.mkOutOfStoreSymlink
-    "${config.home.homeDirectory}/projects/dotfiles/starship/.config/starship.toml";
+  home.file.".config/starship.toml".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/starship/.config/starship.toml";
 
   # Override .desktop de Telegram
   xdg.desktopEntries."org.telegram.desktop" = {
@@ -308,8 +316,16 @@
     exec = "Telegram -- %U";
     terminal = false;
     type = "Application";
-    categories = [ "Chat" "Network" "InstantMessaging" "Qt" ];
-    mimeType = [ "x-scheme-handler/tg" "x-scheme-handler/tonsite" ];
+    categories = [
+      "Chat"
+      "Network"
+      "InstantMessaging"
+      "Qt"
+    ];
+    mimeType = [
+      "x-scheme-handler/tg"
+      "x-scheme-handler/tonsite"
+    ];
     startupNotify = true;
     settings = {
       TryExec = "Telegram";

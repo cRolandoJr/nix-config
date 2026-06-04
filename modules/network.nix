@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   networking.networkmanager = {
@@ -18,8 +23,8 @@
   networking.firewall = {
     enable = true;
     allowedTCPPorts = [
-      8443  # gama23 backend HTTPS
-      8081  # gama23 backend HTTP
+      8443 # gama23 backend HTTPS
+      8081 # gama23 backend HTTP
     ];
     allowedUDPPorts = [ ];
   };
@@ -57,7 +62,10 @@
     enable = true;
     settings.Resolve = {
       DNSSEC = "false";
-      FallbackDNS = [ "1.1.1.1" "8.8.8.8" ];
+      FallbackDNS = [
+        "1.1.1.1"
+        "8.8.8.8"
+      ];
     };
   };
 }

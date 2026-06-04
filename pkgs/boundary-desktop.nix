@@ -1,7 +1,30 @@
-{ lib, stdenv, fetchurl, autoPatchelfHook, makeWrapper, zstd
-, gtk3, glib, nss, nspr, atk, cups, libdrm, dbus, expat
-, libx11, libxcomposite, libxdamage, libxext, libxfixes, libxrandr, libxcb
-, mesa, alsa-lib, libpulseaudio, udev
+{
+  lib,
+  stdenv,
+  fetchurl,
+  autoPatchelfHook,
+  makeWrapper,
+  zstd,
+  gtk3,
+  glib,
+  nss,
+  nspr,
+  atk,
+  cups,
+  libdrm,
+  dbus,
+  expat,
+  libx11,
+  libxcomposite,
+  libxdamage,
+  libxext,
+  libxfixes,
+  libxrandr,
+  libxcb,
+  mesa,
+  alsa-lib,
+  libpulseaudio,
+  udev,
 }:
 
 stdenv.mkDerivation rec {
@@ -13,12 +36,33 @@ stdenv.mkDerivation rec {
     sha256 = "105p85gmx9n1w2jmqxijihm4pcwh51i7vv0i5x01i285vzj5nkpb";
   };
 
-  nativeBuildInputs = [ autoPatchelfHook makeWrapper zstd ];
+  nativeBuildInputs = [
+    autoPatchelfHook
+    makeWrapper
+    zstd
+  ];
 
   buildInputs = [
-    gtk3 glib nss nspr atk cups libdrm dbus expat
-    libx11 libxcomposite libxdamage libxext libxfixes libxrandr libxcb
-    mesa alsa-lib libpulseaudio udev
+    gtk3
+    glib
+    nss
+    nspr
+    atk
+    cups
+    libdrm
+    dbus
+    expat
+    libx11
+    libxcomposite
+    libxdamage
+    libxext
+    libxfixes
+    libxrandr
+    libxcb
+    mesa
+    alsa-lib
+    libpulseaudio
+    udev
   ];
 
   # El .deb trae chrome-sandbox con setuid (rwsr-xr-x); el builder de Nix no

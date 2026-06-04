@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   # Pipewire reemplaza pulseaudio y jack
@@ -19,8 +24,8 @@
 
   # Paquetes útiles de audio
   environment.systemPackages = with pkgs; [
-    pavucontrol           # control gráfico de volumen
-    playerctl             # control multimedia desde CLI
-    pamixer               # mixer CLI
+    pavucontrol # control gráfico de volumen
+    playerctl # control multimedia desde CLI
+    pamixer # mixer CLI
   ];
 }

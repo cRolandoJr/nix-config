@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   services.xserver.videoDrivers = [ "amdgpu" ];
@@ -25,8 +30,8 @@
   environment.sessionVariables = {
     LIBVA_DRIVER_NAME = "radeonsi";
     VDPAU_DRIVER = "radeonsi";
-    AMD_VULKAN_ICD = "RADV";       # forzar RADV, no amdvlk
-    RADV_PERFTEST = "gpl";         # gpl=graphics pipeline library; SAM/ReBAR ya manejado por RADV en kernel 7+
+    AMD_VULKAN_ICD = "RADV"; # forzar RADV, no amdvlk
+    RADV_PERFTEST = "gpl"; # gpl=graphics pipeline library; SAM/ReBAR ya manejado por RADV en kernel 7+
   };
 
   environment.systemPackages = with pkgs; [
@@ -34,7 +39,7 @@
     vulkan-tools
     mesa-demos
     libva-utils
-    lact                           # GUI para controlar la GPU
+    lact # GUI para controlar la GPU
   ];
 
   services.power-profiles-daemon.enable = true;

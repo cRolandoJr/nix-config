@@ -1,20 +1,28 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   # Wallpaper del greeter SDDM: gradient azul cósmico con el snowflake
   # oficial NixOS centrado como watermark gigante (600px alto, opacity 25%).
   # El form y el clock del tema astronaut quedan encima del logo, que actúa
   # como branding de fondo sin competir visualmente.
-  sddmWallpaper = pkgs.runCommand "sddm-wallpaper-nixos.png" {
-    nativeBuildInputs = [ pkgs.imagemagick ];
-  } ''
-    logo="${pkgs.nixos-icons}/share/icons/hicolor/1024x1024/apps/nix-snowflake.png"
+  sddmWallpaper =
+    pkgs.runCommand "sddm-wallpaper-nixos.png"
+      {
+        nativeBuildInputs = [ pkgs.imagemagick ];
+      }
+      ''
+        logo="${pkgs.nixos-icons}/share/icons/hicolor/1024x1024/apps/nix-snowflake.png"
 
-    magick -size 1920x1080 gradient:'#0a0e27-#1a1f4e' base.png
-    magick "$logo" -resize x600 -alpha set \
-      -channel A -evaluate multiply 0.25 +channel logo.png
-    magick base.png logo.png -gravity center -composite $out
-  '';
+        magick -size 1920x1080 gradient:'#0a0e27-#1a1f4e' base.png
+        magick "$logo" -resize x600 -alpha set \
+          -channel A -evaluate multiply 0.25 +channel logo.png
+        magick base.png logo.png -gravity center -composite $out
+      '';
 
   # Package SDDM theme con overrides. Lo definimos una vez y lo referenciamos
   # tanto en services.displayManager.sddm.extraPackages COMO en
@@ -67,7 +75,10 @@ in
     enable = true;
     wayland.enable = false;
     theme = "sddm-astronaut-theme";
-    extraPackages = [ sddmAstronaut pkgs.kdePackages.qtmultimedia ];
+    extraPackages = [
+      sddmAstronaut
+      pkgs.kdePackages.qtmultimedia
+    ];
     # Desactivar el virtual keyboard (qtvirtualkeyboard se enciende por
     # default en QT6 y aparece como un teclado táctil enorme cubriendo la
     # pantalla).
@@ -87,7 +98,10 @@ in
   xdg.portal = {
     enable = true;
     config.hyprland = {
-      default = [ "hyprland" "gtk" ];
+      default = [
+        "hyprland"
+        "gtk"
+      ];
       "org.freedesktop.impl.portal.ScreenCast" = [ "hyprland" ];
       "org.freedesktop.impl.portal.Screenshot" = [ "hyprland" ];
     };
@@ -103,8 +117,7 @@ in
   # en un rebuild y nadie lo vuelve a pedir), el frontend resuelve el
   # impl a "no hay backend" y el picker de captura nunca aparece. Forzar
   # WantedBy=graphical-session.target lo levanta junto con la sesión.
-  systemd.user.services.xdg-desktop-portal-hyprland.wantedBy =
-    [ "graphical-session.target" ];
+  systemd.user.services.xdg-desktop-portal-hyprland.wantedBy = [ "graphical-session.target" ];
 
   # Polkit (autorizaciones: mounts, network, etc.)
   security.polkit.enable = true;
@@ -115,11 +128,11 @@ in
     polkit_gnome
 
     # === Apps GUI (reemplazos post-KDE) ===
-    qalculate-gtk          # ex kcalc
-    gparted                # ex kde partitionmanager
-    baobab                 # ex filelight (disk usage)
-    zathura                # ex okular (PDF, vim-like)
-    kdePackages.kdeconnect-kde   # sync con celular (funciona en Hyprland)
+    qalculate-gtk # ex kcalc
+    gparted # ex kde partitionmanager
+    baobab # ex filelight (disk usage)
+    zathura # ex okular (PDF, vim-like)
+    kdePackages.kdeconnect-kde # sync con celular (funciona en Hyprland)
 
     # Tema SDDM (también en sddm.extraPackages; ambos necesarios — ver let).
     sddmAstronaut
@@ -153,7 +166,11 @@ in
     wantedBy = [ "graphical-session.target" ];
     after = [ "graphical-session.target" ];
     partOf = [ "graphical-session.target" ];
-    path = with pkgs; [ bash socat libnotify ];
+    path = with pkgs; [
+      bash
+      socat
+      libnotify
+    ];
     serviceConfig = {
       Type = "simple";
       ExecStart = "/home/rolando/.config/hypr/scripts/notify-layout.sh";
@@ -167,7 +184,17 @@ in
 
   # KDEConnect: puertos en firewall
   networking.firewall = {
-    allowedTCPPortRanges = [ { from = 1714; to = 1764; } ];
-    allowedUDPPortRanges = [ { from = 1714; to = 1764; } ];
+    allowedTCPPortRanges = [
+      {
+        from = 1714;
+        to = 1764;
+      }
+    ];
+    allowedUDPPortRanges = [
+      {
+        from = 1714;
+        to = 1764;
+      }
+    ];
   };
 }

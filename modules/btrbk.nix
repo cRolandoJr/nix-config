@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 {
   # Mount adicional de la RAÍZ del btrfs (subvolid=5) en /btrfs.
@@ -7,9 +12,16 @@
   # nombres reales. No interfiere con los mounts existentes — es solo otra
   # vista del mismo disco /dev/mapper/cryptroot.
   fileSystems."/btrfs" = {
-    device  = "/dev/mapper/cryptroot";
-    fsType  = "btrfs";
-    options = [ "subvolid=5" "noatime" "compress=zstd:3" "ssd" "space_cache=v2" "discard=async" ];
+    device = "/dev/mapper/cryptroot";
+    fsType = "btrfs";
+    options = [
+      "subvolid=5"
+      "noatime"
+      "compress=zstd:3"
+      "ssd"
+      "space_cache=v2"
+      "discard=async"
+    ];
   };
 
   # Directorio donde btrbk dejará los snapshots de @home dentro de @snapshots.
@@ -24,9 +36,9 @@
     instances.home = {
       onCalendar = "hourly";
       settings = {
-        timestamp_format      = "long";
+        timestamp_format = "long";
         snapshot_preserve_min = "latest";
-        snapshot_preserve     = "24h 7d 4w 6m";
+        snapshot_preserve = "24h 7d 4w 6m";
 
         volume."/btrfs" = {
           snapshot_dir = "@snapshots/home";

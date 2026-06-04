@@ -1,0 +1,7 @@
+# Reglas desactivadas de statix.
+#
+# merge_keys (W20): exige fusionar `services.foo = ...; services.bar = ...;`
+# en un solo `services = { foo = ...; bar = ...; }`. Lo desactivamos porque
+# muchos módulos separan los bloques a propósito para intercalar comentarios
+# largos entre cada servicio (mejor legibilidad).
+disabled = ["repeated_keys"]

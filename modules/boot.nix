@@ -1,11 +1,16 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   # systemd-boot (UEFI)
   boot.loader.systemd-boot = {
     enable = true;
-    configurationLimit = 20;   # cuántas generaciones mostrar en el menú
-    editor = false;            # seguridad: no permitir editar cmdline al boot
+    configurationLimit = 20; # cuántas generaciones mostrar en el menú
+    editor = false; # seguridad: no permitir editar cmdline al boot
   };
 
   boot.loader.efi.canTouchEfiVariables = true;
@@ -15,7 +20,10 @@
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
   # Soporte para btrfs
-  boot.supportedFilesystems = [ "btrfs" "vfat" ];
+  boot.supportedFilesystems = [
+    "btrfs"
+    "vfat"
+  ];
 
   # Parámetros de kernel
   boot.kernelParams = [
