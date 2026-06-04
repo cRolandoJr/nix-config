@@ -193,7 +193,6 @@
     claude-code
     android-tools
     pavucontrol
-    stow
     scrcpy
 
     # Acceso / identity (HashiCorp)
