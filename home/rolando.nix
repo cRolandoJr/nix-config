@@ -93,6 +93,22 @@
       bindkey '^[[B' history-substring-search-down
       export ANDROID_SDK_ROOT="/home/rolando/Android/Sdk"
       export ANDROID_HOME="/home/rolando/Android/Sdk"
+
+      # tag-gen: crea un git tag con la generation actual de NixOS.
+      # Uso: tras un `rebuild` exitoso → `tag-gen` → tagea commit actual como gen-XX.
+      # Esto sincroniza historial git ↔ historial de generations del store.
+      tag-gen() {
+        local repo="$HOME/projects/nix-config"
+        local gen
+        gen=$(basename "$(readlink /nix/var/nix/profiles/system)" | grep -oE '[0-9]+')
+        if [ -z "$gen" ]; then
+          echo "tag-gen: no pude leer la generation actual" >&2
+          return 1
+        fi
+        local msg="''${1:-gen $gen — $(date +%Y-%m-%d)}"
+        git -C "$repo" tag -a "gen-$gen" -m "$msg" && \
+          echo "Tagged gen-$gen → $msg"
+      }
     '';
   };
 
@@ -195,6 +211,7 @@
     httpie
     dust
     duf
+    nix-output-monitor # nom: árbol de progreso para builds (activado via NH_NOM=1)
     fastfetch
     vscode
     khal # calendario CLI (CalDAV-compat), backend del widget eww
@@ -218,6 +235,11 @@
     gnumake
     tree-sitter
     nodejs # base para LSPs/formatters Node
+
+    # CLI utilities de usuario (movidas desde environment.systemPackages).
+    # Usadas por aliases (cat=bat, ls/ll=eza) y por Neovim/Telescope.
+    bat
+    eza
     ripgrep # Telescope live_grep
     fd # Telescope find_files
 
@@ -261,10 +283,15 @@
     # palette/fonts/icons en vez de los defaults.
     QT_STYLE_OVERRIDE = "Fusion";
     QT_QPA_PLATFORMTHEME = "qt6ct";
-    EDITOR = "neovim";
-    VISUAL = "neovim";
+    EDITOR = "nvim";
+    VISUAL = "nvim";
     ANDROID_SDK_ROOT = "/home/rolando/Android/Sdk";
     ANDROID_HOME = "/home/rolando/Android/Sdk";
+
+    # nh detecta NH_NOM=1 y pipea su build output por nix-output-monitor.
+    # Resultado: ves el grafo de derivaciones construyéndose en tiempo real
+    # (cada nodo = una derivación, barras de progreso, timings).
+    NH_NOM = "1";
 
     # Kubernetes: usar el kubeconfig que escribe k3s en /etc/rancher/k3s/k3s.yaml
     # (modo 644 → legible por user rolando). Permite que `kubectl`/`k9s`/`helm`

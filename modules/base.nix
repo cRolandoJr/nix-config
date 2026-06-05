@@ -91,8 +91,38 @@
 
   # Habilitar zsh a nivel sistema (necesario para users.shell = pkgs.zsh)
   programs.zsh.enable = true;
-  # sudo sin password para el grupo wheel (cómodo; sacalo si querés más seguro)
-  security.sudo.wheelNeedsPassword = false;
+  # sudo: password requerido por default, NOPASSWD quirúrgico solo para
+  # comandos de mantenimiento frecuentes (rebuild, snapshots, garbage collect).
+  # Reduce blast radius si un script comprometido corriera como rolando:
+  # no puede escalar a root para tareas arbitrarias, solo las whitelistadas.
+  security.sudo = {
+    wheelNeedsPassword = true;
+    # Defaults lecture=never: oculta el speech "Confiamos que haya recibido
+    # la charla habitual del administrador..." la primera vez que usás sudo
+    # en una sesión. Ruido innecesario para single-user laptop.
+    extraConfig = ''
+      Defaults lecture=never
+    '';
+    extraRules = [
+      {
+        users = [ "rolando" ];
+        commands = [
+          {
+            command = "/run/current-system/sw/bin/nixos-rebuild";
+            options = [ "NOPASSWD" ];
+          }
+          {
+            command = "/run/current-system/sw/bin/btrbk";
+            options = [ "NOPASSWD" ];
+          }
+          {
+            command = "/run/current-system/sw/bin/nix-collect-garbage";
+            options = [ "NOPASSWD" ];
+          }
+        ];
+      }
+    ];
+  };
 
   # Paquetes base imprescindibles
   environment.systemPackages = with pkgs; [
@@ -111,11 +141,9 @@
     unzip
     zip
     p7zip
-    ripgrep
-    fd
-    bat
-    eza
-    fzf
+    # ripgrep, fd, fzf, bat, eza: movidos a home.packages (rolando.nix).
+    # Convención: tools de usuario en home-manager; system solo lleva
+    # diagnóstico/emergencia para root y otros eventuales users.
     jq
     yq
     tmux

@@ -173,7 +173,10 @@ in
     ];
     serviceConfig = {
       Type = "simple";
-      ExecStart = "/home/rolando/.config/hypr/scripts/notify-layout.sh";
+      # %h = $HOME del user que corre el servicio (specifier de systemd).
+      # Hace el módulo portable si algún día cambia el username o se agrega
+      # otro user con la misma config.
+      ExecStart = "%h/.config/hypr/scripts/notify-layout.sh";
       Restart = "on-failure";
       RestartSec = 5;
       # Tope al loop de restarts: 5 intentos en 60s y systemd lo deja.
