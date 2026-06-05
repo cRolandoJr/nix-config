@@ -17,7 +17,18 @@
   # nixpkgs compila bubblewrap 0.11+ sin -Dpriv_mode=setuid → al ejecutarse
   # con bit setuid aborta con "setuid use of bubblewrap is not supported
   # in this build". User namespaces están habilitados, así que no lo necesitamos.
-  security.wrappers.bwrap.setuid = lib.mkForce false;
+  #
+  # En unstable post-2026-06, además del setuid el módulo upstream pide
+  # `source` explícito → setear sólo `setuid = false` falla con:
+  # "security.wrappers.bwrap.source accessed but no value defined".
+  # Solución: sobreescribir el wrapper completo con mkForce, apuntando al
+  # binario del store y con setuid off.
+  security.wrappers.bwrap = lib.mkForce {
+    source = "${pkgs.bubblewrap}/bin/bwrap";
+    owner = "root";
+    group = "root";
+    setuid = false;
+  };
 
   # gamescope como WRAPPER (para usar desde Steam launch options).
   # capSysNice = true le da CAP_SYS_NICE al binary → puede subir prioridad de CPU/GPU

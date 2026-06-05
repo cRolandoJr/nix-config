@@ -43,6 +43,19 @@
     enableCompletion = true;
     historySubstringSearch.enable = true;
 
+    # compinit con cache diario: el fpath de NixOS es enorme (paths del store),
+    # rescanearlo en cada apertura de shell agrega ~60-80ms al startup.
+    # -C salta la verificación de seguridad (segura en NixOS: el store es
+    # inmutable y read-only). Re-build completo solo si el dump tiene >24h.
+    completionInit = ''
+      autoload -U compinit
+      if [[ -n ''${ZDOTDIR:-$HOME}/.zcompdump(#qN.mh+24) ]]; then
+        compinit
+      else
+        compinit -C
+      fi
+    '';
+
     history = {
       size = 100000;
       save = 100000;
@@ -94,6 +107,17 @@
       export ANDROID_SDK_ROOT="/home/rolando/Android/Sdk"
       export ANDROID_HOME="/home/rolando/Android/Sdk"
 
+      # fzf integration cacheada: `fzf --zsh` produce código estático que solo
+      # cambia entre versiones. Cacheamos por versión del binario; cuando
+      # nixpkgs sube fzf el cache se invalida (path/version del store cambian).
+      _fzf_cache="$HOME/.cache/fzf-zsh-${pkgs.fzf.version}.zsh"
+      if [[ ! -f "$_fzf_cache" ]]; then
+        mkdir -p "$HOME/.cache"
+        ${pkgs.fzf}/bin/fzf --zsh > "$_fzf_cache"
+      fi
+      source "$_fzf_cache"
+      unset _fzf_cache
+
       # tag-gen: crea un git tag con la generation actual de NixOS.
       # Uso: tras un `rebuild` exitoso → `tag-gen` → tagea commit actual como gen-XX.
       # Esto sincroniza historial git ↔ historial de generations del store.
@@ -126,9 +150,12 @@
   };
 
   # === fzf ===
+  # enableZshIntegration = false a propósito: home-manager inyecta
+  # `source <(fzf --zsh)` que hace fork+exec en cada init (~10ms). En su lugar
+  # cacheamos la salida (estática por versión) en initContent.
   programs.fzf = {
     enable = true;
-    enableZshIntegration = true;
+    enableZshIntegration = false;
   };
 
   # === Firefox ===
