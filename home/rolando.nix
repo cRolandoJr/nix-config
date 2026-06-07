@@ -182,6 +182,30 @@
   # vive en dotfiles/hypr/ porque HM no puede escribir dentro de un mkOutOfStoreSymlink.
   services.hyprsunset.enable = true;
 
+  # Sin botones de ventana en apps libadwaita/GNOME (button-layout vía dconf).
+  dconf.settings."org/gnome/desktop/wm/preferences".button-layout = "appmenu:";
+
+  # gtk-decoration-layout "appmenu:" = sin botones de ventana (GTK3/4).
+  gtk = {
+    enable = true;
+    font = {
+      name = "Noto Sans";
+      size = 10;
+    };
+    iconTheme = {
+      name = "Papirus-Dark";
+      package = pkgs.papirus-icon-theme;
+    };
+    gtk3.extraConfig = {
+      gtk-application-prefer-dark-theme = true;
+      gtk-decoration-layout = "appmenu:";
+    };
+    gtk4.extraConfig = {
+      gtk-application-prefer-dark-theme = true;
+      gtk-decoration-layout = "appmenu:";
+    };
+  };
+
   home.packages = with pkgs; [
     # Hyprland session tools
     rofi
@@ -214,7 +238,7 @@
     libnotify
     yazi
 
-    discord
+    vesktop # cliente Discord Wayland (screen-share con audio)
     telegram-desktop
 
     obsidian
