@@ -6,20 +6,16 @@
 }:
 
 {
-  # libvirt + QEMU/KVM
   virtualisation.libvirtd = {
     enable = true;
     qemu = {
       package = pkgs.qemu_kvm;
       runAsRoot = true;
-      swtpm.enable = true; # TPM emulado para VMs (Windows 11)
+      swtpm.enable = true; # TPM emulado (requerido por Windows 11)
     };
   };
 
-  # Frontend gráfico
   programs.virt-manager.enable = true;
-
-  # USB passthrough a VMs
   virtualisation.spiceUSBRedirection.enable = true;
 
   virtualisation.podman = {
@@ -28,7 +24,6 @@
     defaultNetwork.settings.dns_enabled = true;
   };
 
-  # Paquetes útiles
   environment.systemPackages = with pkgs; [
     virt-viewer
     spice

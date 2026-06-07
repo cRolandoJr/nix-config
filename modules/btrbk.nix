@@ -6,11 +6,8 @@
 }:
 
 {
-  # Mount adicional de la RAÍZ del btrfs (subvolid=5) en /btrfs.
-  # Esto le da a btrbk la "vista plana" del filesystem donde todos los
-  # subvolúmenes (@ , @home, @nix, @snapshots, …) son hermanos con sus
-  # nombres reales. No interfiere con los mounts existentes — es solo otra
-  # vista del mismo disco /dev/mapper/cryptroot.
+  # Raíz btrfs (subvolid=5) montada en /btrfs para dar a btrbk la vista plana
+  # donde todos los subvolúmenes son hermanos. No interfiere con los mounts normales.
   fileSystems."/btrfs" = {
     device = "/dev/mapper/cryptroot";
     fsType = "btrfs";
@@ -24,14 +21,11 @@
     ];
   };
 
-  # Directorio donde btrbk dejará los snapshots de @home dentro de @snapshots.
   systemd.tmpfiles.rules = [
     "d /btrfs/@snapshots/home 0755 root root -"
   ];
 
-  # btrbk: snapshots automáticos de @home cada hora.
-  # Retención escalonada 24h / 7d / 4w / 6m.
-  # Solo snapshotea cuando hubo cambios (snapshot_create=onchange).
+  # Snapshots de @home cada hora; retención 24h / 7d / 4w / 6m.
   services.btrbk = {
     instances.home = {
       onCalendar = "hourly";

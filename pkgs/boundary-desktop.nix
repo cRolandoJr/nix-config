@@ -65,9 +65,8 @@ stdenv.mkDerivation rec {
     udev
   ];
 
-  # El .deb trae chrome-sandbox con setuid (rwsr-xr-x); el builder de Nix no
-  # permite crear setuid en /nix/store. Extraemos con ar+tar ignorando perms;
-  # en runtime se compensa con --no-sandbox en el wrapper.
+  # chrome-sandbox viene con setuid; Nix no lo permite en el store.
+  # Extraemos ignorando perms y compensamos con --no-sandbox en el wrapper.
   unpackPhase = ''
     mkdir -p $out
     ar x $src
@@ -78,9 +77,7 @@ stdenv.mkDerivation rec {
     mv $out/usr/* $out/
     rmdir $out/usr
 
-    # El .deb instala bin/boundary-desktop como symlink al binario Electron en
-    # lib/boundary-desktop/. Lo reemplazamos por un wrapper que añade flags y
-    # env vars para Wayland nativo y para saltarse el setuid sandbox ausente.
+    # El .deb pone un symlink en bin/; lo reemplazamos con un wrapper real.
     rm $out/bin/boundary-desktop
     makeWrapper $out/lib/boundary-desktop/boundary-desktop $out/bin/boundary-desktop \
       --add-flags "--no-sandbox" \

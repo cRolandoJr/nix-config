@@ -6,7 +6,6 @@
 }:
 
 {
-  # Pipewire reemplaza pulseaudio y jack
   security.rtkit.enable = true;
 
   services.pipewire = {
@@ -19,13 +18,11 @@
     wireplumber.enable = true;
   };
 
-  # Deshabilitar pulseaudio (lo reemplaza pipewire)
   services.pulseaudio.enable = false;
 
-  # Paquetes útiles de audio
   environment.systemPackages = with pkgs; [
-    pavucontrol # control gráfico de volumen
-    playerctl # control multimedia desde CLI
-    pamixer # mixer CLI
+    pavucontrol
+    playerctl
+    pamixer
   ];
 }

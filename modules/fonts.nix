@@ -6,7 +6,6 @@
 }:
 
 {
-  # Fuentes del sistema (no son específicas de ningún DE/WM).
   fonts = {
     enableDefaultPackages = true;
     packages = with pkgs; [

@@ -6,10 +6,7 @@
 }:
 
 let
-  # Wallpaper del greeter SDDM: gradient azul cósmico con el snowflake
-  # oficial NixOS centrado como watermark gigante (600px alto, opacity 25%).
-  # El form y el clock del tema astronaut quedan encima del logo, que actúa
-  # como branding de fondo sin competir visualmente.
+  # Wallpaper SDDM generado: gradient azul + snowflake NixOS centrado (opacity 25%).
   sddmWallpaper =
     pkgs.runCommand "sddm-wallpaper-nixos.png"
       {
@@ -24,20 +21,13 @@ let
         magick base.png logo.png -gravity center -composite $out
       '';
 
-  # Package SDDM theme con overrides. Lo definimos una vez y lo referenciamos
-  # tanto en services.displayManager.sddm.extraPackages COMO en
-  # environment.systemPackages: el módulo SDDM en NixOS no propaga
-  # extraPackages al share/sddm/themes/ del wrapped binary, así que sin la
-  # entry en systemPackages el theme queda "instalado pero no visible" y
-  # SDDM cae al theme default (Maui).
+  # Definido una vez, referenciado en extraPackages Y systemPackages.
+  # Sin la entry en systemPackages el theme no queda visible para SDDM (cae a Maui).
   sddmAstronaut = pkgs.sddm-astronaut.override {
     embeddedTheme = "astronaut";
     themeConfig = {
       Background = "${sddmWallpaper}";
-      # HeaderText vacío: el texto "NixOS" ya está integrado en el wallpaper
-      # encima del snowflake; setearlo aquí duplicaría el texto superpuesto
-      # al clock.
-      HeaderText = "";
+      HeaderText = ""; # el wallpaper ya incluye el logo; texto aquí lo duplicaría
       AccentColor = "#5277C3";
       DimBackground = "0.0";
       FullBlur = "";
@@ -47,28 +37,15 @@ let
   };
 in
 {
-  # Hyprland (Wayland compositor) gestionado por UWSM.
-  # Nota: el paquete provee dos sesiones .desktop ("Hyprland" sin UWSM y
-  # "Hyprland (uwsm-managed)"). Las dejamos ambas intactas — modificar el
-  # .desktop o el Exec para unificarlas rompe la inicialización de UWSM
-  # ("PID exited with RC 0" pero el compositor nunca arranca). regreet
-  # recuerda la última sesión seleccionada, así que basta con elegir
-  # "Hyprland (uwsm-managed)" en el primer login.
+  # No modificar los .desktop generados: unificar "Hyprland" y "Hyprland (uwsm-managed)"
+  # rompe la inicialización de UWSM (sale RC 0 pero el compositor nunca arranca).
   programs.hyprland = {
     enable = true;
     withUWSM = true;
   };
 
-  # Display manager: SDDM con backend X11 + tema sddm-astronaut.
-  # Razones para X11 (no Wayland) en el greeter:
-  #   - El touchpad funciona out-of-the-box (en SDDM-Wayland el compositor
-  #     weston-kiosk default no detecta bien libinput en este hardware).
-  #   - Los temas SDDM QT6 (sddm-astronaut, sugar-dark, etc.) están diseñados
-  #     para X11 y renderean mejor ahí.
-  # La sesión Hyprland sigue siendo Wayland — solo el greeter es X11.
-  # services.xserver.enable arranca el X server SOLO para SDDM; las sesiones
-  # gráficas elegidas en el login siguen siendo las que provee cada paquete
-  # (Hyprland-uwsm sigue siendo Wayland).
+  # X11 solo para el greeter: touchpad y temas QT6 funcionan mejor que con weston-kiosk.
+  # La sesión Hyprland sigue siendo Wayland.
   services.xserver.enable = true;
 
   services.displayManager.sddm = {
@@ -79,22 +56,16 @@ in
       sddmAstronaut
       pkgs.kdePackages.qtmultimedia
     ];
-    # Desactivar el virtual keyboard (qtvirtualkeyboard se enciende por
-    # default en QT6 y aparece como un teclado táctil enorme cubriendo la
-    # pantalla).
-    settings.General.InputMethod = "";
+    settings.General.InputMethod = ""; # deshabilita qtvirtualkeyboard (cubre la pantalla por default)
   };
 
-  # Keyboard layout para XWayland (apps X11 corriendo bajo Hyprland).
   services.xserver.xkb = {
     layout = "us";
     variant = "";
   };
 
-  # XDG portals: hyprland (nativo) + gtk (fallback para apps que no
-  # implementan los interfaces que ofrece hyprland).
-  # config.hyprland fija explícitamente ScreenCast/Screenshot al backend
-  # hyprland — sin esto, apps Electron/Chrome enrutan al picker GTK feo.
+  # config.hyprland fija ScreenCast/Screenshot al backend hyprland explícitamente;
+  # sin esto Electron/Chrome usan el picker GTK.
   xdg.portal = {
     enable = true;
     config.hyprland = {
@@ -111,34 +82,24 @@ in
     ];
   };
 
-  # El unit que genera el paquete xdg-desktop-portal-hyprland es Type=dbus
-  # sin WantedBy: solo arranca cuando alguien pide su bus name. Si una app
-  # consulta ScreenCast antes de la primera activation (o el backend muere
-  # en un rebuild y nadie lo vuelve a pedir), el frontend resuelve el
-  # impl a "no hay backend" y el picker de captura nunca aparece. Forzar
-  # WantedBy=graphical-session.target lo levanta junto con la sesión.
+  # xdph es Type=dbus sin WantedBy: si nadie activa su bus name, el picker de
+  # captura nunca aparece. Forzar WantedBy lo levanta junto con la sesión.
   systemd.user.services.xdg-desktop-portal-hyprland.wantedBy = [ "graphical-session.target" ];
 
-  # Polkit (autorizaciones: mounts, network, etc.)
   security.polkit.enable = true;
 
-  # Polkit agent (para que salgan prompts en sesiones Wayland/Hyprland)
-  # Usamos polkit_gnome y lo autostarteamos.
   environment.systemPackages = with pkgs; [
     polkit_gnome
+    qalculate-gtk
+    gparted
+    baobab
+    zathura
+    kdePackages.kdeconnect-kde
 
-    # === Apps GUI (reemplazos post-KDE) ===
-    qalculate-gtk # ex kcalc
-    gparted # ex kde partitionmanager
-    baobab # ex filelight (disk usage)
-    zathura # ex okular (PDF, vim-like)
-    kdePackages.kdeconnect-kde # sync con celular (funciona en Hyprland)
-
-    # Tema SDDM (también en sddm.extraPackages; ambos necesarios — ver let).
+    # También en sddm.extraPackages; ambos son necesarios (ver let).
     sddmAstronaut
   ];
 
-  # Autostart del polkit agent (systemd --user)
   systemd.user.services.polkit-gnome-authentication-agent-1 = {
     description = "polkit-gnome authentication agent";
     wantedBy = [ "graphical-session.target" ];
@@ -151,16 +112,9 @@ in
     };
   };
 
-  # Daemon de notificación al cambiar layout de teclado.
-  # Escucha el socket de eventos de Hyprland. Necesita HYPRLAND_INSTANCE_SIGNATURE
-  # y XDG_RUNTIME_DIR, que UWSM importa al systemd-user manager al iniciar
-  # la sesión gráfica (por eso wantedBy/after graphical-session.target).
-  # partOf hace que se detenga al cerrar sesión.
-  #
-  # `path` inyecta bash (shebang #!/usr/bin/env bash), socat (lee el socket
-  # de eventos) y libnotify (notify-send) al PATH del unit; sin esto el
-  # systemd-user manager arranca con un PATH mínimo y el script muere con
-  # status 127 ("bash: No such file") en un loop de restarts.
+  # Daemon que notifica cambios de layout de teclado vía el socket de eventos de Hyprland.
+  # `path` inyecta bash/socat/libnotify: sin esto systemd-user arranca con PATH mínimo
+  # y el script muere con status 127 en loop.
   systemd.user.services.notify-layout = {
     description = "Hyprland keyboard layout change notifier";
     wantedBy = [ "graphical-session.target" ];
@@ -173,19 +127,15 @@ in
     ];
     serviceConfig = {
       Type = "simple";
-      # %h = $HOME del user que corre el servicio (specifier de systemd).
-      # Hace el módulo portable si algún día cambia el username o se agrega
-      # otro user con la misma config.
-      ExecStart = "%h/.config/hypr/scripts/notify-layout.sh";
+      ExecStart = "%h/.config/hypr/scripts/notify-layout.sh"; # %h = $HOME (specifier systemd)
       Restart = "on-failure";
       RestartSec = 5;
-      # Tope al loop de restarts: 5 intentos en 60s y systemd lo deja.
       StartLimitBurst = 5;
       StartLimitIntervalSec = 60;
     };
   };
 
-  # KDEConnect: puertos en firewall
+  # KDEConnect
   networking.firewall = {
     allowedTCPPortRanges = [
       {

@@ -1,20 +1,100 @@
 # nix-config
 
-NixOS flake configuration for my HP Victus laptop.
+NixOS flake para HP Victus 16 (AMD Ryzen 7 6800H + Radeon RX 6500M).
 
-## Hosts
+## Estructura
 
-- **victus**: HP Victus 16, AMD Ryzen 7 6800H + Radeon RX 6500M, KDE Plasma 6 on Wayland.
+```
+flake.nix               — inputs, outputs, devShell, pre-commit hooks
+hosts/
+  victus/
+    default.nix         — imports de módulos + hostname + stateVersion
+    hardware.nix        — autogenerado nixos-generate-config (LUKS, btrfs, UUIDs)
+modules/
+  base.nix              — locale, nix settings, usuario, sudo NOPASSWD, nix-ld, zram
+  boot.nix              — systemd-boot, Plymouth, kernel params, consola silenciosa
+  network.nix           — NetworkManager, Bluetooth, systemd-resolved, workarounds
+  audio.nix             — Pipewire + rtkit
+  fonts.nix             — Noto, JetBrainsMono, Nerd Fonts
+  desktop-hyprland.nix  — Hyprland+UWSM, SDDM, XDG portals, polkit, notify-layout
+  gpu-amd.nix           — amdgpu, RADV, LACT, variables VA-API/VDPAU
+  gaming.nix            — Steam, gamescope, gamemode, ananicy-cpp, scx_lavd, bwrap fix
+  virtualisation.nix    — libvirt/KVM, virt-manager, Podman rootless
+  btrbk.nix             — snapshots btrfs de @home cada hora (retención 24h/7d/4w/6m)
+  k3s.nix               — cluster Kubernetes single-node local
+home/
+  rolando.nix           — home-manager: zsh, git, starship, fzf, dotfiles symlinks, paquetes
+pkgs/
+  boundary-desktop.nix  — derivación custom de HashiCorp Boundary Desktop (no en nixpkgs)
+```
 
-## Structure
-
-- `flake.nix` — flake inputs and outputs
-- `hosts/victus/` — per-host config (hardware, system options)
-- `modules/` — reusable modules (boot, network, audio, desktop, gpu, gaming, virt)
-- `home/` — home-manager config per user
-
-## Apply
+## Comandos frecuentes
 
 ```bash
-sudo nixos-rebuild switch --flake .#victus
+# Rebuild y switch (usa nh, muestra diff pre/post)
+rebuild                 # alias = nh os switch ~/projects/nix-config
+
+# Variantes
+rebuild-test            # activa config sin hacerla el default de boot
+rebuild-boot            # la setea como default de boot sin activar ahora
+
+# Actualizar inputs del flake
+update                  # nix flake update
+
+# Garbage collection
+gc                      # nix-collect-garbage -d (user + system)
+
+# Tag de generation en git
+tag-gen                 # crea git tag gen-XX con la generation activa
 ```
+
+## Devshell y pre-commit
+
+Al entrar al directorio con direnv activo (`use flake` en `.envrc`), se instalan
+automáticamente los hooks en `.git/hooks`:
+
+- **nixfmt**: formatea todos los `.nix` (RFC 166).
+- **statix**: lint de anti-patrones Nix.
+- **deadnix**: detecta bindings sin uso.
+
+Para instalarlos manualmente: `nix develop` o `nix flake check`.
+
+## Dotfiles
+
+Los dotfiles **no** viven en este repo. Están en `~/projects/dotfiles/` y se
+enlazan como `mkOutOfStoreSymlink` desde home-manager. Para editar: modificar
+el archivo en `~/projects/dotfiles/`, no el symlink en `~/.config/`.
+
+Herramientas enlazadas: hypr, waybar, eww, rofi, nvim, kitty, mako, khal, qt6ct,
+fastfetch, starship.
+
+## Rollback
+
+```bash
+# Listar generations disponibles
+sudo nix-env --list-generations -p /nix/var/nix/profiles/system
+
+# Volver a una generation anterior
+sudo nixos-rebuild switch --rollback
+
+# O elegir en el menú de systemd-boot al arrancar (configurationLimit = 20)
+```
+
+## Agregar un paquete
+
+**User-level** (solo para rolando): agregar en `home/rolando.nix` → `home.packages`.
+
+**System-level** (disponible para todos los usuarios / necesario para root):
+agregar en el módulo correspondiente o en `modules/base.nix` → `environment.systemPackages`.
+
+**Paquete custom** (no en nixpkgs): crear derivación en `pkgs/`, importar con
+`callPackage ../pkgs/mi-pkg.nix { }` en `home.packages`.
+
+## Notas de mantenimiento
+
+- `hardware.nix` es autogenerado; los UUIDs son específicos de este disco.
+- `system.stateVersion` y `home.stateVersion` no deben cambiarse después de instalar.
+- `gaming.nix` tiene un `lib.mkForce` en `security.wrappers.bwrap` para workaround
+  de bubblewrap 0.11+ (ver comentario en el archivo antes de eliminarlo).
+- `network.nix` tiene workaround para blueman-applet en nixpkgs unstable 26.05
+  (duplicate ExecStart).

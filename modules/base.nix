@@ -6,7 +6,6 @@
 }:
 
 {
-  # Locale y zona horaria
   time.timeZone = "America/Argentina/Buenos_Aires";
 
   i18n.defaultLocale = "es_AR.UTF-8";
@@ -24,7 +23,6 @@
 
   console.keyMap = "us";
 
-  # Nix settings
   nix.settings = {
     experimental-features = [
       "nix-command"
@@ -45,33 +43,28 @@
     ];
   };
 
-  # Garbage collection automático
   nix.gc = {
     automatic = true;
     dates = "weekly";
     options = "--delete-older-than 7d";
   };
 
-  # Auto-upgrade del store
   nix.optimise.automatic = true;
 
   boot.kernel.sysctl = {
     "vm.overcommit_memory" = 1;
-    # zram es RAM comprimida: querés que el kernel lo use agresivamente.
-    "vm.swappiness" = 180;
-    "vm.page-cluster" = 0; # zram = random-access, sin read-ahead
+    "vm.swappiness" = 180; # agresivo porque zram es random-access (no disco)
+    "vm.page-cluster" = 0; # sin read-ahead para zram
     "vm.watermark_boost_factor" = 0;
     "vm.watermark_scale_factor" = 125;
   };
 
-  # THP en "madvise": evita compactación global que produce stutter en juegos.
-  # Apps que se benefician (jemalloc, juegos modernos) lo activan via madvise().
+  # madvise: evita compactación global (stutter en juegos); apps que lo necesitan
+  # lo activan explícitamente via madvise().
   boot.kernelParams = [ "transparent_hugepage=madvise" ];
 
-  # Unfree packages (drivers, etc.)
   nixpkgs.config.allowUnfree = true;
 
-  # Usuario rolando
   users.users.rolando = {
     isNormalUser = true;
     description = "Rolando";
@@ -89,17 +82,12 @@
     shell = pkgs.zsh;
   };
 
-  # Habilitar zsh a nivel sistema (necesario para users.shell = pkgs.zsh)
-  programs.zsh.enable = true;
-  # sudo: password requerido por default, NOPASSWD quirúrgico solo para
-  # comandos de mantenimiento frecuentes (rebuild, snapshots, garbage collect).
-  # Reduce blast radius si un script comprometido corriera como rolando:
-  # no puede escalar a root para tareas arbitrarias, solo las whitelistadas.
+  programs.zsh.enable = true; # necesario para users.shell = pkgs.zsh
+
+  # wheelNeedsPassword = true: NOPASSWD solo para comandos de mantenimiento
+  # específicos, no para sudo arbitrario.
   security.sudo = {
     wheelNeedsPassword = true;
-    # Defaults lecture=never: oculta el speech "Confiamos que haya recibido
-    # la charla habitual del administrador..." la primera vez que usás sudo
-    # en una sesión. Ruido innecesario para single-user laptop.
     extraConfig = ''
       Defaults lecture=never
     '';
@@ -124,13 +112,10 @@
     ];
   };
 
-  # Paquetes base imprescindibles
+  # ripgrep, fd, fzf, bat, eza están en home.packages (user-level).
   environment.systemPackages = with pkgs; [
-    # Editores
     vim
     nano
-
-    # Herramientas de sistema
     git
     wget
     curl
@@ -141,16 +126,13 @@
     unzip
     zip
     p7zip
-    # ripgrep, fd, fzf, bat, eza: movidos a home.packages (rolando.nix).
-    # Convención: tools de usuario en home-manager; system solo lleva
-    # diagnóstico/emergencia para root y otros eventuales users.
     jq
     yq
     tmux
     gnupg
     pinentry-qt
 
-    # Hardware/disco
+    # Hardware / disco
     pciutils
     usbutils
     lshw
@@ -164,9 +146,9 @@
     dig
     traceroute
 
-    # Nix tooling
+    # Nix
     nix-tree
-    nh # wrapper moderno para nixos-rebuild
+    nh
     nixfmt
   ];
 
@@ -175,34 +157,26 @@
     pinentryPackage = pkgs.pinentry-qt;
   };
 
-  # ssh-agent a nivel de sesión: cachea la passphrase de la key
-  # para que VS Code / Git Graph la usen sin ssh-askpass.
   programs.ssh.startAgent = true;
-  # askpass GUI Qt minimalista (reemplaza el x11-ssh-askpass viejo de Motif).
-  # Se invoca cuando VS Code / Git Graph piden passphrase sin TTY.
+  # lxqt-openssh-askpass: GUI Qt para passphrase cuando no hay TTY (VS Code, Git Graph).
   programs.ssh.askPassword = "${pkgs.lxqt.lxqt-openssh-askpass}/bin/lxqt-openssh-askpass";
 
-  # nix-ld: provee un loader real en /lib64/ld-linux-x86-64.so.2 para
-  # correr binarios dinámicamente linkeados que no fueron empaquetados
-  # con autoPatchelfHook. Necesario para Android NDK (clang/ld.lld del
-  # SDK descargado por Flutter en ~/Android/Sdk/), VSCode extensions
-  # con binarios pre-compilados, etc.
+  # nix-ld: loader en /lib64/ld-linux-x86-64.so.2 para binarios no empaquetados
+  # con autoPatchelfHook (Android NDK, extensiones VS Code, etc.).
   programs.nix-ld = {
     enable = true;
     libraries = with pkgs; [
-      stdenv.cc.cc.lib # glibc + libgcc_s — cubre libpthread/librt/libdl/libm/libc
-      zlib # libz.so.1
-      libxml2 # libxml2.so.2 — usado por ld.lld del NDK
+      stdenv.cc.cc.lib # libpthread/librt/libdl/libm/libc
+      zlib
+      libxml2 # ld.lld del NDK
     ];
   };
 
-  # zram swap (50% RAM, comprimido)
   zramSwap = {
     enable = true;
     algorithm = "zstd";
     memoryPercent = 50;
   };
 
-  # SSD: TRIM semanal (complemento a discard=async)
-  services.fstrim.enable = true;
+  services.fstrim.enable = true; # TRIM semanal (complemento a discard=async)
 }

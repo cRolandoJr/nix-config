@@ -10,19 +10,13 @@
     enable = true;
     remotePlay.openFirewall = true;
     dedicatedServer.openFirewall = false;
-    gamescopeSession.enable = true; # sesión gamescope como compositor (boot to game)
+    gamescopeSession.enable = true;
   };
 
-  # programs.steam fuerza security.wrappers.bwrap.setuid = true, pero
-  # nixpkgs compila bubblewrap 0.11+ sin -Dpriv_mode=setuid → al ejecutarse
-  # con bit setuid aborta con "setuid use of bubblewrap is not supported
-  # in this build". User namespaces están habilitados, así que no lo necesitamos.
-  #
-  # En unstable post-2026-06, además del setuid el módulo upstream pide
-  # `source` explícito → setear sólo `setuid = false` falla con:
-  # "security.wrappers.bwrap.source accessed but no value defined".
-  # Solución: sobreescribir el wrapper completo con mkForce, apuntando al
-  # binario del store y con setuid off.
+  # Workaround nixpkgs unstable (post-2026-06): programs.steam fuerza setuid en bwrap,
+  # pero bubblewrap 0.11+ se compila sin -Dpriv_mode=setuid → aborta al ejecutarse.
+  # Solo `setuid = false` no alcanza: el módulo exige `source` explícito.
+  # Sobreescribimos el wrapper completo con mkForce.
   security.wrappers.bwrap = lib.mkForce {
     source = "${pkgs.bubblewrap}/bin/bwrap";
     owner = "root";
@@ -30,46 +24,36 @@
     setuid = false;
   };
 
-  # gamescope como WRAPPER (para usar desde Steam launch options).
-  # capSysNice = true le da CAP_SYS_NICE al binary → puede subir prioridad de CPU/GPU
-  # y abrir nested correctamente bajo Wayland (Hyprland).
+  # capSysNice: CAP_SYS_NICE para prioridad CPU/GPU; necesario para nested Wayland.
   programs.gamescope = {
     enable = true;
     capSysNice = true;
   };
 
-  # Soporte Vulkan 32-bit ya está en gpu-amd.nix con extraPackages32
-
-  # GameMode: optimiza CPU governor mientras jugás
+  # Vulkan 32-bit: en gpu-amd.nix via extraPackages32.
   programs.gamemode.enable = true;
 
-  # MangoHud: overlay de FPS/temps
   environment.systemPackages = with pkgs; [
     mangohud
     protonup-qt # gestor de versiones Proton-GE
     wineWow64Packages.stable
     winetricks
-    # gamescope ya viene via programs.gamescope.enable — no duplicar acá
+    # gamescope ya viene via programs.gamescope.enable
   ];
 
-  # Controles (Xbox, PlayStation, etc.)
-  hardware.xpadneo.enable = true; # mejor driver Xbox
+  hardware.xpadneo.enable = true;
 
-  # Aumentar límite de file watchers (algunos juegos lo piden)
   boot.kernel.sysctl = {
     "vm.max_map_count" = 2147483642; # Star Citizen, algunos juegos modernos
   };
 
-  # Ananicy-cpp: prioridad nice/ionice automática por categoría de proceso.
-  # Mantiene a los juegos con CPU/IO priority alta y al background bajo.
   services.ananicy = {
     enable = true;
     package = pkgs.ananicy-cpp;
     rulesProvider = pkgs.ananicy-rules-cachyos;
   };
 
-  # sched-ext: scheduler en userspace. scx_lavd = latency-aware, ideal gaming.
-  # Requiere kernel ≥ 6.12 (corremos linuxPackages_latest = 7.x).
+  # scx_lavd: scheduler latency-aware (requiere kernel ≥ 6.12).
   services.scx = {
     enable = true;
     scheduler = "scx_lavd";

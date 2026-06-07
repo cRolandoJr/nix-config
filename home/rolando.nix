@@ -9,11 +9,10 @@
 {
   home.username = "rolando";
   home.homeDirectory = "/home/rolando";
-  home.stateVersion = "25.11"; # NO TOCAR después de instalar
+  home.stateVersion = "25.11"; # no cambiar después de instalar
 
   programs.home-manager.enable = true;
 
-  # === Git ===
   programs.git = {
     enable = true;
     settings = {
@@ -35,7 +34,6 @@
     ];
   };
 
-  # === zsh con plugins ===
   programs.zsh = {
     enable = true;
     autosuggestion.enable = true;
@@ -43,10 +41,8 @@
     enableCompletion = true;
     historySubstringSearch.enable = true;
 
-    # compinit con cache diario: el fpath de NixOS es enorme (paths del store),
-    # rescanearlo en cada apertura de shell agrega ~60-80ms al startup.
-    # -C salta la verificación de seguridad (segura en NixOS: el store es
-    # inmutable y read-only). Re-build completo solo si el dump tiene >24h.
+    # compinit cacheado: el fpath de NixOS es enorme (~60-80ms sin cache).
+    # -C salta el re-scan si el dump tiene <24h (seguro: el store es inmutable).
     completionInit = ''
       autoload -U compinit
       if [[ -n ''${ZDOTDIR:-$HOME}/.zcompdump(#qN.mh+24) ]]; then
@@ -69,27 +65,21 @@
       tree = "eza --tree --icons";
       cat = "bat";
 
-      # Nix
-      # nh = wrapper de nixos-rebuild con diff coloreado pre/post switch.
-      # Detecta el host por hostname (no hace falta #victus).
+      # nh detecta el host por hostname; no hace falta especificar #victus.
       rebuild = "nh os switch ~/projects/nix-config";
       rebuild-test = "nh os test ~/projects/nix-config";
       rebuild-boot = "nh os boot ~/projects/nix-config";
       update = "cd ~/projects/nix-config && nix flake update";
       gc = "sudo nix-collect-garbage -d && nix-collect-garbage -d";
 
-      # btrbk snapshots (@home)
       snap = "sudo btrbk -c /etc/btrbk/home.conf run --progress";
       snap-ls = "sudo btrbk -c /etc/btrbk/home.conf list snapshots";
       snap-dry = "sudo btrbk -c /etc/btrbk/home.conf dryrun";
 
-      # scrcpy con perfil optimizado para Hyprland/Wayland + monitor 144Hz
-      # uhid = mouse como HID físico (clicks normales, sin re-mappings).
-      # shortcut-mod=lsuper = toggle de captura con Super solo (no choca con grp:alt_shift_toggle).
-      # render-driver=opengl = evita stutter del default de SDL3 en Wayland.
+      # uhid: mouse como HID físico. shortcut-mod=lsuper: no choca con alt_shift_toggle.
+      # render-driver=opengl: evita stutter de SDL3 en Wayland.
       scrcpy = "scrcpy --mouse=uhid --shortcut-mod=lsuper --no-audio --max-fps=60 --render-driver=opengl";
 
-      # Git rápido
       gs = "git status";
       gd = "git diff";
       gco = "git checkout";
@@ -99,7 +89,6 @@
     };
 
     initContent = ''
-      # Prompt: starship lo maneja, no escribimos PS1 acá
       setopt INTERACTIVE_COMMENTS
       unsetopt NOMATCH
       bindkey '^[[A' history-substring-search-up
@@ -107,9 +96,8 @@
       export ANDROID_SDK_ROOT="/home/rolando/Android/Sdk"
       export ANDROID_HOME="/home/rolando/Android/Sdk"
 
-      # fzf integration cacheada: `fzf --zsh` produce código estático que solo
-      # cambia entre versiones. Cacheamos por versión del binario; cuando
-      # nixpkgs sube fzf el cache se invalida (path/version del store cambian).
+      # Cache de `fzf --zsh` por versión: evita fork+exec en cada init (~10ms).
+      # Se invalida automáticamente cuando nixpkgs sube fzf (path del store cambia).
       _fzf_cache="$HOME/.cache/fzf-zsh-${pkgs.fzf.version}.zsh"
       if [[ ! -f "$_fzf_cache" ]]; then
         mkdir -p "$HOME/.cache"
@@ -118,9 +106,29 @@
       source "$_fzf_cache"
       unset _fzf_cache
 
-      # tag-gen: crea un git tag con la generation actual de NixOS.
-      # Uso: tras un `rebuild` exitoso → `tag-gen` → tagea commit actual como gen-XX.
-      # Esto sincroniza historial git ↔ historial de generations del store.
+      # fzf secuestra Tab con fzf-completion, que no incluye dotfiles.
+      # Restauramos Tab al completador nativo; fzf sigue en Ctrl+T/R, Alt+C.
+      # Debe ir DESPUÉS del source de fzf para ganar el binding.
+      bindkey '^I' expand-or-complete
+
+      # globdots: completar dotfiles sin escribir el `.` inicial.
+      _comp_options+=(globdots)
+
+      # matcher-list: match exacto → case-insensitive → substring (en orden).
+      # "" como string vacío zsh (evita comillas-simples-dobles en Nix).
+      zstyle ':completion:*' matcher-list "" 'm:{a-zA-Z}={A-Za-z}' 'l:|=* r:|=*'
+
+      zstyle ':completion:*' menu select
+      zstyle ':completion:*' list-colors "''${(s.:.)LS_COLORS}"
+      zstyle ':completion:*' group-name ""
+      zstyle ':completion:*:descriptions' format '%F{cyan}── %d ──%f'
+
+      # _eza solo ofrece flags, no paths. Forzamos _files para que ls/ll/tree
+      # (aliases a eza) completen archivos normalmente.
+      compdef _files eza
+
+      # tag-gen: tagea el commit actual con la generation activa del store.
+      # Uso: después de un rebuild exitoso → sincroniza git ↔ generations NixOS.
       tag-gen() {
         local repo="$HOME/projects/nix-config"
         local gen
@@ -136,39 +144,31 @@
     '';
   };
 
-  # === starship prompt ===
   programs.starship = {
     enable = true;
     enableZshIntegration = true;
   };
 
-  # === direnv ===
   programs.direnv = {
     enable = true;
     enableZshIntegration = true;
     nix-direnv.enable = true;
   };
 
-  # === fzf ===
-  # enableZshIntegration = false a propósito: home-manager inyecta
-  # `source <(fzf --zsh)` que hace fork+exec en cada init (~10ms). En su lugar
-  # cacheamos la salida (estática por versión) en initContent.
+  # enableZshIntegration = false: HM inyectaría `source <(fzf --zsh)` con
+  # fork+exec en cada init. Usamos el cache manual en initContent en su lugar.
   programs.fzf = {
     enable = true;
     enableZshIntegration = false;
   };
 
-  # === Firefox ===
   programs.firefox = {
     enable = true;
     configPath = ".mozilla/firefox";
   };
 
-  # === Cursor: Bibata Modern Classic ===
-  # home.pointerCursor configura GTK + XCursor (XWayland) + hyprcursor (Hyprland
-  # nativo) en un solo bloque. Sin esto, cada toolkit usa su propio default.
-  # `hyprcursor.enable = true` exporta HYPRCURSOR_THEME/SIZE env vars y
-  # hace que Hyprland use el cursor vector (más crisp al cambiar de escala).
+  # Configura GTK + XCursor + hyprcursor en un solo bloque.
+  # hyprcursor.enable exporta las env vars para el cursor vector nativo de Hyprland.
   home.pointerCursor = {
     package = pkgs.bibata-cursors;
     name = "Bibata-Modern-Classic";
@@ -178,16 +178,10 @@
     hyprcursor.enable = true;
   };
 
-  # === Hyprsunset: blue-light filter a nivel de gamma del compositor ===
-  # El módulo HM normalmente auto-genera hyprsunset.conf vía xdg.configFile,
-  # pero eso choca con nuestro symlink mkOutOfStoreSymlink de `hypr/` completo
-  # (HM no puede meter un archivo dentro de un symlink que apunta fuera).
-  # Solución: dejamos al módulo encargado del paquete + systemd service,
-  # y el config (`hyprsunset.conf`) lo escribimos a mano en dotfiles/hypr/.config/hypr/.
-  # IPC en runtime: `hyprctl hyprsunset temperature 3500`.
+  # El módulo gestiona el paquete + systemd service. El config (hyprsunset.conf)
+  # vive en dotfiles/hypr/ porque HM no puede escribir dentro de un mkOutOfStoreSymlink.
   services.hyprsunset.enable = true;
 
-  # === Paquetes user-level ===
   home.packages = with pkgs; [
     # Hyprland session tools
     rofi
@@ -205,10 +199,10 @@
     satty # editor de anotaciones para screenshots (grim | satty)
     wl-clipboard
 
-    # Kubernetes (cluster k3s configurado en modules/k3s.nix)
-    kubectl # CLI principal de K8s
-    k9s # TUI navegable sobre el cluster
-    kubernetes-helm # package manager (charts)
+    # Kubernetes
+    kubectl
+    k9s
+    kubernetes-helm
     cliphist
     neovim
     python3
@@ -220,11 +214,9 @@
     libnotify
     yazi
 
-    # Comunicación
     discord
     telegram-desktop
 
-    # Productividad
     obsidian
 
     # Multimedia
@@ -232,64 +224,57 @@
     mpv
     spotify
 
-    # Dev / utils
+    # Dev
     gh
     lazygit
     httpie
     dust
     duf
-    nix-output-monitor # nom: árbol de progreso para builds (activado via NH_NOM=1)
+    nix-output-monitor # activado via NH_NOM=1
     fastfetch
     vscode
-    khal # calendario CLI (CalDAV-compat), backend del widget eww
+    khal # backend del widget eww de calendario
     claude-code
     android-tools
     pavucontrol
     scrcpy
 
-    # Acceso / identity (HashiCorp)
-    (callPackage ../pkgs/boundary-desktop.nix { }) # custom: no está en nixpkgs
+    (callPackage ../pkgs/boundary-desktop.nix { }) # no está en nixpkgs
 
-    # Qt theming: usamos Qt Fusion (built-in, sin engine externo) con paleta
-    # configurada via qt6ct. Suficiente para apps Qt efímeras como
-    # hyprland-share-picker; el aesthetic "neon islands" del calendar
-    # (double box-shadow offset) no es replicable en Qt sin SVG custom.
+    # Qt Fusion (built-in) + qt6ct para paleta en apps Qt efímeras (share-picker, etc.)
     kdePackages.qt6ct
 
-    # === Neovim toolchain (LSPs, formatters, linters) ===
-    # Build / runtime deps
-    gcc # compilar parsers treesitter + telescope-fzf-native
+    # Neovim toolchain
+    gcc # parsers treesitter + telescope-fzf-native
     gnumake
     tree-sitter
-    nodejs # base para LSPs/formatters Node
+    nodejs
 
-    # CLI utilities de usuario (movidas desde environment.systemPackages).
-    # Usadas por aliases (cat=bat, ls/ll=eza) y por Neovim/Telescope.
     bat
     eza
     ripgrep # Telescope live_grep
     fd # Telescope find_files
 
-    # Language servers
+    # LSPs
     gopls
     pyright
     rust-analyzer
     typescript-language-server
-    vscode-langservers-extracted # html, cssls, jsonls, eslint
+    vscode-langservers-extracted # html, css, json, eslint
     yaml-language-server
     bash-language-server
     lua-language-server
 
-    # Formatters (conform.nvim)
+    # Formatters
     stylua
     ruff
     gofumpt
-    (lib.lowPrio gotools) # goimports (lowPrio: gopls gana en /modernize)
+    (lib.lowPrio gotools) # goimports; lowPrio para que gopls gane en conflictos
     rustfmt
-    prettierd # prettier en daemon (más rápido)
+    prettierd
     shfmt
 
-    # Linters (nvim-lint)
+    # Linters
     golangci-lint
     eslint_d
     shellcheck
@@ -304,10 +289,7 @@
     MOZ_ENABLE_WAYLAND = "1";
     QT_QPA_PLATFORM = "wayland;xcb";
     QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
-    # Style Qt: Fusion (built-in, sin engine externo). qt6ct lee
-    # ~/.config/qt6ct/qt6ct.conf y aplica la paleta neon-islands.
-    # QT_QPA_PLATFORMTHEME=qt6ct le dice a Qt6 que use qt6ct para
-    # palette/fonts/icons en vez de los defaults.
+    # qt6ct aplica paleta/fonts/icons; Fusion es el engine built-in (sin deps extra).
     QT_STYLE_OVERRIDE = "Fusion";
     QT_QPA_PLATFORMTHEME = "qt6ct";
     EDITOR = "nvim";
@@ -315,18 +297,11 @@
     ANDROID_SDK_ROOT = "/home/rolando/Android/Sdk";
     ANDROID_HOME = "/home/rolando/Android/Sdk";
 
-    # nh detecta NH_NOM=1 y pipea su build output por nix-output-monitor.
-    # Resultado: ves el grafo de derivaciones construyéndose en tiempo real
-    # (cada nodo = una derivación, barras de progreso, timings).
-    NH_NOM = "1";
-
-    # Kubernetes: usar el kubeconfig que escribe k3s en /etc/rancher/k3s/k3s.yaml
-    # (modo 644 → legible por user rolando). Permite que `kubectl`/`k9s`/`helm`
-    # funcionen sin pasar KUBECONFIG inline.
-    KUBECONFIG = "/etc/rancher/k3s/k3s.yaml";
+    NH_NOM = "1"; # nh pipea el build por nix-output-monitor
+    KUBECONFIG = "/etc/rancher/k3s/k3s.yaml"; # k3s escribe este con mode 644
   };
 
-  # === Dotfiles como symlinks editables ===
+  # Dotfiles como symlinks editables (editar en ~/projects/dotfiles/, no aquí).
   xdg.configFile = {
     "hypr".source =
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/hypr/.config/hypr";
@@ -362,7 +337,7 @@
   home.file.".config/starship.toml".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/starship/.config/starship.toml";
 
-  # Override .desktop de Telegram
+  # Override del .desktop de Telegram (agrega acción "Quit" y corrige WMClass)
   xdg.desktopEntries."org.telegram.desktop" = {
     name = "Telegram";
     comment = "New era of messaging";

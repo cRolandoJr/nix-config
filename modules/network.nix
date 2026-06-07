@@ -12,9 +12,8 @@
     wifi.backend = "wpa_supplicant";
   };
 
-  # Evitar que un soft-block transitorio de rfkill se restaure al bootear
-  # y deje el WiFi muerto. Sin esto, systemd-rfkill persiste el estado en
-  # /var/lib/systemd/rfkill/ y lo replay-ea en el siguiente arranque.
+  # Sin esto systemd-rfkill persiste soft-blocks en /var/lib/systemd/rfkill/
+  # y puede dejar el WiFi muerto al arrancar.
   systemd.services.systemd-rfkill.enable = false;
   systemd.sockets.systemd-rfkill.enable = false;
 
@@ -33,11 +32,8 @@
   hardware.bluetooth = {
     enable = true;
     powerOnBoot = true;
-    settings = {
-      General = {
-        # "dual" habilita BR/EDR (audífonos A2DP/aptX) + BLE (controllers, mouse).
-        controllerMode = "dual";
-      };
+    settings.General = {
+      controllerMode = "dual"; # BR/EDR (A2DP/aptX) + BLE
     };
   };
   services.blueman.enable = true;
@@ -49,10 +45,8 @@
     ];
   };
 
-  # Workaround nixpkgs unstable (26.05, build 2026-05-15): el drop-in generado
-  # por NixOS agrega un segundo ExecStart= sobre el unit upstream que tiene
-  # Type=dbus + ExecStart=. Systemd lo rechaza ("more than one ExecStart").
-  # Reseteamos con "" y volvemos a setear uno solo.
+  # Workaround nixpkgs unstable (26.05): drop-in de NixOS agrega un segundo
+  # ExecStart= sobre el unit upstream (Type=dbus + ExecStart=); systemd lo rechaza.
   systemd.user.services.blueman-applet.serviceConfig.ExecStart = lib.mkForce [
     ""
     "${pkgs.blueman}/bin/blueman-applet"

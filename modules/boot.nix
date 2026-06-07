@@ -6,26 +6,22 @@
 }:
 
 {
-  # systemd-boot (UEFI)
   boot.loader.systemd-boot = {
     enable = true;
-    configurationLimit = 20; # cuántas generaciones mostrar en el menú
-    editor = false; # seguridad: no permitir editar cmdline al boot
+    configurationLimit = 20;
+    editor = false; # no permitir editar cmdline al boot
   };
 
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.timeout = 3;
 
-  # Kernel: último estable
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
-  # Soporte para btrfs
   boot.supportedFilesystems = [
     "btrfs"
     "vfat"
   ];
 
-  # Parámetros de kernel
   boot.kernelParams = [
     "quiet"
     "splash"
@@ -34,15 +30,10 @@
     "rd.udev.log_level=3"
   ];
 
-  # Silenciar consola en boot. Los mensajes siguen registrados en
-  # dmesg / journalctl -kb; solo se ocultan visualmente antes de Plymouth.
-  # Un kernel panic real sigue mostrándose (va por otro path).
+  # Mensajes siguen en dmesg/journalctl; solo se ocultan visualmente (panic sigue mostrándose).
   boot.consoleLogLevel = 0;
   boot.initrd.verbose = false;
 
-  # initrd: prompt de LUKS visible y funcional
-  boot.initrd.systemd.enable = true;
-
-  # Plymouth (splash screen bonito al boot)
+  boot.initrd.systemd.enable = true; # necesario para el prompt de LUKS
   boot.plymouth.enable = true;
 }
