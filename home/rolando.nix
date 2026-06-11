@@ -258,7 +258,8 @@
     fastfetch
     vscode
     khal # backend del widget eww de calendario
-    claude-code
+    # claude-code: gestionado fuera del store (nativo self-updating en ~/.local/bin).
+    # nixpkgs va días/semanas detrás de upstream y bloquearía modelos nuevos. Setup en máquina nueva: curl -fsSL https://claude.ai/install.sh | sh
     android-tools
     pavucontrol
     scrcpy
@@ -306,6 +307,9 @@
     yamllint
     hadolint
   ];
+
+  # ~/.local/bin: binarios imperativos fuera del store (ej. claude-code nativo).
+  home.sessionPath = [ "$HOME/.local/bin" ];
 
   home.sessionVariables = {
     NIXOS_OZONE_WL = "1";
@@ -356,6 +360,9 @@
 
     "qt6ct".source =
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/qt6ct/.config/qt6ct";
+
+    "yazi".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/yazi/.config/yazi";
   };
 
   home.file.".config/starship.toml".source =
