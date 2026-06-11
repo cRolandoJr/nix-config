@@ -100,7 +100,25 @@
       "inputs": {
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs",
-        "pre-commit-hooks": "pre-commit-hooks"
+        "pre-commit-hooks": "pre-commit-hooks",
+        "scroll-overview": "scroll-overview"
+      }
+    },
+    "scroll-overview": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1780828902,
+        "narHash": "sha256-uJZiOLhbs8nhPWQJsCkUY+LHeXflQTUZl5PccLFnTx8=",
+        "owner": "yayuuu",
+        "repo": "hyprland-scroll-overview",
+        "rev": "0adf5f5a619747dd4efc407f644f220dbd1dd9b2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "yayuuu",
+        "ref": "0adf5f5a6197",
+        "repo": "hyprland-scroll-overview",
+        "type": "github"
       }
     }
   },

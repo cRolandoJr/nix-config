@@ -6,6 +6,17 @@
   ...
 }:
 
+let
+  # Reusa el default.nix del repo (hyprlandPlugins.mkHyprlandPlugin).
+  # callPackage inyecta hyprland (0.55.2), lua5_4 y hyprlandPlugins desde nixpkgs.
+  # overrideAttrs: su default.nix no hereda los buildInputs de hyprland ni expat
+  # (lo pide fontconfig vía pkg-config) → los añadimos para que cmake los encuentre.
+  scrolloverview =
+    (pkgs.callPackage (inputs.scroll-overview + "/default.nix") { }).overrideAttrs
+      (old: {
+        buildInputs = (old.buildInputs or [ ]) ++ pkgs.hyprland.buildInputs ++ [ pkgs.expat ];
+      });
+in
 {
   home.username = "rolando";
   home.homeDirectory = "/home/rolando";
@@ -93,8 +104,10 @@
       unsetopt NOMATCH
       bindkey '^[[A' history-substring-search-up
       bindkey '^[[B' history-substring-search-down
-      export ANDROID_SDK_ROOT="/home/rolando/Android/Sdk"
-      export ANDROID_HOME="/home/rolando/Android/Sdk"
+
+      # starship: init manual (sin programs.starship para que el único dueño de
+      # starship.toml sea el mkOutOfStoreSymlink al dotfile, editable en vivo).
+      eval "$(${pkgs.starship}/bin/starship init zsh)"
 
       # Cache de `fzf --zsh` por versión: evita fork+exec en cada init (~10ms).
       # Se invalida automáticamente cuando nixpkgs sube fzf (path del store cambia).
@@ -142,11 +155,6 @@
           echo "Tagged gen-$gen → $msg"
       }
     '';
-  };
-
-  programs.starship = {
-    enable = true;
-    enableZshIntegration = true;
   };
 
   programs.direnv = {
@@ -233,7 +241,6 @@
     kitty
     hyprlock
     tzdata
-    playerctl
     networkmanagerapplet
     libnotify
     yazi
@@ -261,7 +268,6 @@
     # claude-code: gestionado fuera del store (nativo self-updating en ~/.local/bin).
     # nixpkgs va días/semanas detrás de upstream y bloquearía modelos nuevos. Setup en máquina nueva: curl -fsSL https://claude.ai/install.sh | sh
     android-tools
-    pavucontrol
     scrcpy
 
     (callPackage ../pkgs/boundary-desktop.nix { }) # no está en nixpkgs
@@ -317,6 +323,7 @@
     MOZ_ENABLE_WAYLAND = "1";
     QT_QPA_PLATFORM = "wayland;xcb";
     QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
+    QT_AUTO_SCREEN_SCALE_FACTOR = "0";
     # qt6ct aplica paleta/fonts/icons; Fusion es el engine built-in (sin deps extra).
     QT_STYLE_OVERRIDE = "Fusion";
     QT_QPA_PLATFORMTHEME = "qt6ct";
@@ -367,6 +374,13 @@
 
   home.file.".config/starship.toml".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/starship/.config/starship.toml";
+
+  # Plugin Hyprland scrolloverview: carga vía archivo generado fuera del symlink
+  # de ~/.config/hypr (HM no escribe dentro del mkOutOfStoreSymlink).
+  # hyprland.conf lo sourcea; el store-path del .so lo inyecta Nix.
+  xdg.configFile."hypr-nix/plugins.conf".text = ''
+    plugin = ${scrolloverview}/lib/libscrolloverview.so
+  '';
 
   # Override del .desktop de Telegram (agrega acción "Quit" y corrige WMClass)
   xdg.desktopEntries."org.telegram.desktop" = {
