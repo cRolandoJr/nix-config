@@ -247,6 +247,7 @@ in
 
     vesktop # cliente Discord Wayland (screen-share con audio)
     telegram-desktop
+    discord
 
     obsidian
 
