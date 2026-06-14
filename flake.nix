@@ -13,14 +13,6 @@
       url = "github:cachix/pre-commit-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    # Plugin overview de Hyprland; código C++, se compila contra pkgs.hyprland.
-    # Pin a 0adf5f5 (último release pre-0.55.3): el main usa la API .element de
-    # 0.55.3, que rompe contra nuestra hyprland 0.55.2.
-    scroll-overview = {
-      url = "github:yayuuu/hyprland-scroll-overview/0adf5f5a6197";
-      flake = false;
-    };
   };
 
   outputs =

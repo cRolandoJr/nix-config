@@ -6,17 +6,6 @@
   ...
 }:
 
-let
-  # Reusa el default.nix del repo (hyprlandPlugins.mkHyprlandPlugin).
-  # callPackage inyecta hyprland (0.55.2), lua5_4 y hyprlandPlugins desde nixpkgs.
-  # overrideAttrs: su default.nix no hereda los buildInputs de hyprland ni expat
-  # (lo pide fontconfig vía pkg-config) → los añadimos para que cmake los encuentre.
-  scrolloverview =
-    (pkgs.callPackage (inputs.scroll-overview + "/default.nix") { }).overrideAttrs
-      (old: {
-        buildInputs = (old.buildInputs or [ ]) ++ pkgs.hyprland.buildInputs ++ [ pkgs.expat ];
-      });
-in
 {
   home.username = "rolando";
   home.homeDirectory = "/home/rolando";
@@ -375,13 +364,6 @@ in
 
   home.file.".config/starship.toml".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/starship/.config/starship.toml";
-
-  # Plugin Hyprland scrolloverview: carga vía archivo generado fuera del symlink
-  # de ~/.config/hypr (HM no escribe dentro del mkOutOfStoreSymlink).
-  # hyprland.conf lo sourcea; el store-path del .so lo inyecta Nix.
-  xdg.configFile."hypr-nix/plugins.conf".text = ''
-    plugin = ${scrolloverview}/lib/libscrolloverview.so
-  '';
 
   # Override del .desktop de Telegram (agrega acción "Quit" y corrige WMClass)
   xdg.desktopEntries."org.telegram.desktop" = {
