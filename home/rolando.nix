@@ -211,6 +211,19 @@
     cliphist
     neovim
     python3
+
+    # CGC requiere python3.12 (excluye tree-sitter en 3.13); lowPrio evita colisión
+    # con python3 en nombres genéricos (bin/python3, etc.).
+    pipx
+    (lib.lowPrio python312)
+
+    # CGC (FalkorDB Lite) hace dlopen de libstdc++.so.6, ausente en rutas FHS de NixOS.
+    # Este wrapper inyecta gcc-lib solo al proceso CGC; cgc-nix evita colisión con el binario de pipx.
+    (writeShellScriptBin "cgc-nix" ''
+      export LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+      exec "$HOME/.local/share/pipx/venvs/codegraphcontext/bin/codegraphcontext" "$@"
+    '')
+
     kitty
     hyprlock
     tzdata
