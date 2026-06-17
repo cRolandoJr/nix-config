@@ -35,8 +35,6 @@
           statix.enable = true; # lint anti-patrones (.statix.toml)
           deadnix = {
             enable = true;
-            # noLambdaPatternNames: ignora { config, pkgs, lib, ... } en módulos
-            # (convención del API, no es código muerto).
             settings.noLambdaPatternNames = true;
           };
         };

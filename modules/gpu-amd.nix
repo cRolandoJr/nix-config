@@ -8,7 +8,7 @@
 {
   services.xserver.videoDrivers = [ "amdgpu" ];
 
-  boot.initrd.kernelModules = [ "amdgpu" ]; # carga temprana → mejor estabilidad
+  boot.initrd.kernelModules = [ "amdgpu" ]; # carga temprana
 
   hardware.graphics = {
     enable = true;
@@ -29,7 +29,7 @@
     LIBVA_DRIVER_NAME = "radeonsi";
     VDPAU_DRIVER = "radeonsi";
     AMD_VULKAN_ICD = "RADV"; # forzar RADV, no amdvlk
-    RADV_PERFTEST = "gpl"; # graphics pipeline library; SAM/ReBAR manejado por RADV en kernel 7+
+    RADV_PERFTEST = "gpl"; # SAM/ReBAR manejado por RADV en kernel 7+
   };
 
   environment.systemPackages = with pkgs; [

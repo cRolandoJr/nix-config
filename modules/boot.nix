@@ -9,7 +9,7 @@
   boot.loader.systemd-boot = {
     enable = true;
     configurationLimit = 20;
-    editor = false; # no permitir editar cmdline al boot
+    editor = false;
   };
 
   boot.loader.efi.canTouchEfiVariables = true;
@@ -30,10 +30,9 @@
     "rd.udev.log_level=3"
   ];
 
-  # Mensajes siguen en dmesg/journalctl; solo se ocultan visualmente (panic sigue mostrándose).
   boot.consoleLogLevel = 0;
   boot.initrd.verbose = false;
 
-  boot.initrd.systemd.enable = true; # necesario para el prompt de LUKS
+  boot.initrd.systemd.enable = true;
   boot.plymouth.enable = true;
 }

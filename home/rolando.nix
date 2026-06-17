@@ -41,8 +41,7 @@
     enableCompletion = true;
     historySubstringSearch.enable = true;
 
-    # compinit cacheado: el fpath de NixOS es enorme (~60-80ms sin cache).
-    # -C salta el re-scan si el dump tiene <24h (seguro: el store es inmutable).
+    # compinit -C: saltea re-scan si dump tiene <24h (~60-80ms ganados con el fpath enorme de NixOS).
     completionInit = ''
       autoload -U compinit
       if [[ -n ''${ZDOTDIR:-$HOME}/.zcompdump(#qN.mh+24) ]]; then
@@ -94,12 +93,10 @@
       bindkey '^[[A' history-substring-search-up
       bindkey '^[[B' history-substring-search-down
 
-      # starship: init manual (sin programs.starship para que el único dueño de
-      # starship.toml sea el mkOutOfStoreSymlink al dotfile, editable en vivo).
+      # init manual: programs.starship pisaría el starship.toml del mkOutOfStoreSymlink.
       eval "$(${pkgs.starship}/bin/starship init zsh)"
 
-      # Cache de `fzf --zsh` por versión: evita fork+exec en cada init (~10ms).
-      # Se invalida automáticamente cuando nixpkgs sube fzf (path del store cambia).
+      # Cache por versión: evita fork+exec en cada init (~10ms); se invalida al subir fzf en nixpkgs.
       _fzf_cache="$HOME/.cache/fzf-zsh-${pkgs.fzf.version}.zsh"
       if [[ ! -f "$_fzf_cache" ]]; then
         mkdir -p "$HOME/.cache"
@@ -108,16 +105,12 @@
       source "$_fzf_cache"
       unset _fzf_cache
 
-      # fzf secuestra Tab con fzf-completion, que no incluye dotfiles.
-      # Restauramos Tab al completador nativo; fzf sigue en Ctrl+T/R, Alt+C.
-      # Debe ir DESPUÉS del source de fzf para ganar el binding.
+      # fzf secuestra Tab; restauramos al completador nativo (después del source para ganar el binding).
       bindkey '^I' expand-or-complete
 
-      # globdots: completar dotfiles sin escribir el `.` inicial.
       _comp_options+=(globdots)
 
-      # matcher-list: match exacto → case-insensitive → substring (en orden).
-      # "" como string vacío zsh (evita comillas-simples-dobles en Nix).
+      # "" vacío como primer patrón: exacto → case-insensitive → substring.
       zstyle ':completion:*' matcher-list "" 'm:{a-zA-Z}={A-Za-z}' 'l:|=* r:|=*'
 
       zstyle ':completion:*' menu select
@@ -125,12 +118,9 @@
       zstyle ':completion:*' group-name ""
       zstyle ':completion:*:descriptions' format '%F{cyan}── %d ──%f'
 
-      # _eza solo ofrece flags, no paths. Forzamos _files para que ls/ll/tree
-      # (aliases a eza) completen archivos normalmente.
+      # _eza solo ofrece flags; _files para que ls/ll/tree completen paths.
       compdef _files eza
 
-      # tag-gen: tagea el commit actual con la generation activa del store.
-      # Uso: después de un rebuild exitoso → sincroniza git ↔ generations NixOS.
       tag-gen() {
         local repo="$HOME/projects/nix-config"
         local gen
@@ -152,8 +142,7 @@
     nix-direnv.enable = true;
   };
 
-  # enableZshIntegration = false: HM inyectaría `source <(fzf --zsh)` con
-  # fork+exec en cada init. Usamos el cache manual en initContent en su lugar.
+  # enableZshIntegration = false: se usa cache manual en initContent (ver arriba).
   programs.fzf = {
     enable = true;
     enableZshIntegration = false;
@@ -164,8 +153,6 @@
     configPath = ".mozilla/firefox";
   };
 
-  # Configura GTK + XCursor + hyprcursor en un solo bloque.
-  # hyprcursor.enable exporta las env vars para el cursor vector nativo de Hyprland.
   home.pointerCursor = {
     package = pkgs.bibata-cursors;
     name = "Bibata-Modern-Classic";
@@ -175,14 +162,11 @@
     hyprcursor.enable = true;
   };
 
-  # El módulo gestiona el paquete + systemd service. El config (hyprsunset.conf)
-  # vive en dotfiles/hypr/ porque HM no puede escribir dentro de un mkOutOfStoreSymlink.
+  # hyprsunset.conf vive en dotfiles/hypr/ (HM no puede escribir dentro del mkOutOfStoreSymlink).
   services.hyprsunset.enable = true;
 
-  # Sin botones de ventana en apps libadwaita/GNOME (button-layout vía dconf).
   dconf.settings."org/gnome/desktop/wm/preferences".button-layout = "appmenu:";
 
-  # gtk-decoration-layout "appmenu:" = sin botones de ventana (GTK3/4).
   gtk = {
     enable = true;
     font = {
@@ -255,8 +239,7 @@
     fastfetch
     vscode
     khal # backend del widget eww de calendario
-    # claude-code: gestionado fuera del store (nativo self-updating en ~/.local/bin).
-    # nixpkgs va días/semanas detrás de upstream y bloquearía modelos nuevos. Setup en máquina nueva: curl -fsSL https://claude.ai/install.sh | sh
+    # claude-code: nativo self-updating en ~/.local/bin (ver memory). Setup: curl -fsSL https://claude.ai/install.sh | sh
     android-tools
     scrcpy
 
@@ -304,7 +287,6 @@
     hadolint
   ];
 
-  # ~/.local/bin: binarios imperativos fuera del store (ej. claude-code nativo).
   home.sessionPath = [ "$HOME/.local/bin" ];
 
   home.sessionVariables = {
@@ -314,7 +296,6 @@
     QT_QPA_PLATFORM = "wayland;xcb";
     QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
     QT_AUTO_SCREEN_SCALE_FACTOR = "0";
-    # qt6ct aplica paleta/fonts/icons; Fusion es el engine built-in (sin deps extra).
     QT_STYLE_OVERRIDE = "Fusion";
     QT_QPA_PLATFORMTHEME = "qt6ct";
     EDITOR = "nvim";
@@ -326,7 +307,6 @@
     KUBECONFIG = "/etc/rancher/k3s/k3s.yaml"; # k3s escribe este con mode 644
   };
 
-  # Dotfiles como symlinks editables (editar en ~/projects/dotfiles/, no aquí).
   xdg.configFile = {
     "hypr".source =
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/hypr/.config/hypr";
@@ -365,7 +345,6 @@
   home.file.".config/starship.toml".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/starship/.config/starship.toml";
 
-  # Override del .desktop de Telegram (agrega acción "Quit" y corrige WMClass)
   xdg.desktopEntries."org.telegram.desktop" = {
     name = "Telegram";
     comment = "New era of messaging";

@@ -44,9 +44,7 @@ in
     withUWSM = true;
   };
 
-  # X11 solo para el greeter: touchpad y temas QT6 funcionan mejor que con weston-kiosk.
-  # La sesión Hyprland sigue siendo Wayland.
-  services.xserver.enable = true;
+  services.xserver.enable = true; # solo para SDDM greeter; sesión Hyprland es Wayland
 
   services.displayManager.sddm = {
     enable = true;
@@ -64,8 +62,7 @@ in
     variant = "";
   };
 
-  # config.hyprland fija ScreenCast/Screenshot al backend hyprland explícitamente;
-  # sin esto Electron/Chrome usan el picker GTK.
+  # Sin config.hyprland explícito, Electron/Chrome usan el picker GTK.
   xdg.portal = {
     enable = true;
     config.hyprland = {
@@ -96,8 +93,7 @@ in
     zathura
     kdePackages.kdeconnect-kde
 
-    # También en sddm.extraPackages; ambos son necesarios (ver let).
-    sddmAstronaut
+    sddmAstronaut # también en sddm.extraPackages (ver let)
   ];
 
   systemd.user.services.polkit-gnome-authentication-agent-1 = {
@@ -135,8 +131,8 @@ in
     };
   };
 
-  # KDEConnect
   networking.firewall = {
+    # KDEConnect
     allowedTCPPortRanges = [
       {
         from = 1714;

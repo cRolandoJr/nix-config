@@ -65,8 +65,7 @@ stdenv.mkDerivation rec {
     udev
   ];
 
-  # chrome-sandbox viene con setuid; Nix no lo permite en el store.
-  # Extraemos ignorando perms y compensamos con --no-sandbox en el wrapper.
+  # chrome-sandbox tiene setuid; Nix no lo permite en el store → extraer sin perms, --no-sandbox en wrapper.
   unpackPhase = ''
     mkdir -p $out
     ar x $src
@@ -77,8 +76,7 @@ stdenv.mkDerivation rec {
     mv $out/usr/* $out/
     rmdir $out/usr
 
-    # El .deb pone un symlink en bin/; lo reemplazamos con un wrapper real.
-    rm $out/bin/boundary-desktop
+    rm $out/bin/boundary-desktop # el .deb pone un symlink; reemplazar con wrapper real
     makeWrapper $out/lib/boundary-desktop/boundary-desktop $out/bin/boundary-desktop \
       --add-flags "--no-sandbox" \
       --set NIXOS_OZONE_WL 1 \

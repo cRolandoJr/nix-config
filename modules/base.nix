@@ -53,14 +53,13 @@
 
   boot.kernel.sysctl = {
     "vm.overcommit_memory" = 1;
-    "vm.swappiness" = 180; # agresivo porque zram es random-access (no disco)
-    "vm.page-cluster" = 0; # sin read-ahead para zram
+    "vm.swappiness" = 180; # zram
+    "vm.page-cluster" = 0; # zram
     "vm.watermark_boost_factor" = 0;
     "vm.watermark_scale_factor" = 125;
   };
 
-  # madvise: evita compactación global (stutter en juegos); apps que lo necesitan
-  # lo activan explícitamente via madvise().
+  # madvise: evita compactación global (stutter en juegos).
   boot.kernelParams = [ "transparent_hugepage=madvise" ];
 
   nixpkgs.config.allowUnfree = true;
@@ -69,7 +68,7 @@
     isNormalUser = true;
     description = "Rolando";
     extraGroups = [
-      "wheel" # sudo
+      "wheel"
       "networkmanager"
       "video"
       "audio"
@@ -84,8 +83,6 @@
 
   programs.zsh.enable = true; # necesario para users.shell = pkgs.zsh
 
-  # wheelNeedsPassword = true: NOPASSWD solo para comandos de mantenimiento
-  # específicos, no para sudo arbitrario.
   security.sudo = {
     wheelNeedsPassword = true;
     extraConfig = ''
@@ -112,7 +109,6 @@
     ];
   };
 
-  # ripgrep, fd, fzf, bat, eza están en home.packages (user-level).
   environment.systemPackages = with pkgs; [
     vim
     nano
@@ -132,7 +128,6 @@
     gnupg
     pinentry-qt
 
-    # Hardware / disco
     pciutils
     usbutils
     lshw
@@ -140,13 +135,11 @@
     btrfs-progs
     cryptsetup
 
-    # Red
     nmap
     inetutils
     dig
     traceroute
 
-    # Nix
     nix-tree
     nh
     nixfmt
@@ -158,11 +151,8 @@
   };
 
   programs.ssh.startAgent = true;
-  # lxqt-openssh-askpass: GUI Qt para passphrase cuando no hay TTY (VS Code, Git Graph).
   programs.ssh.askPassword = "${pkgs.lxqt.lxqt-openssh-askpass}/bin/lxqt-openssh-askpass";
 
-  # nix-ld: loader en /lib64/ld-linux-x86-64.so.2 para binarios no empaquetados
-  # con autoPatchelfHook (Android NDK, extensiones VS Code, etc.).
   programs.nix-ld = {
     enable = true;
     libraries = with pkgs; [
@@ -178,5 +168,5 @@
     memoryPercent = 50;
   };
 
-  services.fstrim.enable = true; # TRIM semanal (complemento a discard=async)
+  services.fstrim.enable = true; # complemento a discard=async
 }

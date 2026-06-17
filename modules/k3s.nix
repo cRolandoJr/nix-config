@@ -5,17 +5,14 @@
   ...
 }:
 
-# k3s single-node: control plane + worker en un binario.
-# API server en 127.0.0.1:6443 (no expuesto). kubeconfig en /etc/rancher/k3s/k3s.yaml (mode 644).
-# Tools CLI (kubectl, k9s, helm) declarados en home/rolando.nix.
+# k3s single-node. kubeconfig: /etc/rancher/k3s/k3s.yaml (mode 644). CLI tools en home/rolando.nix.
 
 {
   services.k3s = {
     enable = true;
 
     role = "server";
-    # --write-kubeconfig-mode=644: k3s por default escribe 0600 root:root;
-    # con 644 el user puede leerlo sin sudo. Cluster local → aceptable.
+    # 644: k3s escribe 0600 root:root por default; el user necesita leerlo sin sudo.
     extraFlags = [
       "--write-kubeconfig-mode=644"
     ];

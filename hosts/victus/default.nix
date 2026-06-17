@@ -24,6 +24,5 @@
 
   networking.hostName = "victus";
 
-  # Versión de stateVersion: NO la toques nunca después de instalar.
-  system.stateVersion = "25.11";
+  system.stateVersion = "25.11"; # no cambiar después de instalar
 }

@@ -28,12 +28,11 @@
     allowedUDPPorts = [ ];
   };
 
-  # Bluetooth
   hardware.bluetooth = {
     enable = true;
     powerOnBoot = true;
     settings.General = {
-      controllerMode = "dual"; # BR/EDR (A2DP/aptX) + BLE
+      controllerMode = "dual";
     };
   };
   services.blueman.enable = true;

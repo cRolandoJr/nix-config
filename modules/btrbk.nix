@@ -6,8 +6,7 @@
 }:
 
 {
-  # Raíz btrfs (subvolid=5) montada en /btrfs para dar a btrbk la vista plana
-  # donde todos los subvolúmenes son hermanos. No interfiere con los mounts normales.
+  # /btrfs: raíz btrfs (subvolid=5) montada plana para que btrbk vea todos los subvols como hermanos.
   fileSystems."/btrfs" = {
     device = "/dev/mapper/cryptroot";
     fsType = "btrfs";
@@ -25,7 +24,6 @@
     "d /btrfs/@snapshots/home 0755 root root -"
   ];
 
-  # Snapshots de @home cada hora; retención 24h / 7d / 4w / 6m.
   services.btrbk = {
     instances.home = {
       onCalendar = "hourly";

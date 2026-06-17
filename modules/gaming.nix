@@ -24,13 +24,11 @@
     setuid = false;
   };
 
-  # capSysNice: CAP_SYS_NICE para prioridad CPU/GPU; necesario para nested Wayland.
   programs.gamescope = {
     enable = true;
     capSysNice = true;
   };
 
-  # Vulkan 32-bit: en gpu-amd.nix via extraPackages32.
   programs.gamemode.enable = true;
 
   environment.systemPackages = with pkgs; [
@@ -38,7 +36,6 @@
     protonup-qt # gestor de versiones Proton-GE
     wineWow64Packages.stable
     winetricks
-    # gamescope ya viene via programs.gamescope.enable
   ];
 
   hardware.xpadneo.enable = true;
