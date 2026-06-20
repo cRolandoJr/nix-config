@@ -23,7 +23,8 @@ modules/
   btrbk.nix             — snapshots btrfs de @home cada hora (retención 24h/7d/4w/6m)
   k3s.nix               — cluster Kubernetes single-node local
 home/
-  rolando.nix           — home-manager: zsh, git, starship, fzf, dotfiles symlinks, paquetes
+  rolando.nix           — home-manager: zsh, git, starship, fzf, dotfiles symlinks, paquetes,
+                          systemd user services (pedco-bot: daemon + timer de avisos 8/20h)
 pkgs/
   boundary-desktop.nix  — derivación custom de HashiCorp Boundary Desktop (no en nixpkgs)
 ```
@@ -98,3 +99,7 @@ agregar en el módulo correspondiente o en `modules/base.nix` → `environment.s
   de bubblewrap 0.11+ (ver comentario en el archivo antes de eliminarlo).
 - `network.nix` tiene workaround para blueman-applet en nixpkgs unstable 26.05
   (duplicate ExecStart).
+- `pedco-bot` (bot de Telegram) se declara en `home/rolando.nix` vía `inputs.pedco-bot`
+  (GitHub pin de `cRolandoJr/scraper-pedco`). Para actualizar el bot: push a su `main`,
+  luego `nix flake update pedco-bot` + `rebuild`. Los avisos 8/20h los dispara
+  `pedco-bot-notify.timer` (`Persistent=true`, con catch-up tras suspend/apagado).

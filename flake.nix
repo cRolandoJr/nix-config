@@ -13,6 +13,12 @@
       url = "github:cachix/pre-commit-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Bot de Telegram (Pedco). follows nixpkgs evita duplicar nixpkgs en el lock.
+    pedco-bot = {
+      url = "github:cRolandoJr/scraper-pedco";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =

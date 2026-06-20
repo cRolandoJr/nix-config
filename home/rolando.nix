@@ -6,6 +6,9 @@
   ...
 }:
 
+let
+  pedcoBot = inputs.pedco-bot.packages.${pkgs.stdenv.hostPlatform.system}.pedco-bot;
+in
 {
   home.username = "rolando";
   home.homeDirectory = "/home/rolando";
@@ -164,6 +167,55 @@
 
   # hyprsunset.conf vive en dotfiles/hypr/ (HM no puede escribir dentro del mkOutOfStoreSymlink).
   services.hyprsunset.enable = true;
+
+  # Bot de Telegram (Pedco): daemon + avisos 8/20h. Binario pineado al store
+  # desde inputs.pedco-bot (reemplaza el unit y el nix-profile imperativos).
+  systemd.user.services.pedco-bot = {
+    Unit = {
+      Description = "Pedco Bot (daemon Telegram)";
+      Wants = [ "network-online.target" ];
+      After = [ "network-online.target" ];
+    };
+    Service = {
+      Type = "simple";
+      WorkingDirectory = "%h/projects/scraper-pedco";
+      EnvironmentFile = "%h/projects/scraper-pedco/.env";
+      ExecStart = "${pedcoBot}/bin/pedco-bot";
+      Restart = "always";
+      RestartSec = "5s";
+      NoNewPrivileges = true;
+      PrivateTmp = true;
+    };
+    Install.WantedBy = [ "default.target" ];
+  };
+
+  # Oneshot disparado por el timer (sin WantedBy propio): una ronda y sale.
+  systemd.user.services.pedco-bot-notify = {
+    Unit.Description = "Pedco Bot — ronda de avisos (oneshot)";
+    Service = {
+      Type = "oneshot";
+      WorkingDirectory = "%h/projects/scraper-pedco";
+      EnvironmentFile = "%h/projects/scraper-pedco/.env";
+      ExecStart = "${pedcoBot}/bin/pedco-bot notify";
+      NoNewPrivileges = true;
+      PrivateTmp = true;
+    };
+  };
+
+  # Persistent=true: si la laptop estaba apagada/suspendida a las 8/20h, dispara
+  # el aviso al volver — el catch-up que al cron interno le faltaba.
+  systemd.user.timers.pedco-bot-notify = {
+    Unit.Description = "Pedco Bot — avisos 8:00 y 20:00 (con catch-up)";
+    Timer = {
+      OnCalendar = [
+        "*-*-* 08:00:00"
+        "*-*-* 20:00:00"
+      ];
+      Persistent = true;
+      RandomizedDelaySec = "30";
+    };
+    Install.WantedBy = [ "timers.target" ];
+  };
 
   dconf.settings."org/gnome/desktop/wm/preferences".button-layout = "appmenu:";
 
