@@ -297,6 +297,7 @@ in
     # Dev
     gh
     lazygit
+    opencode
     httpie
     dust
     duf
