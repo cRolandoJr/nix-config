@@ -10,6 +10,7 @@
     enable = true;
     wifi.powersave = false;
     wifi.backend = "wpa_supplicant";
+    plugins = [ pkgs.networkmanager-openvpn ];
   };
 
   # Sin esto systemd-rfkill persiste soft-blocks en /var/lib/systemd/rfkill/
