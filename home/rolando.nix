@@ -283,7 +283,6 @@ in
     libnotify
     yazi
 
-    vesktop # cliente Discord Wayland (screen-share con audio)
     telegram-desktop
     discord
 
@@ -305,6 +304,8 @@ in
     fastfetch
     vscode
     khal # backend del widget eww de calendario
+    chromium
+
     # claude-code: nativo self-updating en ~/.local/bin (ver memory). Setup: curl -fsSL https://claude.ai/install.sh | sh
     android-tools
     scrcpy
