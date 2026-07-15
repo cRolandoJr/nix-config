@@ -13,17 +13,6 @@
     gamescopeSession.enable = true;
   };
 
-  # Workaround nixpkgs unstable (post-2026-06): programs.steam fuerza setuid en bwrap,
-  # pero bubblewrap 0.11+ se compila sin -Dpriv_mode=setuid → aborta al ejecutarse.
-  # Solo `setuid = false` no alcanza: el módulo exige `source` explícito.
-  # Sobreescribimos el wrapper completo con mkForce.
-  security.wrappers.bwrap = lib.mkForce {
-    source = "${pkgs.bubblewrap}/bin/bwrap";
-    owner = "root";
-    group = "root";
-    setuid = false;
-  };
-
   programs.gamescope = {
     enable = true;
     capSysNice = true;

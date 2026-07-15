@@ -45,13 +45,6 @@
     ];
   };
 
-  # Workaround nixpkgs unstable (26.05): drop-in de NixOS agrega un segundo
-  # ExecStart= sobre el unit upstream (Type=dbus + ExecStart=); systemd lo rechaza.
-  systemd.user.services.blueman-applet.serviceConfig.ExecStart = lib.mkForce [
-    ""
-    "${pkgs.blueman}/bin/blueman-applet"
-  ];
-
   services.resolved = {
     enable = true;
     settings.Resolve = {

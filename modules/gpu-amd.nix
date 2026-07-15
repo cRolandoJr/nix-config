@@ -37,7 +37,7 @@
     vulkan-tools
     mesa-demos
     libva-utils
-    lact
+    # lact lo instala services.lact.enable; no duplicar aquí
   ];
 
   services.power-profiles-daemon.enable = true;

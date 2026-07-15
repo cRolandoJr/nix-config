@@ -49,8 +49,6 @@
     options = "--delete-older-than 7d";
   };
 
-  nix.optimise.automatic = true;
-
   boot.kernel.sysctl = {
     "vm.overcommit_memory" = 1;
     "vm.swappiness" = 180; # zram

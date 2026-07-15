@@ -1,6 +1,6 @@
 # nix-config
 
-NixOS flake para HP Victus 16 (AMD Ryzen 7 6800H + Radeon RX 6500M).
+NixOS flake para HP Victus 16 (AMD Ryzen 5 7535HS + Radeon RX 6500M dGPU / 680M iGPU).
 
 ## Estructura
 
