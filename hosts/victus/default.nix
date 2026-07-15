@@ -19,6 +19,7 @@
     ../../modules/virtualisation.nix
     ../../modules/gaming.nix
     ../../modules/btrbk.nix
+    ../../modules/smartd.nix
     ../../modules/k3s.nix
   ];
 
