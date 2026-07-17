@@ -108,9 +108,6 @@ in
     };
   };
 
-  # Daemon que notifica cambios de layout de teclado vía el socket de eventos de Hyprland.
-  # `path` inyecta bash/socat/libnotify: sin esto systemd-user arranca con PATH mínimo
-  # y el script muere con status 127 en loop.
   systemd.user.services.notify-layout = {
     description = "Hyprland keyboard layout change notifier";
     wantedBy = [ "graphical-session.target" ];
@@ -118,7 +115,7 @@ in
     partOf = [ "graphical-session.target" ];
     path = with pkgs; [
       bash
-      socat
+      nmap
       libnotify
     ];
     serviceConfig = {
