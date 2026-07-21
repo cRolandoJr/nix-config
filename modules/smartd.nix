@@ -13,7 +13,7 @@ _:
       x11.enable = false; # default true por el xserver del greeter SDDM; xmessage no va en Wayland
       # wall.enable queda true (default): cablea el -M exec + fallback a terminales
       # mail.enable queda false (default): sin MTA
-      test = true; # notif de prueba al arrancar; poner false tras verificar
+      test = false; # pipeline verificado 2026-07-20 (journal: "Test ... successful" en cada boot)
     };
   };
 }
