@@ -167,4 +167,7 @@
   };
 
   services.fstrim.enable = true; # complemento a discard=async
+
+  # Mide batería y emite eventos low/critical; poweralertd (home) los notifica.
+  services.upower.enable = true;
 }

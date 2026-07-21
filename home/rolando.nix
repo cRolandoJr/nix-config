@@ -168,6 +168,9 @@ in
   # hyprsunset.conf vive en dotfiles/hypr/ (HM no puede escribir dentro del mkOutOfStoreSymlink).
   services.hyprsunset.enable = true;
 
+  # Notifica a mako los eventos de batería de upower (low/critical/carga).
+  services.poweralertd.enable = true;
+
   # Bot de Telegram (Pedco): daemon + avisos 8/20h. Binario pineado al store
   # desde inputs.pedco-bot (reemplaza el unit y el nix-profile imperativos).
   systemd.user.services.pedco-bot = {
