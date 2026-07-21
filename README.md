@@ -18,7 +18,7 @@ modules/
   fonts.nix             — Noto, JetBrainsMono, Nerd Fonts
   desktop-hyprland.nix  — Hyprland+UWSM, SDDM, XDG portals, polkit, notify-layout
   gpu-amd.nix           — amdgpu, RADV, LACT, variables VA-API/VDPAU
-  gaming.nix            — Steam, gamescope, gamemode, ananicy-cpp, scx_lavd, bwrap fix
+  gaming.nix            — Steam, gamescope, gamemode, ananicy-cpp, scx_lavd
   virtualisation.nix    — libvirt/KVM, virt-manager, Podman rootless
   btrbk.nix             — snapshots btrfs de @home cada hora (retención 24h/7d/4w/6m)
   k3s.nix               — cluster Kubernetes single-node local
@@ -95,10 +95,9 @@ agregar en el módulo correspondiente o en `modules/base.nix` → `environment.s
 
 - `hardware.nix` es autogenerado; los UUIDs son específicos de este disco.
 - `system.stateVersion` y `home.stateVersion` no deben cambiarse después de instalar.
-- `gaming.nix` tiene un `lib.mkForce` en `security.wrappers.bwrap` para workaround
-  de bubblewrap 0.11+ (ver comentario en el archivo antes de eliminarlo).
-- `network.nix` tiene workaround para blueman-applet en nixpkgs unstable 26.05
-  (duplicate ExecStart).
+- Workarounds retirados: el `lib.mkForce` de bwrap (bubblewrap 0.11) ya no existe en
+  `gaming.nix`, y el de blueman-applet nunca se aplicó — con UWSM el applet corre vía
+  XDG-autostart y la unit systemd afectada queda sin uso (historia en `docs/notas.md` §8).
 - `pedco-bot` (bot de Telegram) se declara en `home/rolando.nix` vía `inputs.pedco-bot`
   (GitHub pin de `cRolandoJr/scraper-pedco`). Para actualizar el bot: push a su `main`,
   luego `nix flake update pedco-bot` + `rebuild`. Los avisos 8/20h los dispara

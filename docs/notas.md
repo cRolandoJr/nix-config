@@ -352,6 +352,11 @@ Eso + el `"timezone"` explícito del módulo = doble defensa. No confiar solo en
 
 ## 8. Bluetooth — `blueman-applet` con duplicate `ExecStart` (nixpkgs unstable)
 
+> **Estado 2026-07-20:** el workaround nunca se aplicó en `network.nix` y ya no hace
+> falta — con UWSM el applet corre vía XDG-autostart (`app-blueman@autostart.service`)
+> y la unit systemd afectada queda sin uso (inactive, no failed). Sección conservada
+> como referencia por si la unit vuelve a usarse.
+
 ### Síntoma
 
 `services.blueman.enable = true;` deja el unit user en `bad-setting`:
