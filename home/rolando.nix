@@ -287,6 +287,7 @@ in
     discord
 
     obsidian
+    onlyoffice-desktopeditors
 
     # Multimedia
     vlc
