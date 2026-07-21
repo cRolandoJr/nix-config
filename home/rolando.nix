@@ -279,7 +279,7 @@ in
       exec "$HOME/.local/share/pipx/venvs/codegraphcontext/bin/codegraphcontext" "$@"
     '')
 
-    kitty
+    foot
     hyprlock
     tzdata
     networkmanagerapplet
@@ -397,8 +397,8 @@ in
     "nvim".source =
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/nvim/.config/nvim";
 
-    "kitty".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/kitty/.config/kitty";
+    "foot".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/foot/.config/foot";
 
     "mako".source =
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/mako/.config/mako";
