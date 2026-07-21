@@ -83,9 +83,17 @@ in
   # captura nunca aparece. Forzar WantedBy lo levanta junto con la sesión.
   systemd.user.services.xdg-desktop-portal-hyprland.wantedBy = [ "graphical-session.target" ];
 
+  # Sin Flatpak ni AppImages el document portal no tiene consumidor, y sin
+  # fusermount3 falla al montar /run/user/1000/doc (unit en failed permanente).
+  # enable=false = mask (symlink a /dev/null). Revertir si algún día una app
+  # sandboxeada no puede abrir/guardar archivos.
+  systemd.user.units."xdg-document-portal.service".enable = false;
+
   security.polkit.enable = true;
 
   environment.systemPackages = with pkgs; [
+    # El agente polkit lo lanza el XDG-autostart del propio paquete (via UWSM);
+    # no declarar una unit manual: el segundo registro falla ("agent already exists").
     polkit_gnome
     qalculate-gtk
     gparted
@@ -95,18 +103,6 @@ in
 
     sddmAstronaut # también en sddm.extraPackages (ver let)
   ];
-
-  systemd.user.services.polkit-gnome-authentication-agent-1 = {
-    description = "polkit-gnome authentication agent";
-    wantedBy = [ "graphical-session.target" ];
-    after = [ "graphical-session.target" ];
-    serviceConfig = {
-      Type = "simple";
-      ExecStart = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
-      Restart = "on-failure";
-      RestartSec = 1;
-    };
-  };
 
   systemd.user.services.notify-layout = {
     description = "Hyprland keyboard layout change notifier";
