@@ -72,6 +72,11 @@ in
       rebuild-test = "nh os test ~/projects/nix-config";
       rebuild-boot = "nh os boot ~/projects/nix-config";
       update = "cd ~/projects/nix-config && nix flake update";
+
+      # Perfil battery: specialisation (k3s/scx off) + EPP en la misma pasada.
+      # Activación directa: sin eval del flake ni generación nueva.
+      battery-on = "sudo /run/current-system/specialisation/battery/bin/switch-to-configuration switch && powerprofilesctl set power-saver && pkill -RTMIN+10 waybar";
+      battery-off = "sudo /nix/var/nix/profiles/system/bin/switch-to-configuration switch && powerprofilesctl set balanced && pkill -RTMIN+10 waybar";
       gc = "sudo nix-collect-garbage -d && nix-collect-garbage -d";
 
       snap = "sudo btrbk -c /etc/btrbk/home.conf run --progress";

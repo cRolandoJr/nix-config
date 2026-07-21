@@ -102,6 +102,16 @@
             command = "/run/current-system/sw/bin/nix-collect-garbage";
             options = [ "NOPASSWD" ];
           }
+          # Toggle del perfil battery sin eval ni generación nueva (aliases
+          # battery-on/off). Solo el arg "switch": no habilita boot/test/etc.
+          {
+            command = "/run/current-system/specialisation/battery/bin/switch-to-configuration switch";
+            options = [ "NOPASSWD" ];
+          }
+          {
+            command = "/nix/var/nix/profiles/system/bin/switch-to-configuration switch";
+            options = [ "NOPASSWD" ];
+          }
         ];
       }
     ];
