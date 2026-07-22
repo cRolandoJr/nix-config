@@ -295,7 +295,7 @@ in
     discord
 
     obsidian
-    onlyoffice-desktopeditors
+    libreoffice
 
     # Multimedia
     vlc
@@ -315,9 +315,9 @@ in
     khal # backend del widget eww de calendario
     chromium
 
-    # claude-code: nativo self-updating en ~/.local/bin (ver memory). Setup: curl -fsSL https://claude.ai/install.sh | sh
     android-tools
     scrcpy
+    wayscriber
 
     (callPackage ../pkgs/boundary-desktop.nix { }) # no está en nixpkgs
 
