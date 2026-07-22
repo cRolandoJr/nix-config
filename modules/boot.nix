@@ -30,6 +30,13 @@
     "rd.udev.log_level=3"
   ];
 
+  # TEMPORAL debug freeze s2idle (13/17/21-jul): tras el próximo cuelgue+reboot,
+  # `dmesg | grep -i "hash matches"` identifica el device culpable. Retirar al cazarlo.
+  # Efecto colateral: pisa el RTC en cada suspend (NTP corrige la hora al resume).
+  systemd.tmpfiles.rules = [
+    "w /sys/power/pm_trace - - - - 1"
+  ];
+
   boot.consoleLogLevel = 0;
   boot.initrd.verbose = false;
 
