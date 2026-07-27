@@ -277,7 +277,12 @@ in
 
     # CGC requiere python3.12 (excluye tree-sitter en 3.13); lowPrio evita colisión
     # con python3 en nombres genéricos (bin/python3, etc.).
-    pipx
+    # WORKAROUND nixpkgs 26-jul-2026: tests/test_inject.py de pipx 1.14.0 no collecta con el
+    # pytest actual (parametrize con string); el `disabledTests` de nixpkgs es -k y corre
+    # post-collection, así que no alcanza. Retirar cuando `pipx` plano vuelva a buildear.
+    (pipx.overridePythonAttrs (o: {
+      disabledTestPaths = (o.disabledTestPaths or [ ]) ++ [ "tests/test_inject.py" ];
+    }))
     (lib.lowPrio python312)
 
     # CGC (FalkorDB Lite) hace dlopen de libstdc++.so.6, ausente en rutas FHS de NixOS.

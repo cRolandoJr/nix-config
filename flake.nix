@@ -2,7 +2,10 @@
   description = "rolando NixOS config - victus";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    # PIN 27-jul-2026: unstable del 25-jul subió libdisplay-info a 0.4.0 y lact 0.9.1 exige
+    # < 0.4.0, así que no compila. Este rev del 23-jul ya trae Hyprland 0.56 sin esa rotura.
+    # Volver a "nixos-unstable" cuando lact buildee de nuevo.
+    nixpkgs.url = "github:NixOS/nixpkgs/e220185ff6e66544862579018f33012372bb708f";
 
     home-manager = {
       url = "github:nix-community/home-manager/master";
