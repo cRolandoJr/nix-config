@@ -67,6 +67,9 @@ in
       tree = "eza --tree --icons";
       cat = "bat";
 
+      # Lanza el asistente Astro (run.sh carga config + secreto y corre el daemon).
+      astro = "~/projects/astro/run.sh";
+
       # nh detecta el host por hostname; no hace falta especificar #victus.
       rebuild = "nh os switch ~/projects/nix-config";
       rebuild-test = "nh os test ~/projects/nix-config";
@@ -392,6 +395,9 @@ in
 
     "eww".source =
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/eww/.config/eww";
+
+    "cliphist".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/cliphist/.config/cliphist";
 
     "rofi".source =
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/rofi/.config/rofi";
