@@ -261,6 +261,7 @@ in
     awww
     hypridle
     swayosd
+    cava # ecualizador del reproductor del hub; lo lanza eww/scripts/cava-mpris.sh
     thunar
     grim
     slurp
