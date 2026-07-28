@@ -119,6 +119,10 @@ in
       ExecStart = "%h/.config/hypr/scripts/notify-layout.sh"; # %h = $HOME (specifier systemd)
       Restart = "on-failure";
       RestartSec = 5;
+    };
+    # El rate-limit va en [Unit], no en [Service]: ahí systemd lo ignora en
+    # silencio y queda el default de 10s, que con RestartSec=5 nunca se alcanza.
+    unitConfig = {
       StartLimitBurst = 5;
       StartLimitIntervalSec = 60;
     };
