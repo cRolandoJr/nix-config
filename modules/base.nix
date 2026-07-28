@@ -112,6 +112,17 @@
             command = "/nix/var/nix/profiles/system/bin/switch-to-configuration switch";
             options = [ "NOPASSWD" ];
           }
+          # Botón "modo juego" de waybar: k3s idle come 6.7% de CPU y 539 MiB
+          # (medido 28-jul). sudoers exige match exacto del comando COMPLETO, así
+          # que esto no habilita systemctl genérico — solo estas dos unidades.
+          {
+            command = "/run/current-system/sw/bin/systemctl stop k3s.service";
+            options = [ "NOPASSWD" ];
+          }
+          {
+            command = "/run/current-system/sw/bin/systemctl start k3s.service";
+            options = [ "NOPASSWD" ];
+          }
         ];
       }
     ];
