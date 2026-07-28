@@ -66,8 +66,8 @@ Los dotfiles **no** viven en este repo. Están en `~/projects/dotfiles/` y se
 enlazan como `mkOutOfStoreSymlink` desde home-manager. Para editar: modificar
 el archivo en `~/projects/dotfiles/`, no el symlink en `~/.config/`.
 
-Herramientas enlazadas: hypr, waybar, eww, rofi, nvim, kitty, mako, khal, qt6ct,
-fastfetch, starship.
+Herramientas enlazadas: hypr, waybar, eww, cliphist, rofi, fastfetch, nvim, foot,
+mako, khal, qt6ct, yazi, starship.
 
 ## Rollback
 
