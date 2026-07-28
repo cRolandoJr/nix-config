@@ -75,6 +75,10 @@
         buildInputs = pre-commit-check.enabledPackages;
       };
 
+      # `nix fmt`. Mismo paquete que usa el hook nixfmt de pre-commit, así que los
+      # dos caminos formatean idéntico y no pueden pelearse.
+      formatter.${system} = pkgs.nixfmt;
+
       checks.${system} = { inherit pre-commit-check; };
     };
 }

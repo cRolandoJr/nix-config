@@ -179,6 +179,20 @@ in
   # Notifica a mako los eventos de batería de upower (low/critical/carga).
   services.poweralertd.enable = true;
 
+  # Servicio en vez de exec_cmd del autostart: waybar 0.15.0 crashea al perder el
+  # audio y con exec_cmd nadie lo relevanta (14 coredumps entre el 15 y el 28-jul).
+  # settings/style quedan vacíos a propósito: así el módulo NO escribe el config y
+  # sigue mandando el symlink a dotfiles.
+  programs.waybar = {
+    enable = true;
+    systemd.enable = true;
+  };
+
+  # El reloj de waybar no toma la zona de /etc/localtime; el TZ va explícito.
+  systemd.user.services.waybar.Service.Environment = [
+    "TZ=America/Argentina/Buenos_Aires"
+  ];
+
   # Bot de Telegram (Pedco): daemon + avisos 8/20h. Binario pineado al store
   # desde inputs.pedco-bot (reemplaza el unit y el nix-profile imperativos).
   systemd.user.services.pedco-bot = {
@@ -254,7 +268,6 @@ in
     # Hyprland session tools
     rofi
     imagemagick
-    waybar
     eww # widgets custom (calendar popup, hub)
     brightnessctl # CLI de brillo de pantalla; usado por slider del hub
     mako
