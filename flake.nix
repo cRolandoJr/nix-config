@@ -1,3 +1,7 @@
+# ╔════════════════════════════════════════════════════════════════╗
+# ║   N  I  X  O  S  ·  victus                                     ║
+# ║   cRolandoJr · github.com/cRolandoJr                           ║
+# ╚════════════════════════════════════════════════════════════════╝
 {
   description = "rolando NixOS config - victus";
 
