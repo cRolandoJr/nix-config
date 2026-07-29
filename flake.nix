@@ -21,6 +21,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Particionado declarativo. El layout vive en hosts/victus/disk.nix.
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Bot de Telegram (Pedco). follows nixpkgs evita duplicar nixpkgs en el lock.
     pedco-bot = {
       url = "github:cRolandoJr/scraper-pedco";
@@ -59,6 +65,8 @@
         specialArgs = { inherit inputs; };
         modules = [
           ./hosts/victus
+          inputs.disko.nixosModules.disko
+          ./hosts/victus/disk.nix
           # Ata cada generación a su commit. Se lee DESDE la generación booteada con
           # `nixos-version --configuration-revision`, que es cuando hace falta:
           # booteaste algo viejo del menú y querés saber qué config es.
