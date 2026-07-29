@@ -96,12 +96,17 @@ in
       rebuild-boot = "nh os boot ~/projects/nix-config";
       update = "cd ~/projects/nix-config && nix flake update";
 
-      # Perfil battery: specialisation (k3s/scx off) + EPP en la misma pasada.
-      # Activación directa: sin eval del flake ni generación nueva.
-      # El pkill refresca custom/gamemode: la specialisation apaga k3s
-      # (battery.nix:17), que es justo el estado que ese módulo muestra.
-      battery-on = "sudo /run/current-system/specialisation/battery/bin/switch-to-configuration switch && powerprofilesctl set power-saver && pkill -RTMIN+11 waybar";
-      battery-off = "sudo /nix/var/nix/profiles/system/bin/switch-to-configuration switch && powerprofilesctl set balanced && pkill -RTMIN+11 waybar";
+      # Perfil batería: para k3s + scx y baja el EPP, en la misma pasada. Antes
+      # esto conmutaba una specialisation; ahora es systemctl directo — mismo
+      # efecto sin build extra en cada rebuild ni entrada de boot por generación.
+      # El pkill refresca custom/gamemode, que muestra el estado de esos units.
+      # Ojo: `powerprofilesctl set` necesita un agente polkit; si falla, el
+      # stop/start de los servicios igual se aplicó (van antes en la cadena).
+      # Una invocación POR unit a propósito: sudoers matchea el comando completo
+      # con sus argumentos, así que `stop k3s.service scx.service` junto no
+      # coincidiría con ninguna regla y pediría contraseña.
+      battery-on = "sudo systemctl stop k3s.service; sudo systemctl stop scx.service; powerprofilesctl set power-saver; pkill -RTMIN+11 waybar";
+      battery-off = "sudo systemctl start k3s.service; sudo systemctl start scx.service; powerprofilesctl set balanced; pkill -RTMIN+11 waybar";
       gc = "sudo nix-collect-garbage -d && nix-collect-garbage -d";
 
       snap = "sudo btrbk -c /etc/btrbk/home.conf run --progress";

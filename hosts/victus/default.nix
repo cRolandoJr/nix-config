@@ -21,7 +21,6 @@
     ../../modules/btrbk.nix
     ../../modules/smartd.nix
     ../../modules/k3s.nix
-    ../../modules/battery.nix
     ../../modules/astro.nix
   ];
 

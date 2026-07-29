@@ -102,25 +102,27 @@
             command = "/run/current-system/sw/bin/nix-collect-garbage";
             options = [ "NOPASSWD" ];
           }
-          # Toggle del perfil battery sin eval ni generación nueva (aliases
-          # battery-on/off). Solo el arg "switch": no habilita boot/test/etc.
-          {
-            command = "/run/current-system/specialisation/battery/bin/switch-to-configuration switch";
-            options = [ "NOPASSWD" ];
-          }
-          {
-            command = "/nix/var/nix/profiles/system/bin/switch-to-configuration switch";
-            options = [ "NOPASSWD" ];
-          }
-          # Botón "modo juego" de waybar: k3s idle come 6.7% de CPU y 539 MiB
-          # (medido 28-jul). sudoers exige match exacto del comando COMPLETO, así
-          # que esto no habilita systemctl genérico — solo estas dos unidades.
+          # Botón "modo juego" de waybar y aliases battery-on/off: paran los dos
+          # daemons always-on que gastan sin usarlos (k3s: 6.7% CPU y 539 MiB
+          # medidos; scx_lavd: gasta CPU a propósito para bajar latencia).
+          #
+          # sudoers exige match exacto del comando COMPLETO cuando la regla lleva
+          # argumentos, así que esto NO habilita systemctl genérico — verificado:
+          # `sudo -n systemctl stop sshd.service` sigue pidiendo contraseña.
           {
             command = "/run/current-system/sw/bin/systemctl stop k3s.service";
             options = [ "NOPASSWD" ];
           }
           {
             command = "/run/current-system/sw/bin/systemctl start k3s.service";
+            options = [ "NOPASSWD" ];
+          }
+          {
+            command = "/run/current-system/sw/bin/systemctl stop scx.service";
+            options = [ "NOPASSWD" ];
+          }
+          {
+            command = "/run/current-system/sw/bin/systemctl start scx.service";
             options = [ "NOPASSWD" ];
           }
         ];
