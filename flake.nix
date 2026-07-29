@@ -27,6 +27,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Secretos cifrados en git. Reglas en .sops.yaml, cifrados en secrets/.
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Bot de Telegram (Pedco). follows nixpkgs evita duplicar nixpkgs en el lock.
     pedco-bot = {
       url = "github:cRolandoJr/scraper-pedco";

@@ -1,0 +1,18 @@
+# Reglas de cifrado para sops.
+#
+# El recipient es la identidad age DERIVADA de ~/.ssh/id_ed25519 (con ssh-to-age).
+# Se eligió así a propósito: no hay una clave nueva que respaldar. En una máquina
+# nueva basta con tener esa SSH —que ibas a copiar igual— y los secretos se
+# descifran solos.
+#
+# Para rotar o agregar una máquina:
+#   ssh-to-age < ~/.ssh/id_ed25519.pub        # obtener el recipient
+#   sops updatekeys secrets/pedco.env         # re-cifrar con los recipients nuevos
+keys:
+  - &rolando age1chjr3jrprx3ljqcmnvhkwh74v83cp2jdggygtps5hklur6t0fp2qn4gdll
+
+creation_rules:
+  - path_regex: secrets/.*
+    key_groups:
+      - age:
+          - *rolando

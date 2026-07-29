@@ -10,11 +10,31 @@ let
   pedcoBot = inputs.pedco-bot.packages.${pkgs.stdenv.hostPlatform.system}.pedco-bot;
 in
 {
+  imports = [ inputs.sops-nix.homeManagerModules.sops ];
+
   home.username = "rolando";
   home.homeDirectory = "/home/rolando";
   home.stateVersion = "25.11"; # no cambiar después de instalar
 
   programs.home-manager.enable = true;
+
+  # Secretos de pedco-bot. La identidad age se DERIVA de la SSH, así que en una
+  # máquina nueva basta tener ~/.ssh/id_ed25519 para que descifre — no hay una
+  # clave extra que respaldar. Ver .sops.yaml.
+  sops = {
+    age.sshKeyPaths = [ "${config.home.homeDirectory}/.ssh/id_ed25519" ];
+    secrets = {
+      TG_TOKEN.sopsFile = ../secrets/pedco.yaml;
+      # AES-256 base64 (32 bytes). NO cambiar sin migrar la DB.
+      SECRET_KEY.sopsFile = ../secrets/pedco.yaml;
+    };
+    # Los units piden un EnvironmentFile, no secretos sueltos: el template los
+    # compone en un archivo que solo existe descifrado en runtime.
+    templates."pedco.env".content = ''
+      TG_TOKEN=${config.sops.placeholder.TG_TOKEN}
+      SECRET_KEY=${config.sops.placeholder.SECRET_KEY}
+    '';
+  };
 
   programs.git = {
     enable = true;
@@ -187,13 +207,21 @@ in
   systemd.user.services.pedco-bot = {
     Unit = {
       Description = "Pedco Bot (daemon Telegram)";
-      Wants = [ "network-online.target" ];
-      After = [ "network-online.target" ];
+      # sops-nix.service renderiza el EnvironmentFile: sin este orden, el daemon
+      # arranca antes de que exista y falla al bootear.
+      Wants = [
+        "network-online.target"
+        "sops-nix.service"
+      ];
+      After = [
+        "network-online.target"
+        "sops-nix.service"
+      ];
     };
     Service = {
       Type = "simple";
       WorkingDirectory = "%h/projects/scraper-pedco";
-      EnvironmentFile = "%h/projects/scraper-pedco/.env";
+      EnvironmentFile = config.sops.templates."pedco.env".path;
       ExecStart = "${pedcoBot}/bin/pedco-bot";
       Restart = "always";
       RestartSec = "5s";
@@ -205,11 +233,14 @@ in
 
   # Oneshot disparado por el timer (sin WantedBy propio): una ronda y sale.
   systemd.user.services.pedco-bot-notify = {
-    Unit.Description = "Pedco Bot — ronda de avisos (oneshot)";
+    Unit = {
+      Description = "Pedco Bot — ronda de avisos (oneshot)";
+      After = [ "sops-nix.service" ];
+    };
     Service = {
       Type = "oneshot";
       WorkingDirectory = "%h/projects/scraper-pedco";
-      EnvironmentFile = "%h/projects/scraper-pedco/.env";
+      EnvironmentFile = config.sops.templates."pedco.env".path;
       ExecStart = "${pedcoBot}/bin/pedco-bot notify";
       NoNewPrivileges = true;
       PrivateTmp = true;
@@ -257,6 +288,8 @@ in
     # Hyprland session tools
     rofi
     imagemagick
+    sops # editar secretos: sops secrets/pedco.yaml
+    ssh-to-age # derivar el recipient age de la SSH
     eww # widgets custom (calendar popup, hub)
     brightnessctl # CLI de brillo de pantalla; usado por slider del hub
     mako
