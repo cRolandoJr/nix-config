@@ -6,10 +6,14 @@ NixOS flake para HP Victus 16 (AMD Ryzen 5 7535HS + Radeon RX 6500M dGPU / 680M 
 
 ```
 flake.nix               — inputs, outputs, devShell, pre-commit hooks
+.sops.yaml              — reglas de cifrado (recipient age derivado de la SSH)
+secrets/
+  pedco.yaml            — TG_TOKEN + SECRET_KEY cifrados con sops
 hosts/
   victus/
     default.nix         — imports de módulos + hostname + stateVersion
-    hardware.nix        — autogenerado nixos-generate-config (LUKS, btrfs, UUIDs)
+    disk.nix            — layout declarativo (disko): GPT + LUKS + btrfs 5 subvols
+    hardware.nix        — módulos de kernel del initrd + microcódigo (sin UUIDs)
 modules/
   base.nix              — locale, nix settings, usuario, sudo NOPASSWD, nix-ld, zram
   boot.nix              — systemd-boot, Plymouth, kernel params, consola silenciosa
@@ -28,6 +32,63 @@ home/
 pkgs/
   boundary-desktop.nix  — derivación custom de HashiCorp Boundary Desktop (no en nixpkgs)
 ```
+
+## Instalación en una máquina nueva
+
+El orden importa: **home-manager enlaza los dotfiles con `mkOutOfStoreSymlink`**, así que
+si `~/projects/dotfiles` no existe al primer switch, la activación falla.
+
+```bash
+# ── 1. Desde el ISO de NixOS, particionar y formatear con disko.
+#      OJO: esto BORRA el disco. Ajustar `device` en disk.nix si no es /dev/nvme0n1.
+sudo nix --experimental-features "nix-command flakes" run \
+  github:nix-community/disko/latest -- \
+  --mode destroy,format,mount \
+  --flake github:cRolandoJr/nix-config#victus
+
+# ── 2. Instalar el sistema (disko ya dejó todo montado en /mnt).
+sudo nixos-install --flake github:cRolandoJr/nix-config#victus
+
+# ── 3. Reiniciar y entrar. Después, ANTES de cualquier rebuild:
+mkdir -p ~/projects
+git clone git@github.com:cRolandoJr/dotfiles.git   ~/projects/dotfiles
+git clone git@github.com:cRolandoJr/nix-config.git ~/projects/nix-config
+
+# ── 4. La SSH descifra los secretos: copiarla desde el backup.
+#      Sin esto, pedco-bot no arranca (el resto del sistema sí).
+install -m600 /ruta/al/backup/id_ed25519 ~/.ssh/id_ed25519
+
+# ── 5. Ya se puede rebuildear normalmente.
+cd ~/projects/nix-config && sudo nixos-rebuild switch --flake .#victus
+```
+
+### Pasos post-instalación
+
+**Subvolúmenes anidados de churn pesado.** No están en `disk.nix` porque viven dentro de
+`@home` y se crean recién cuando existe el home del usuario. Sin ellos, Steam y `~/.cache`
+inflan los snapshots de btrbk hasta llenar el disco:
+
+```bash
+btrfs subvolume create ~/.cache
+btrfs subvolume create ~/.local/share/Steam/steamapps
+```
+
+Runbook completo: `docs/2026-07-14-steam-subvolumen-migracion.md`.
+
+**Lo que NO está en git** y hay que rehacer a mano: las VMs de libvirt
+(`victim-01`, `wazuh-mgr`), las launch options de Steam, y la clave SSH del paso 4.
+
+### Qué cambiar si el hardware es distinto
+
+| Archivo | Qué revisar |
+|---|---|
+| `hosts/victus/disk.nix` | `device` — el único valor atado al disco |
+| `hosts/victus/hardware.nix` | los módulos de `initrd.availableKernelModules` |
+| `.sops.yaml` | agregar el recipient nuevo y `sops updatekeys secrets/pedco.yaml` |
+
+Los `label` de las particiones (`ESP`, `primary`) están fijados en `disk.nix` a propósito:
+disko los crea con esos nombres, así que los paths `/dev/disk/by-partlabel/…` resuelven
+igual en cualquier máquina.
 
 ## Comandos frecuentes
 
