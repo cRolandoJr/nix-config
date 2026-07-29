@@ -45,9 +45,14 @@ update                  # nix flake update
 # Garbage collection
 gc                      # nix-collect-garbage -d (user + system)
 
-# Tag de generation en git
-tag-gen                 # crea git tag gen-XX con la generation activa
+# Qué commit es la generación que estoy corriendo
+nixos-version --configuration-revision
 ```
+
+`system.configurationRevision` embute el commit en cada generación, así que el dato se
+consulta desde adentro del sistema booteado. Reemplazó a la función `tag-gen`, que era
+manual y solo llegó a cubrir 9 de 144 generaciones. Los tags `gen-*` viejos quedan como
+historia.
 
 ## Devshell y pre-commit
 

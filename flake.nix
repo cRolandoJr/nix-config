@@ -59,6 +59,10 @@
         specialArgs = { inherit inputs; };
         modules = [
           ./hosts/victus
+          # Ata cada generación a su commit. Se lee DESDE la generación booteada con
+          # `nixos-version --configuration-revision`, que es cuando hace falta:
+          # booteaste algo viejo del menú y querés saber qué config es.
+          { system.configurationRevision = self.rev or self.dirtyRev or "dirty"; }
           home-manager.nixosModules.home-manager
           {
             home-manager.useGlobalPkgs = true;

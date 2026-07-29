@@ -133,19 +133,6 @@ in
 
       # _eza solo ofrece flags; _files para que ls/ll/tree completen paths.
       compdef _files eza
-
-      tag-gen() {
-        local repo="$HOME/projects/nix-config"
-        local gen
-        gen=$(basename "$(readlink /nix/var/nix/profiles/system)" | grep -oE '[0-9]+')
-        if [ -z "$gen" ]; then
-          echo "tag-gen: no pude leer la generation actual" >&2
-          return 1
-        fi
-        local msg="''${1:-gen $gen — $(date +%Y-%m-%d)}"
-        git -C "$repo" tag -a "gen-$gen" -m "$msg" && \
-          echo "Tagged gen-$gen → $msg"
-      }
     '';
   };
 
