@@ -21,13 +21,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Particionado declarativo. El layout vive en hosts/victus/disk.nix.
     disko = {
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Secretos cifrados en git. Reglas en .sops.yaml, cifrados en secrets/.
     sops-nix = {
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -73,9 +71,7 @@
           ./hosts/victus
           inputs.disko.nixosModules.disko
           ./hosts/victus/disk.nix
-          # Ata cada generación a su commit. Se lee DESDE la generación booteada con
-          # `nixos-version --configuration-revision`, que es cuando hace falta:
-          # booteaste algo viejo del menú y querés saber qué config es.
+          # Se lee DESDE la generación booteada: `nixos-version --configuration-revision`.
           { system.configurationRevision = self.rev or self.dirtyRev or "dirty"; }
           home-manager.nixosModules.home-manager
           {
@@ -93,8 +89,7 @@
         buildInputs = pre-commit-check.enabledPackages;
       };
 
-      # `nix fmt`. Mismo paquete que usa el hook nixfmt de pre-commit, así que los
-      # dos caminos formatean idéntico y no pueden pelearse.
+      # Mismo paquete que el hook de pre-commit, para que no formateen distinto.
       formatter.${system} = pkgs.nixfmt;
 
       checks.${system} = { inherit pre-commit-check; };

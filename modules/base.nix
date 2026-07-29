@@ -102,13 +102,8 @@
             command = "/run/current-system/sw/bin/nix-collect-garbage";
             options = [ "NOPASSWD" ];
           }
-          # Botón "modo juego" de waybar y aliases battery-on/off: paran los dos
-          # daemons always-on que gastan sin usarlos (k3s: 6.7% CPU y 539 MiB
-          # medidos; scx_lavd: gasta CPU a propósito para bajar latencia).
-          #
-          # sudoers exige match exacto del comando COMPLETO cuando la regla lleva
-          # argumentos, así que esto NO habilita systemctl genérico — verificado:
-          # `sudo -n systemctl stop sshd.service` sigue pidiendo contraseña.
+          # Botón modo juego + aliases battery-on/off. sudoers exige match exacto
+          # del comando con sus argumentos, así que NO habilita systemctl genérico.
           {
             command = "/run/current-system/sw/bin/systemctl stop k3s.service";
             options = [ "NOPASSWD" ];

@@ -1,18 +1,4 @@
-# Layout de disco declarativo (disko): btrfs sobre LUKS, 5 subvolúmenes.
-#
-# Lo único a cambiar en otra máquina es `device`. Los `label` están fijados a
-# "ESP" y "primary" a propósito: son las etiquetas que ya tiene este disco, así
-# que la config resuelve acá sin repartir, y en una instalación nueva disko las
-# crea con esos mismos nombres. Sin el label explícito, disko generaría
-# "gpt-main-ESP" y los paths no existirían en este disco.
-#
-# CUIDADO: correr disko FORMATEA. Para instalar en una máquina nueva:
-#   sudo nix run github:nix-community/disko/latest -- \
-#     --mode destroy,format,mount hosts/victus/disk.nix
-#
-# Los subvolúmenes anidados de churn pesado (steamapps, .cache) NO van acá:
-# viven dentro de @home y se crean después de que exista el home del usuario.
-# Ver docs/2026-07-14-steam-subvolumen-migracion.md.
+# CUIDADO: correr disko FORMATEA el disco. Instalación: ver el README.
 {
   disko.devices.disk.main = {
     type = "disk";
@@ -21,6 +7,8 @@
       type = "gpt";
       partitions = {
         ESP = {
+          # label explícito: sin él disko genera "gpt-main-ESP" y el path
+          # by-partlabel no existe en este disco → no bootea.
           label = "ESP";
           size = "1G";
           type = "EF00";
