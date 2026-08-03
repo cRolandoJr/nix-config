@@ -18,5 +18,9 @@
     ];
   };
 
+  # Arranque manual: al boot costaba 30s de CPU (el mayor de todos los servicios) y
+  # después idlea a 8% de un core + 934 MiB. Prender con `sudo systemctl start k3s.service`.
+  systemd.services.k3s.wantedBy = lib.mkForce [ ];
+
   # 6443 no expuesto. Para acceso externo: networking.firewall.allowedTCPPorts = [ 6443 ];
 }

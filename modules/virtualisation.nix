@@ -8,6 +8,9 @@
 {
   virtualisation.libvirtd = {
     enable = true;
+    # Default "start": libvirt-guests revivía la VM suspendida a los 13s del boot
+    # (leer ~1,5 GB de imagen de RAM vía LUKS). Las VMs son lab, se levantan a mano.
+    onBoot = "ignore";
     qemu = {
       package = pkgs.qemu_kvm;
       runAsRoot = true;
