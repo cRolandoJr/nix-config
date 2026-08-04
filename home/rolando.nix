@@ -353,7 +353,7 @@ in
     nix-output-monitor # activado via NH_NOM=1
     fastfetch
     vscode
-    khal # backend del widget eww de calendario
+    khal # calendario local; TUI ikhal en SUPER+I (el widget de eww no lo usa)
     chromium
 
     android-tools
