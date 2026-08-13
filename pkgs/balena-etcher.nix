@@ -15,6 +15,7 @@
   expat,
   glib,
   gtk3,
+  libglvnd,
   libx11,
   libxcb,
   libxcomposite,
@@ -86,14 +87,28 @@ stdenv.mkDerivation (finalAttrs: {
 
     mkdir -p $out/opt/balena-etcher
     cp -r . $out/opt/balena-etcher
+    cp resources/etcher-util $NIX_BUILD_TOP/etcher-util.pristine
 
     # chrome-sandbox necesita setuid y el store no lo permite → --no-sandbox
+    # GL/EGL entran por dlopen desde ANGLE: RUNPATH no se hereda, va por LD_LIBRARY_PATH
     makeWrapper $out/opt/balena-etcher/balena-etcher $out/bin/balena-etcher \
       --add-flags "--no-sandbox" \
+      --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ libglvnd ]}" \
       --set NIXOS_OZONE_WL 1 \
       --set ELECTRON_OZONE_PLATFORM_HINT wayland
 
     runHook postInstall
+  '';
+
+  # etcher-util es un binario `pkg`: lee su payload JS de un offset fijo grabado
+  # adentro, y patchelf le corre el archivo 4 KB. Se parchea todo lo demás a mano
+  # y se restaura el original; sus libs las resuelve nix-ld.
+  dontAutoPatchelf = true;
+
+  postFixup = ''
+    autoPatchelf $out/opt/balena-etcher
+    install -m755 $NIX_BUILD_TOP/etcher-util.pristine \
+      $out/opt/balena-etcher/resources/etcher-util
   '';
 
   meta = {
