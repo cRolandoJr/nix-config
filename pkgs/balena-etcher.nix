@@ -2,7 +2,9 @@
   lib,
   stdenv,
   fetchurl,
+  bash,
   unzip,
+  asar,
   autoPatchelfHook,
   makeWrapper,
   copyDesktopItems,
@@ -39,8 +41,23 @@ stdenv.mkDerivation (finalAttrs: {
     hash = "sha256-MXVfx5kgWHOCl6tjO8YPdZmfNNuUaAzWykydoiK9T3U=";
   };
 
+  # El sidecar que escribe el disco se lanza con `pkexec ... /bin/bash -c`, y en
+  # NixOS ninguno de los dos paths existe (pkexec vive en el wrapper setuid y
+  # /bin sólo tiene sh). pkexec valida el programa antes de autenticar, así que
+  # sin esto falla sin siquiera pedir la contraseña.
+  postPatch = ''
+    asar extract resources/app.asar app-patched
+    substituteInPlace app-patched/.webpack/renderer/main_window/index.js \
+      --replace-fail /usr/bin/pkexec /run/wrappers/bin/pkexec \
+      --replace-fail '"/bin/bash"' '"${bash}/bin/bash"'
+    rm -rf resources/app.asar resources/app.asar.unpacked
+    asar pack app-patched resources/app.asar --unpack "*.node"
+    rm -rf app-patched
+  '';
+
   nativeBuildInputs = [
     unzip
+    asar
     autoPatchelfHook
     makeWrapper
     copyDesktopItems
