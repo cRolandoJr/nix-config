@@ -95,8 +95,8 @@ in
 
       # Una invocación POR unit: sudoers matchea el comando con sus argumentos, así
       # que los dos units juntos no coincidirían con ninguna regla y pediría clave.
-      # `;` y no `&&` porque powerprofilesctl puede fallar por polkit y el resto sí
-      # debe correr. El pkill refresca custom/gamemode.
+      # `;` y no `&&`: los cuatro pasos son independientes y todos deben intentarse
+      # (si uno falla, el pkill igual tiene que refrescar custom/gamemode).
       battery-on = "sudo systemctl stop k3s.service; sudo systemctl stop scx.service; powerprofilesctl set power-saver; pkill -RTMIN+11 waybar";
       battery-off = "sudo systemctl start k3s.service; sudo systemctl start scx.service; powerprofilesctl set balanced; pkill -RTMIN+11 waybar";
       gc = "sudo nix-collect-garbage -d && nix-collect-garbage -d";
