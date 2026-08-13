@@ -361,6 +361,7 @@ in
     wayscriber
 
     (callPackage ../pkgs/boundary-desktop.nix { }) # no está en nixpkgs
+    (callPackage ../pkgs/balena-etcher.nix { }) # ídem; removido de nixpkgs
 
     # Qt Fusion (built-in) + qt6ct para paleta en apps Qt efímeras (share-picker, etc.)
     kdePackages.qt6ct
