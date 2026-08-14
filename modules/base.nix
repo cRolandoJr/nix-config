@@ -139,7 +139,9 @@
     zip
     p7zip
     jq
-    yq
+    # yq-go (mikefarah), no `yq` (el wrapper Python): los scripts de
+    # gama23_governance usan la sintaxis `yq eval`, que solo entiende este.
+    yq-go
     tmux
     gnupg
     pinentry-qt
