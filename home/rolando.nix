@@ -423,6 +423,7 @@ in
 
     NH_NOM = "1"; # nh pipea el build por nix-output-monitor
     KUBECONFIG = "/etc/rancher/k3s/k3s.yaml"; # k3s escribe este con mode 644
+    GOVERNANCE_USER_HANDLE = "rc"; # sin esto los scripts de gama23 resuelven a roddy
   };
 
   xdg.configFile = {
