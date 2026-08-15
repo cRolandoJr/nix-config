@@ -6,9 +6,14 @@
   description = "rolando NixOS config - victus";
 
   inputs = {
-    # PIN 27-jul-2026: unstable del 25-jul subió libdisplay-info a 0.4.0 y lact 0.9.1 exige
-    # < 0.4.0, así que no compila. Este rev del 23-jul ya trae Hyprland 0.56 sin esa rotura.
-    # Volver a "nixos-unstable" cuando lact buildee de nuevo.
+    # PIN 27-jul-2026, revalidado 15-ago-2026: rev del 23-jul en vez de "nixos-unstable".
+    # El motivo original (lact 0.9.1 vs libdisplay-info 0.4.0) ya lo resolvió upstream con
+    # el atributo libdisplay-info_0_3 — lact buildea. Ahora sostiene el pin otra rotura:
+    # fmt 12.2.0 dejó de arrastrar <cstdint>/<cstring> y ananicy-cpp 1.2.0 no compila
+    # (a Hydra tampoco: no está en cache.nixos.org). Ver modules/gaming.nix.
+    # Gatillo: volver a "nixos-unstable" cuando ananicy-cpp buildee contra unstable.
+    # Salida de emergencia si urge un nixpkgs nuevo antes de eso:
+    #   ananicy-cpp.override { spdlog = spdlog.override { fmt = fmt_11; }; }   (verificado)
     nixpkgs.url = "github:NixOS/nixpkgs/e220185ff6e66544862579018f33012372bb708f";
 
     home-manager = {
