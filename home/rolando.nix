@@ -177,6 +177,7 @@ in
     gtk.enable = true;
     x11.enable = true;
     hyprcursor.enable = true;
+    enable = true;
   };
 
   # hyprsunset.conf vive en dotfiles/hypr/ (HM no puede escribir dentro del mkOutOfStoreSymlink).
