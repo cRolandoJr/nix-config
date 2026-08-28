@@ -379,6 +379,7 @@ in
     fd # Telescope find_files
 
     # LSPs
+    go # gopls resuelve root_dir con 'go env GOMODCACHE'; sin toolchain rompe en buffers Go
     gopls
     pyright
     rust-analyzer
