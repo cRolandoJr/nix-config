@@ -343,6 +343,7 @@ in
     vlc
     mpv
     spotify
+    sox
 
     # Dev
     gh
