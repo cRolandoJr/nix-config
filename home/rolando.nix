@@ -24,6 +24,7 @@ in
       TG_TOKEN.sopsFile = ../secrets/pedco.yaml;
       # AES-256 base64 (32 bytes). NO cambiar sin migrar la DB.
       SECRET_KEY.sopsFile = ../secrets/pedco.yaml;
+      MOODLE_TOKEN.sopsFile = ../secrets/pedco.yaml;
     };
     # Los units piden un EnvironmentFile, no secretos sueltos: el template los
     # compone en un archivo que solo existe descifrado en runtime.
@@ -423,6 +424,7 @@ in
     VISUAL = "nvim";
     ANDROID_SDK_ROOT = "/home/rolando/Android/Sdk";
     ANDROID_HOME = "/home/rolando/Android/Sdk";
+    MOODLE_URL = "https://pedco.uncoma.edu.ar/webservice/rest/server.php";
 
     NH_NOM = "1"; # nh pipea el build por nix-output-monitor
     KUBECONFIG = "/etc/rancher/k3s/k3s.yaml"; # k3s escribe este con mode 644
