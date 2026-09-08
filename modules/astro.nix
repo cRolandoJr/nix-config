@@ -6,12 +6,12 @@
   # config viven en run.sh.
   systemd.user.services.astro = {
     description = "Astro — asistente de voz hands-free (wake-word)";
-    wantedBy = [ "graphical-session.target" ];
+    #wantedBy = [ "graphical-session.target" ];
     after = [
       "graphical-session.target"
       "pipewire.service"
     ];
-    partOf = [ "graphical-session.target" ];
+    #partOf = [ "graphical-session.target" ];
     # run.sh usa nix (nix shell/build) + bash + coreutils; pw-play viene de pipewire; eww dibuja la
     # cara (el servicio tiene PATH propio; sin esto no encuentra eww y la cara no aparece).
     path = with pkgs; [

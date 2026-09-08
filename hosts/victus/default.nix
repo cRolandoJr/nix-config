@@ -21,7 +21,6 @@
     ../../modules/btrbk.nix
     ../../modules/smartd.nix
     ../../modules/k3s.nix
-    ../../modules/astro.nix
   ];
 
   networking.hostName = "victus";
