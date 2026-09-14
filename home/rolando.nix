@@ -357,7 +357,7 @@ in
     fastfetch
     vscode
     khal # calendario local; TUI ikhal en SUPER+I (el widget de eww no lo usa)
-    chromium
+    google-chrome
 
     android-tools
     scrcpy
