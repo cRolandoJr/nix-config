@@ -358,6 +358,7 @@ in
     vscode
     khal # calendario local; TUI ikhal en SUPER+I (el widget de eww no lo usa)
     google-chrome
+    antigravity-ide
 
     android-tools
     scrcpy
