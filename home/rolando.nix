@@ -284,30 +284,82 @@ in
   };
 
   home.packages = with pkgs; [
-    # Hyprland session tools
+    # Escritorio: sesión Hyprland, notificaciones, portapapeles, terminal, archivos
     rofi
-    imagemagick
-    sops # editar secretos: sops secrets/pedco.yaml
-    ssh-to-age # derivar el recipient age de la SSH
     eww # widgets custom (calendar popup, hub)
-    brightnessctl # CLI de brillo de pantalla; usado por slider del hub
     mako
     awww
     hypridle
+    hyprlock
     swayosd
-    cava # ecualizador del reproductor del hub; lo lanza eww/scripts/cava-mpris.sh
+    cliphist
+    wl-clipboard
+    brightnessctl # CLI de brillo; usado por el slider del hub
+    libnotify
+    kdePackages.qt6ct # paleta en apps Qt efímeras (share-picker); Qt Fusion es built-in
+    foot
     thunar
+    yazi
+
+    # Capturas de pantalla
     grim
     slurp
-    satty # editor de anotaciones para screenshots (grim | satty)
-    wl-clipboard
+    satty # anotar: grim | satty
+    imagemagick
 
-    # Kubernetes
+    # Multimedia
+    vlc
+    mpv
+    spotify
+    sox
+    cava # ecualizador del reproductor del hub; lo lanza eww/scripts/cava-mpris.sh
+
+    # Ocio y comunicación
+    telegram-desktop
+    discord
+    google-chrome
+
+    # Productividad
+    obsidian
+    libreoffice
+    khal # calendario local; TUI ikhal en SUPER+I (el widget de eww no lo usa)
+    tzdata
+
+    # Dev: editores y git
+    neovim
+    vscode
+    antigravity-ide
+    gh
+    lazygit
+
+    # Dev: CLI
+    bat
+    eza
+    ripgrep # Telescope live_grep
+    fd # Telescope find_files
+    httpie
+    poppler-utils
+    fastfetch
+    nix-output-monitor # activado via NH_NOM=1
+
+    # Infra: secretos
+    sops # editar secretos: sops secrets/pedco.yaml
+    ssh-to-age # derivar el recipient age de la SSH
+
+    # Infra: k3s single-node (modules/k3s.nix; el servicio arranca a mano)
     kubectl
     k9s
     kubernetes-helm
-    cliphist
-    neovim
+
+    # Infra: Android
+    android-tools
+    scrcpy
+
+    # Fuera de nixpkgs
+    (callPackage ../pkgs/boundary-desktop.nix { }) # no está en nixpkgs
+    (callPackage ../pkgs/balena-etcher.nix { }) # ídem; removido de nixpkgs
+
+    # Python + CodeGraphContext
     python3
 
     # CGC requiere python3.12 (excluye tree-sitter en 3.13); lowPrio evita colisión
@@ -327,59 +379,11 @@ in
       exec "$HOME/.local/share/pipx/venvs/codegraphcontext/bin/codegraphcontext" "$@"
     '')
 
-    foot
-    hyprlock
-    tzdata
-    networkmanagerapplet
-    libnotify
-    yazi
-
-    telegram-desktop
-    discord
-
-    obsidian
-    libreoffice
-
-    # Multimedia
-    vlc
-    mpv
-    spotify
-    sox
-
-    # Dev
-    gh
-    lazygit
-    opencode
-    httpie
-    dust
-    duf
-    nix-output-monitor # activado via NH_NOM=1
-    fastfetch
-    vscode
-    khal # calendario local; TUI ikhal en SUPER+I (el widget de eww no lo usa)
-    google-chrome
-    antigravity-ide
-
-    android-tools
-    scrcpy
-    wayscriber
-
-    (callPackage ../pkgs/boundary-desktop.nix { }) # no está en nixpkgs
-    (callPackage ../pkgs/balena-etcher.nix { }) # ídem; removido de nixpkgs
-
-    # Qt Fusion (built-in) + qt6ct para paleta en apps Qt efímeras (share-picker, etc.)
-    kdePackages.qt6ct
-
     # Neovim toolchain
     gcc # parsers treesitter + telescope-fzf-native
     gnumake
     tree-sitter
     nodejs
-
-    bat
-    eza
-    ripgrep # Telescope live_grep
-    fd # Telescope find_files
 
     # LSPs
     go # gopls resuelve root_dir con 'go env GOMODCACHE'; sin toolchain rompe en buffers Go
