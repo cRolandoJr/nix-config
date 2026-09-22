@@ -8,6 +8,7 @@
 
 let
   pedcoBot = inputs.pedco-bot.packages.${pkgs.stdenv.hostPlatform.system}.pedco-bot;
+  ryogami = pkgs.callPackage ../pkgs/ryogami { };
 in
 {
   imports = [ inputs.sops-nix.homeManagerModules.sops ];
@@ -201,6 +202,48 @@ in
     "TZ=America/Argentina/Buenos_Aires"
   ];
 
+  # El daemon de wallpaper NO va como exec_cmd del autostart de Hyprland: ese
+  # handler corre solo en `hyprland.start`, asi que tras un rebuild sin reiniciar
+  # sesion el daemon no existe y los binds fallan EN SILENCIO (el stderr de un
+  # proceso sin terminal no lo ve nadie). Es el mismo motivo por el que waybar ya
+  # es un servicio aca. Como unidad: arranca con la sesion, se relevanta sola y
+  # el error queda en el journal.
+  systemd.user.services.ryogami = {
+    Unit = {
+      Description = "Ryogami — daemon de wallpaper";
+      PartOf = [ "graphical-session.target" ];
+      After = [ "graphical-session.target" ];
+    };
+    Service = {
+      Type = "simple";
+      ExecStart = "${ryogami}/bin/ryogami daemon";
+      Restart = "on-failure";
+      RestartSec = "5s";
+    };
+    Install.WantedBy = [ "graphical-session.target" ];
+  };
+
+  # La superficie que pinta el fondo. Se suscribe al socket del daemon; si el
+  # daemon no esta, reintenta cada 2s sola, pero el orden evita el parpadeo.
+  systemd.user.services.ryogami-surface = {
+    Unit = {
+      Description = "Ryogami — superficie que pinta el wallpaper";
+      Requires = [ "ryogami.service" ];
+      After = [
+        "ryogami.service"
+        "graphical-session.target"
+      ];
+      PartOf = [ "graphical-session.target" ];
+    };
+    Service = {
+      Type = "simple";
+      ExecStart = "${ryogami}/bin/ryogami-surface";
+      Restart = "on-failure";
+      RestartSec = "5s";
+    };
+    Install.WantedBy = [ "graphical-session.target" ];
+  };
+
   # Bot de Telegram (Pedco): daemon + avisos 8/20h. Binario pineado al store
   # desde inputs.pedco-bot (reemplaza el unit y el nix-profile imperativos).
   systemd.user.services.pedco-bot = {
@@ -285,7 +328,14 @@ in
 
   home.packages = with pkgs; [
     # Escritorio: sesión Hyprland, notificaciones, portapapeles, terminal, archivos
-    rofi
+    # rofi con plugins: `combi` junta drun+window+calc en una sola lista, asi que
+    # SUPER+Space pasa a ser el unico lanzador. Los plugins entran por override,
+    # no como paquetes sueltos: rofi solo carga los .so que tiene en su wrapper.
+    (rofi.override {
+      plugins = [
+        rofi-calc # modo `calc`: 1920/2.5 dentro del propio lanzador
+      ];
+    })
     eww # widgets custom (calendar popup, hub)
     mako
     awww
@@ -358,6 +408,7 @@ in
     # Fuera de nixpkgs
     (callPackage ../pkgs/boundary-desktop.nix { }) # no está en nixpkgs
     (callPackage ../pkgs/balena-etcher.nix { }) # ídem; removido de nixpkgs
+    ryogami # vendorizado de Ryoku, con parches propios (ver el let)
 
     # Python + CodeGraphContext
     python3
@@ -458,6 +509,11 @@ in
     "nvim".source =
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/nvim/.config/nvim";
 
+    # Superficie de wallpaper (quickshell). Va por symlink fuera del store para
+    # poder tocar un shader y ver el cambio reiniciando el proceso, sin rebuild.
+    "quickshell".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/quickshell/.config/quickshell";
+
     "foot".source =
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/foot/.config/foot";
 
@@ -508,4 +564,44 @@ in
       icon = "application-exit";
     };
   };
+  # ─────────────────────────────────────────────────────────────────────
+  # Config de ryogami (wallpaper). Son DOS archivos distintos y tocar el que no
+  # es no da error: da silencio.
+  #   ~/.config/ryoku/ryogami.json       → el DAEMON (catalogo, paths)
+  #   ~/.config/ryogami-wall/config.json → el SELECTOR (vista, transicion)
+  #
+  # Se escriben solo las claves estructurales y se preserva el resto, porque el
+  # selector guarda ahi sus favoritos y su ultimo filtro. Por eso no son
+  # archivos del store: si lo fueran, el selector no podria escribir nada.
+  # Contrapartida: si editas ESTAS claves a mano, el proximo rebuild las pisa.
+  #
+  # La logica vive en un script y no inline: con $DRY_RUN_CMD las redirecciones
+  # se ejecutan igual, asi que un --dry-run terminaria creando archivos.
+  home.activation.ryogamiConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    $DRY_RUN_CMD ${pkgs.writeShellScript "ryogami-config" ''
+      set -eu
+      daemon_cfg="$HOME/.config/ryoku/ryogami.json"
+      picker_cfg="$HOME/.config/ryogami-wall/config.json"
+
+      mkdir -p "$HOME/.config/ryoku" "$HOME/.config/ryogami-wall"
+      [ -f "$daemon_cfg" ] || echo '{}' > "$daemon_cfg"
+      [ -f "$picker_cfg" ] || echo '{}' > "$picker_cfg"
+
+      # El daemon NO expande `~`: con "~/Wallpapers" devuelve cero wallpapers y
+      # no avisa. Por eso la ruta se interpola absoluta desde Nix.
+      ${pkgs.jq}/bin/jq '.paths.wallpaper = "${config.home.homeDirectory}/Wallpapers"
+        | .features.matugen = false' "$daemon_cfg" > "$daemon_cfg.new"
+      mv "$daemon_cfg.new" "$daemon_cfg"
+
+      # matugen en false a proposito: sus plantillas escriben temas en
+      # ~/.config/{kitty,yazi,qt6ct}. Hoy no rompe nada porque home-manager deja
+      # esas rutas de solo lectura, pero no conviene depender de eso.
+      ${pkgs.jq}/bin/jq '.paths.wallpaper = "${config.home.homeDirectory}/Wallpapers"
+        | .components.wallpaperSelector.displayMode = "slices"
+        | .features.matugen = false
+        | .transition = {enabled: true, shader: "random", durationMs: 600}' \
+        "$picker_cfg" > "$picker_cfg.new"
+      mv "$picker_cfg.new" "$picker_cfg"
+    ''}
+  '';
 }
