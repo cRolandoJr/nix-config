@@ -364,7 +364,6 @@ in
     telegram-desktop
     discord
     google-chrome
-    brave
 
     # Productividad
     obsidian
