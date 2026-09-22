@@ -368,6 +368,7 @@ in
     telegram-desktop
     discord
     google-chrome
+    brave
 
     # Productividad
     obsidian
@@ -509,8 +510,6 @@ in
     "nvim".source =
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/nvim/.config/nvim";
 
-    # Superficie de wallpaper (quickshell). Va por symlink fuera del store para
-    # poder tocar un shader y ver el cambio reiniciando el proceso, sin rebuild.
     "quickshell".source =
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/quickshell/.config/quickshell";
 
