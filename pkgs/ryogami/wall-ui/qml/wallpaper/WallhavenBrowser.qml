@@ -18,6 +18,8 @@ Item {
   }
   Component.onCompleted: if (browserVisible) gridFocusTimer.restart()
 
+  // Las teclas van por Shortcut y no por Keys.onPressed: el grid pierde el foco
+  // al rato de abrirse, y con Keys la navegacion andaba solo recien abierto.
   Shortcut {
     sequences: ["Left"]
     enabled: browser.browserVisible && !browser._previewOpen
@@ -343,18 +345,6 @@ Item {
       var next = Math.max(0, Math.min(n - 1, (currentIndex < 0 ? 0 : currentIndex) + delta))
       currentIndex = next
       positionViewAtIndex(next, GridView.Contain)
-    }
-
-    Keys.onPressed: function(event) {
-      var cols = Math.max(1, Config.wallhavenColumns)
-      switch (event.key) {
-      case Qt.Key_Left:      resultsGrid._moveSelection(-1);    event.accepted = true; break
-      case Qt.Key_Right:     resultsGrid._moveSelection(1);     event.accepted = true; break
-      case Qt.Key_Up:        resultsGrid._moveSelection(-cols); event.accepted = true; break
-      case Qt.Key_Down:      resultsGrid._moveSelection(cols);  event.accepted = true; break
-      case Qt.Key_PageUp:    browser.pagePrev();                event.accepted = true; break
-      case Qt.Key_PageDown:  browser.pageNext();                event.accepted = true; break
-      }
     }
 
     MouseArea {

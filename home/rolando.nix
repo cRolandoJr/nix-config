@@ -202,12 +202,9 @@ in
     "TZ=America/Argentina/Buenos_Aires"
   ];
 
-  # El daemon de wallpaper NO va como exec_cmd del autostart de Hyprland: ese
-  # handler corre solo en `hyprland.start`, asi que tras un rebuild sin reiniciar
-  # sesion el daemon no existe y los binds fallan EN SILENCIO (el stderr de un
-  # proceso sin terminal no lo ve nadie). Es el mismo motivo por el que waybar ya
-  # es un servicio aca. Como unidad: arranca con la sesion, se relevanta sola y
-  # el error queda en el journal.
+  # Como unidad y no como exec_cmd del autostart: ese handler corre solo en
+  # `hyprland.start`, y tras un rebuild sin reiniciar sesion los binds fallaban
+  # en silencio contra un daemon inexistente.
   systemd.user.services.ryogami = {
     Unit = {
       Description = "Ryogami — daemon de wallpaper";
@@ -223,8 +220,8 @@ in
     Install.WantedBy = [ "graphical-session.target" ];
   };
 
-  # La superficie que pinta el fondo. Se suscribe al socket del daemon; si el
-  # daemon no esta, reintenta cada 2s sola, pero el orden evita el parpadeo.
+  # El orden contra el daemon evita el parpadeo inicial (la superficie
+  # reintenta sola, pero arranca en vano hasta que el socket existe).
   systemd.user.services.ryogami-surface = {
     Unit = {
       Description = "Ryogami — superficie que pinta el wallpaper";
@@ -328,9 +325,8 @@ in
 
   home.packages = with pkgs; [
     # Escritorio: sesión Hyprland, notificaciones, portapapeles, terminal, archivos
-    # rofi con plugins: `combi` junta drun+window+calc en una sola lista, asi que
-    # SUPER+Space pasa a ser el unico lanzador. Los plugins entran por override,
-    # no como paquetes sueltos: rofi solo carga los .so que tiene en su wrapper.
+    # Los plugins van por override y no como paquetes sueltos: rofi solo carga
+    # los .so que tiene en su propio wrapper.
     (rofi.override {
       plugins = [
         rofi-calc # modo `calc`: 1920/2.5 dentro del propio lanzador
@@ -564,18 +560,11 @@ in
     };
   };
   # ─────────────────────────────────────────────────────────────────────
-  # Config de ryogami (wallpaper). Son DOS archivos distintos y tocar el que no
-  # es no da error: da silencio.
-  #   ~/.config/ryoku/ryogami.json       → el DAEMON (catalogo, paths)
-  #   ~/.config/ryogami-wall/config.json → el SELECTOR (vista, transicion)
-  #
-  # Se escriben solo las claves estructurales y se preserva el resto, porque el
-  # selector guarda ahi sus favoritos y su ultimo filtro. Por eso no son
-  # archivos del store: si lo fueran, el selector no podria escribir nada.
-  # Contrapartida: si editas ESTAS claves a mano, el proximo rebuild las pisa.
-  #
-  # La logica vive en un script y no inline: con $DRY_RUN_CMD las redirecciones
-  # se ejecutan igual, asi que un --dry-run terminaria creando archivos.
+  # El daemon y el selector leen archivos distintos, y escribir en el que no es
+  # no da error: da silencio. Se tocan solo las claves estructurales y quedan
+  # escribibles, porque el selector guarda ahi sus favoritos; la contrapartida es
+  # que editarlas a mano no sobrevive al proximo rebuild. La logica va en un
+  # script porque con $DRY_RUN_CMD las redirecciones se ejecutan igual.
   home.activation.ryogamiConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     $DRY_RUN_CMD ${pkgs.writeShellScript "ryogami-config" ''
       set -eu

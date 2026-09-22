@@ -14,8 +14,8 @@ ShellRoot {
             Qt.callLater(root._load)
     }
 
-    property string _pendingBrowse: ""  // PARCHE
-    function _applyPendingBrowse() {   // PARCHE
+    property string _pendingBrowse: ""
+    function _applyPendingBrowse() {
         if (root._pendingBrowse === "") return
         var item = wallpaperSelectorLoader.item
         if (!item) return
@@ -162,7 +162,7 @@ ShellRoot {
             item.showing = root._startVisible || root._pendingShow
             root._startVisible = false
             root._pendingShow = false
-            root._applyPendingBrowse()  // PARCHE
+            root._applyPendingBrowse()
             item.showingChanged.connect(function() {
                 if (!item.showing)
                     unloadTimer.restart()

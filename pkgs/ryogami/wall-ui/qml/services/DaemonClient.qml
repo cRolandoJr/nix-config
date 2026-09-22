@@ -30,8 +30,7 @@ QtObject {
     signal wallpaperToggle()
     signal wallpaperShow()
     signal wallpaperHide()
-    signal wallpaperBrowse(string source)  // PARCHE
-
+    signal wallpaperBrowse(string source)
     property bool randomRunning: false
     property int randomInterval: 0
     signal randomStarted(int interval)
@@ -361,7 +360,7 @@ QtObject {
             client.wallpaperShow(); break
         case "ryogami.wall.hide":
             client.wallpaperHide(); break
-        case "ryogami.wall.browse":  // PARCHE
+        case "ryogami.wall.browse":
             client.wallpaperBrowse(data.source || "wallhaven"); break
         case "ryogami.wall.random_started":
             client.randomRunning = true

@@ -1,23 +1,13 @@
-# Ryogami: daemon de wallpaper + selector (wall-ui), vendorizado desde
-# Ryoku (github.com/Ryoku-dev/ryoku, GPL-3; el wall-ui es MIT de liixini).
+# Ryogami: daemon de wallpaper + selector, vendorizado desde Ryoku
+# (github.com/Ryoku-dev/ryoku, GPL-3; el wall-ui es MIT de liixini).
 #
-# Vendorizado a propósito y no pinneado con fetchFromGitHub: llevamos tres
-# parches propios sobre este código, y el fork del que salió tiene `main`
-# congelado. Mantener parches contra un upstream quieto es lo peor de los dos
-# mundos, así que esto pasa a ser código nuestro.
+# Vendorizado y no pinneado con fetchFromGitHub porque llevamos parches propios
+# sobre este código y el fork del que salió tiene `main` congelado: mantener
+# parches contra un upstream quieto es lo peor de los dos mundos. El detalle de
+# cada parche vive en el historial de git.
 #
-# Los tres parches, todos verificados antes de entrar acá:
-#   1. wall-ui/qml/services/DaemonClient.qml  — deleteItem mandaba `name` y el
-#      daemon lee `key`, así que el botón de borrar no borraba nada.
-#   2. (fuera de este paquete, en dotfiles) modules/wallpaper/Singletons/Motion.qml
-#      — sacarle la dependencia de `shell.services` deja la superficie autocontenida.
-#   3. daemon/verbs.go + wall-ui/{shell.qml,qml/services/DaemonClient.qml} — verbo
-#      `browse` para abrir el selector directo en Wallhaven desde un keybind.
-#
-# NO soportado en esta build, por no estar verificado:
-#   - wallpapers de video: QtMultimedia acá no trae backend (falta gstreamer) y
-#     el renderer `ryogami-live` (C) no se empaqueta.
-#   - upscale con waifu2x: upscale.go apunta a /usr/share/waifu2x-ncnn-vulkan.
+# Sin soporte: wallpapers de video (QtMultimedia acá no trae backend y no se
+# empaqueta el renderer ryogami-live) y upscale con waifu2x.
 {
   lib,
   stdenv,
@@ -101,12 +91,8 @@ stdenv.mkDerivation {
         mkdir -p "$out/share/ryogami"
         cp -a wall-ui/. "$out/share/ryogami/"
 
-        # El daemon lanza el selector con `quickshell -p $RYOGAMI_SHELL_QML`, y ese
-        # proceso hijo hereda este entorno: sin QML_IMPORT_PATH el selector no
-        # encuentra QtMultimedia y directamente no abre.
-        # La superficie que PINTA el fondo vive en dotfiles (editable sin rebuild),
-        # pero necesita el mismo entorno Qt que el selector. Este wrapper la lanza
-        # con ese entorno, para no tener que repetir las variables en el autostart.
+        # La superficie vive en dotfiles, fuera del store, para poder editarla
+        # sin rebuild; este wrapper le da el entorno Qt que igual necesita.
         cat > "$out/bin/ryogami-surface" <<'EOS'
     #!/bin/sh
     exec quickshell -p "''${XDG_CONFIG_HOME:-$HOME/.config}/quickshell/wallpaper/shell.qml"
@@ -119,6 +105,8 @@ stdenv.mkDerivation {
           --set QT_PLUGIN_PATH "${qtPluginPath}" \
           --prefix PATH : "${runtimePath}"
 
+        # El daemon lanza el selector como proceso hijo, que hereda este entorno:
+        # sin QML_IMPORT_PATH no encuentra QtMultimedia y no abre.
         wrapProgram "$out/bin/ryogami" \
           --set RYOGAMI_SHELL_QML "$out/share/ryogami/shell.qml" \
           --set QML_IMPORT_PATH "${qtQmlPath}" \
