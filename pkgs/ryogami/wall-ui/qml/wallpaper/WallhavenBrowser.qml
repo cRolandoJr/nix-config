@@ -72,8 +72,15 @@ Item {
   opacity: browserVisible ? 1 : 0
   Behavior on opacity { NumberAnimation { duration: Style.animNormal; easing.type: Easing.OutCubic } }
 
-  readonly property real _gridCellW: Config.wallhavenThumbWidth + 8
-  readonly property real _gridCellH: Config.wallhavenThumbHeight + 8
+  // El contenedor mide Screen.width - 140 (WallpaperSelector.qml), un ancho que
+  // no sabe nada del grid: con 6 columnas de 308 el grid pedia 1848 contra 1780
+  // disponibles y las dos columnas de los extremos quedaban cortadas. La celda
+  // se deriva del ancho real y el tamano configurado pasa a ser el techo.
+  readonly property real _gridCellW: width > 0
+    ? Math.min(Config.wallhavenThumbWidth + 8, Math.floor(width / Config.wallhavenColumns))
+    : Config.wallhavenThumbWidth + 8
+  readonly property real _gridCellH: Math.round(
+    _gridCellW * (Config.wallhavenThumbHeight + 8) / (Config.wallhavenThumbWidth + 8))
   readonly property real _gridTotalW: _gridCellW * Config.wallhavenColumns
 
   function runSearch(q) {

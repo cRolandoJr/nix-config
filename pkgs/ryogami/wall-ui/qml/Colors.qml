@@ -38,7 +38,7 @@ QtObject {
             var inkDim = d.onSurfaceVariant ?? "#b0a9a0"
             var boneC  = d.inverseSurface ?? ink
             var onBone = d.inverseOnSurface ?? "#000000"
-            var sun    = d.primary ?? "#00b4d8"
+            var sun    = d.primary ?? "#3b82f6"
             var onSun  = d.onPrimary ?? paper
 
             colors.background = paper
@@ -82,13 +82,13 @@ QtObject {
     }
 
     // paper-and-ink defaults (file absent / mid-write)
-    property color primary: "#00b4d8"
+    property color primary: "#3b82f6"
     property color primaryText: "#000000"
     property color primaryContainer: "#cdc4ba"
     property color primaryContainerText: "#000000"
     property color primaryForeground: "#000000"
 
-    property color secondary: "#00b4d8"
+    property color secondary: "#3b82f6"
     property color secondaryText: "#000000"
     property color secondaryContainer: "#0a0a0a"
     property color secondaryContainerText: "#cdc4ba"
@@ -115,5 +115,5 @@ QtObject {
     property color shadow: "#000000"
     property color inverseSurface: "#cdc4ba"
     property color inverseSurfaceText: "#000000"
-    property color inversePrimary: "#00b4d8"
+    property color inversePrimary: "#3b82f6"
 }
