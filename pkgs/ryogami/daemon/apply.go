@@ -488,12 +488,19 @@ func (d *daemon) deleteWallpaper(key string) error {
 	if !okKey {
 		return fmt.Errorf("unknown wallpaper: %s", key)
 	}
-	src := e.VideoFile
-	if src == "" {
-		src = filepath.Join(d.config().wallpaperDir(), e.Name)
-	}
+	// El archivo del usuario esta en <wallpaperDir>/<Name>. VideoFile puede ser
+	// ese mismo archivo (un video nativo) o un mp4 derivado en cache, cuando el
+	// original es un webp/gif animado que ensureAnimatedMp4 transcodifico.
+	// Borrar solo VideoFile dejaba el original en su carpeta y el siguiente
+	// rescan lo revivia: el item reaparecia al reabrir el selector.
+	src := filepath.Join(d.config().wallpaperDir(), e.Name)
 	if err := os.Remove(src); err != nil && !os.IsNotExist(err) {
 		return err
+	}
+	if e.VideoFile != "" && e.VideoFile != src {
+		if err := os.Remove(e.VideoFile); err != nil && !os.IsNotExist(err) {
+			return err
+		}
 	}
 	for _, t := range []string{e.Thumb, e.ThumbSm} {
 		if t != "" {

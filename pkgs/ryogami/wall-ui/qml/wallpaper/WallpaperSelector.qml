@@ -226,6 +226,40 @@ Scope {
   Timer { id: _riceReload; interval: 1200; onTriggered: wallpaperSelector._reloadRices() }
 
   property string _themeBuf: ""
+  // El PanelWindow sin `screen` cae siempre en la primera pantalla. Hyprland
+  // sabe cual tiene el foco; el modulo Quickshell.Hyprland no se conecta en
+  // este setup (devuelve 0 monitores), asi que se pregunta por hyprctl.
+  property var _focusedScreen: null
+  property string _monBuf: ""
+
+  Process {
+    id: _monitorProc
+    command: ["hyprctl", "monitors", "-j"]
+    stdout: SplitParser {
+      splitMarker: ""
+      onRead: data => wallpaperSelector._monBuf += data
+    }
+    onExited: {
+      try {
+        var mons = JSON.parse(wallpaperSelector._monBuf)
+        for (var i = 0; i < mons.length; i++) {
+          if (!mons[i].focused) continue
+          for (var j = 0; j < Quickshell.screens.length; j++) {
+            if (Quickshell.screens[j].name === mons[i].name) {
+              wallpaperSelector._focusedScreen = Quickshell.screens[j]
+              break
+            }
+          }
+          break
+        }
+      } catch (e) {
+        // Sin dato utilizable se deja el default: mejor abrir en la primera
+        // pantalla que no abrir.
+      }
+      wallpaperSelector._monBuf = ""
+    }
+  }
+
   Process {
     id: _themeProc
     command: ["ryoku-shell", "theme", "catalog"]
@@ -304,6 +338,8 @@ Scope {
 
   onShowingChanged: {
     if (showing) {
+      _monBuf = ""
+      _monitorProc.running = true
       _filterBarManuallyShown = Config.filterBarAlwaysVisible
       _restorePending = true
       _bindActiveViewModel()
@@ -557,7 +593,12 @@ Scope {
   PanelWindow {
     id: selectorPanel
 
-    screen: Quickshell.screens.find(s => s.name === wallpaperSelector.mainMonitor)
+    // Orden: el monitor fijado en Settings, si no el que tiene el foco, si no
+    // la primera pantalla. Con `monitor` vacio (el default) el find da
+    // undefined y caia siempre en eDP-1.
+    screen: (Quickshell.screens.find(s => s.name === wallpaperSelector.mainMonitor)
+      || wallpaperSelector._focusedScreen
+      || Quickshell.screens[0])
         ?? Quickshell.screens[0]
 
     anchors {
@@ -1092,7 +1133,6 @@ Scope {
             const idx = currentIndex
             wallpaperSelector.selectorService.deleteWallpaperItem(item.type, item.name, item.weId || "")
             const newIdx = Math.max(0, Math.min(idx, wallpaperSelector.selectorService.filteredModel.count - 1))
-            currentIndex = -1
             currentIndex = newIdx
             positionViewAtIndex(newIdx, ListView.Center)
           }

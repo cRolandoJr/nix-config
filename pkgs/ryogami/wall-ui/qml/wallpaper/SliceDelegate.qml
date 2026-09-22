@@ -712,7 +712,6 @@ Item {
                             delegateItem.service.deleteWallpaperItem(delegateItem.model.type, delegateItem.model.name, delegateItem.model.weId || "")
                             var newIdx = Math.min(idx, delegateItem.service.filteredModel.count - 1)
                             if (delegateItem._listView) {
-                                delegateItem._listView.currentIndex = -1
                                 delegateItem._listView.currentIndex = newIdx
                                 delegateItem._listView.positionViewAtIndex(newIdx, ListView.Center)
                             }
