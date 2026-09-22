@@ -60,7 +60,7 @@ QtObject {
 
     readonly property int tooltipDelay: 500
 
-    readonly property color fallbackAccent: "#e2342a"   // Ryoku sun default
+    readonly property color fallbackAccent: "#00b4d8"   // acento Deep Ocean
     readonly property int borderThin: 1
     readonly property int borderMedium: 2
     readonly property int borderThick: 3
