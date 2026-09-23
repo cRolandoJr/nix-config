@@ -387,6 +387,7 @@ in
     poppler-utils
     fastfetch
     nix-output-monitor # activado via NH_NOM=1
+    postman
 
     # Infra: secretos
     sops # editar secretos: sops secrets/pedco.yaml
