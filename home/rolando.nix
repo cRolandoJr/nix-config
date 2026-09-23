@@ -202,6 +202,13 @@ in
     "TZ=America/Argentina/Buenos_Aires"
   ];
 
+  # El ExecStart que genera el modulo es `vicinae server` a secas, mientras que
+  # el unit del propio paquete pasa --replace. Sin eso, un server suelto deja al
+  # unit en reinicio fallido para siempre: se vio el 22-sep ciclando cada 60 s
+  # contra "A server is already running (pid ...)". Alinea con el upstream.
+  systemd.user.services.vicinae.Service.ExecStart =
+    lib.mkForce "${lib.getExe config.programs.vicinae.package} server --replace";
+
   # Launcher: una sola superficie para apps, ventanas, portapapeles, archivos y
   # calculadora. El modulo escribe settings.json y el tema por su cuenta, asi que
   # aca no hay symlink a dotfiles como en el resto del escritorio.
