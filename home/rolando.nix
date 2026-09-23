@@ -202,6 +202,78 @@ in
     "TZ=America/Argentina/Buenos_Aires"
   ];
 
+  # Launcher: una sola superficie para apps, ventanas, portapapeles, archivos y
+  # calculadora. El modulo escribe settings.json y el tema por su cuenta, asi que
+  # aca no hay symlink a dotfiles como en el resto del escritorio.
+  programs.vicinae = {
+    enable = true;
+    systemd = {
+      enable = true;
+      autoStart = true;
+    };
+
+    # La extension de Firefox no esta instalada; el messaging host se enciende
+    # el dia que se quieran las pestanas del navegador en el launcher.
+    enableFirefoxIntegration = false;
+
+    settings = {
+      # Sin font.normal.family a proposito: en 0.23.1 esa clave no se aplica.
+      # Medido con tres familias distintas (incluida una serif, para que el
+      # cambio fuera imposible de confundir) y con rendering en "qt" y en
+      # "native": la UI sigue en la Inter que trae el paquete. font.normal.size
+      # SI se aplica, asi que vicinae lee la clave y el que no anda es family.
+      launcher_window.layer_shell = {
+        enabled = true;
+        # El default es "exclusive" y la propia config de vicinae avisa que rompe
+        # el mouse de los popups EN HYPRLAND. close_on_focus_loss ademas solo
+        # funciona con on_demand, asi que lo uno arrastra lo otro.
+        keyboard_interactivity = "on_demand";
+      };
+      close_on_focus_loss = true;
+
+      # Viene encendido: es monitoreo de input, y existe para pegar en la ventana
+      # activa y expandir snippets. Sin snippets no tiene consumidor.
+      input_server.enabled = false;
+
+      theme = {
+        dark.name = "deep-ocean";
+        light.name = "deep-ocean";
+      };
+    };
+
+    # Los @define-color de la waybar, que es donde vive la paleta. Vicinae pide
+    # ocho acentos con nombre y la paleta tiene cinco: los tres que faltan se
+    # colapsan sobre estos en vez de sumar colores que no son del escritorio.
+    themes.deep-ocean = {
+      meta = {
+        version = 1;
+        name = "Deep Ocean";
+        description = "Paleta del escritorio: azul NixOS sobre azul nocturno";
+        variant = "dark";
+        inherits = "vicinae-dark";
+      };
+      colors = {
+        core = {
+          background = "#0a0e17";
+          foreground = "#cdd6f4";
+          secondary_background = "#0f1623";
+          border = "#1a2744";
+          accent = "#3b82f6";
+        };
+        accents = {
+          blue = "#3b82f6";
+          cyan = "#00b4d8";
+          green = "#2d9c6f";
+          red = "#f87171";
+          orange = "#fb923c";
+          yellow = "#fb923c";
+          magenta = "#00b4d8";
+          purple = "#3b82f6";
+        };
+      };
+    };
+  };
+
   # Como unidad y no como exec_cmd del autostart: ese handler corre solo en
   # `hyprland.start`, y tras un rebuild sin reiniciar sesion los binds fallaban
   # en silencio contra un daemon inexistente.
