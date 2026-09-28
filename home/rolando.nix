@@ -377,6 +377,7 @@ in
     antigravity-ide
     gh
     lazygit
+    onedrive
 
     # Dev: CLI
     bat
