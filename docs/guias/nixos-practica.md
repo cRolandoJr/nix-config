@@ -672,6 +672,8 @@ sops -e --input-type dotenv --output-type yaml \
   --filename-override secrets/pedco.yaml  ~/proyecto/.env  > secrets/pedco.yaml
 ```
 
+**Para descifrar a mano (`sops -d`, editar, este `diff`) el CLI necesita `SOPS_AGE_KEY`**: él no deriva la clave de la SSH, solo sops-nix lo hace. Ver [runbooks/sops-secretos](../runbooks/sops-secretos.md#paso-0--la-variable-que-el-cli-necesita-siempre).
+
 **Verificá el round-trip antes de borrar el original.** No alcanza con "cifró sin error": comparar hashes valor por valor. El formato `dotenv` puede descartar líneas que no sean `K=V`:
 
 ```bash

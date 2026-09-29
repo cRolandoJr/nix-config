@@ -446,7 +446,14 @@ El binario real de neovim en NixOS es `nvim`, no `neovim`. Si `EDITOR=neovim` es
 La identidad age se **deriva de `~/.ssh/id_ed25519`**, así que no hay clave extra que
 respaldar: en una máquina nueva, con esa SSH los secretos se descifran solos.
 
+Procedimientos (agregar, rotar, si se filtra) y un laboratorio de práctica:
+[runbooks/sops-secretos](../runbooks/sops-secretos.md).
+
 ```bash
+# OBLIGATORIO antes de cualquier sops -d / editar: el CLI NO deriva la clave de la SSH
+# (sops-nix sí, al activar). Sin esto: "at least one key has to be successful".
+export SOPS_AGE_KEY="$(ssh-to-age -private-key -i ~/.ssh/id_ed25519)"
+
 # Editar un secreto (abre $EDITOR con el contenido descifrado; re-cifra al guardar)
 cd ~/projects/nix-config && sops secrets/pedco.yaml
 

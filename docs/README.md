@@ -18,6 +18,8 @@ documento los necesita, enlaza ahí en vez de copiarlos: una copia se desactuali
 | El rebuild falla o no aplicó mi cambio | [runbooks/rebuild-falla](runbooks/rebuild-falla.md) |
 | Un rebuild o update rompió algo / no bootea | [runbooks/rollback](runbooks/rollback.md) |
 | Borré un archivo de `~` | [runbooks/rollback § archivo](runbooks/rollback.md#un-archivo-borrado) |
+| Actualizar el sistema / pinear un input | [runbooks/actualizar-sistema](runbooks/actualizar-sistema.md) |
+| Agregar, leer o rotar un secreto; se filtró uno | [runbooks/sops-secretos](runbooks/sops-secretos.md) |
 | Se colgó al suspender | [runbooks/freeze-suspend](runbooks/freeze-suspend.md) |
 | Quiero instalar / declarar algo nuevo | [guias/nixos-practica](guias/nixos-practica.md) |
 | No me acuerdo de un comando | [guias/nix-cheatsheet](guias/nix-cheatsheet.md) |
