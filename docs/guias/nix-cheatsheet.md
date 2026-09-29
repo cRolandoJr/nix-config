@@ -46,7 +46,7 @@ y `hyprlock` sigue mostrando el perfil.
 | Comando | Qué hace | Nota |
 |---|---|---|
 | click en el 󰊴 de waybar | Para/arranca **k3s + scx** | k3s idle: **6.7% CPU y 539 MiB** (medido). scx_lavd gasta CPU para bajar latencia. Cyan = parados. |
-| `waybar-gamemode.sh toggle` | Lo mismo desde CLI | Estado derivado de `systemctl`, no de un flag. Reemplazó a la specialisation `battery`. |
+| `~/.config/hypr/scripts/waybar-gamemode.sh toggle` | Lo mismo desde CLI (el script no está en el PATH) | Estado derivado de `systemctl`, no de un flag. Reemplazó a la specialisation `battery`. |
 
 Queda un residual de ~197 MiB y 0.4% en containerd-shims huérfanos; existe
 `k3s-killall.sh` para eso pero no vale la pena.

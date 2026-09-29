@@ -140,21 +140,21 @@ soporte sixel compilado (`foot --version` menciona sixel) — en nixpkgs viene a
 | `z` | Zoxide jump | Si tenes `zoxide` instalado: salto fuzzy a directorios frecuentes |
 | `Z` | Fzf jump | Busqueda fuzzy con fzf |
 
-**Integracion con el shell**: agrega esto a tu `~/.config/fish/config.fish` o `.zshrc` para que el shell cambie de directorio al salir de Yazi:
+**Integracion con el shell (`yy`): NO configurada hoy.** Sirve para que, al salir de
+Yazi, el shell quede parado en el directorio donde estabas. Si algún día la querés, la vía
+canónica es home-manager y no pegar una función en `.zshrc`:
 
-```bash
-# Para zsh (agregar a .zshrc)
-function yy() {
-    local tmp="$(mktemp -t "yazi-cwd.XXXXX")"
-    yazi "$@" --cwd-file="$tmp"
-    if cwd="$(cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
-        cd -- "$cwd"
-    fi
-    rm -f -- "$tmp"
-}
+```nix
+# home/rolando.nix — hoy yazi entra como paquete suelto; esto lo reemplaza
+programs.yazi = {
+  enable = true;
+  enableZshIntegration = true;   # crea la función `yy` (shellWrapperName)
+};
 ```
 
-Luego usas `yy` en lugar de `yazi` y el directorio persiste al salir.
+Ojo: la config de yazi ya se enlaza con `xdg.configFile."yazi"` desde dotfiles; no
+declarar `programs.yazi.settings` o habría dos dueños del mismo `yazi.toml`.
+
 
 ---
 
@@ -222,24 +222,29 @@ Ordena por tamano (`,` -> `s`) en `~/.local/share/` para encontrar que esta comi
 
 ## Configuracion avanzada (referencia)
 
-Los archivos de config de Yazi estan en `~/.config/yazi/`:
-- `yazi.toml` — comportamiento general, openers, plugins
-- `keymap.toml` — remapear teclas
-- `theme.toml` — colores
+La config vive en `~/projects/dotfiles/yazi/.config/yazi/` (enlazada a `~/.config/yazi/`;
+editar el origen). Hoy existe **solo `yazi.toml`**; `keymap.toml` (remapear teclas) y
+`theme.toml` (colores) se crean si hacen falta.
 
-Para agregar una regla de apertura personalizada en `yazi.toml`:
+Tu única personalización real: PDFs con Firefox.
 
 ```toml
 [opener]
-edit = [
-  { run = 'nvim "$@"', desc = "Neovim", block = true }
+pdf = [
+  { run = 'firefox %s', desc = "Firefox", orphan = true, for = "linux" },
 ]
 
 [open]
-rules = [
-  { mime = "text/*", use = ["edit"] },
-  { mime = "application/json", use = ["edit"] },
+prepend_rules = [
+  { mime = "application/pdf", use = [ "pdf", "open", "reveal" ] },
 ]
 ```
 
-`block = true` hace que Yazi espere a que cierres Neovim antes de continuar — esencial para editores TUI.
+- **`%s` y no `"$@"`**: desde yazi 26 el archivo se pasa con `%s` (todos los
+  seleccionados) o `%s1` (el primero). Con `"$@"` el opener corre SIN archivo: así se
+  rompió el PDF el 28-sep-2026 (abría una ventana vacía de Firefox). Referencia: los
+  openers por defecto usan `xdg-open %s1` y `${EDITOR:-vi} %s`.
+- **`prepend_rules` y no `rules`**: `rules` REEMPLAZA todas las reglas por defecto;
+  `prepend_rules` agrega las tuyas adelante y deja el resto funcionando.
+- `orphan = true`: la app sigue abierta aunque cierres Yazi. Para un editor de terminal
+  va al revés, `block = true`: Yazi espera a que salgas del editor.

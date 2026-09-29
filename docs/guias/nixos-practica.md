@@ -160,7 +160,7 @@ home.packages = with pkgs; [
 
 **Dónde:** mismo nivel que el resto del módulo (system o user).
 
-**Ejemplo de tu repo** (`home/rolando.nix:111-114`):
+**Ejemplo de tu repo** (`home/rolando.nix`, bloque `programs.firefox`):
 
 ```nix
 programs.firefox = {
@@ -171,7 +171,7 @@ programs.firefox = {
 
 Esto **además de instalar firefox**, configura el path del profile. Sumar `firefox` a `home.packages` *sin* el módulo te instala el binario pero no toca el profile.
 
-**Otro de tu repo** (`modules/desktop-hyprland.nix:49-52`):
+**Otro de tu repo** (`modules/desktop-hyprland.nix`, bloque `programs.hyprland`):
 
 ```nix
 programs.hyprland = {
@@ -192,7 +192,7 @@ programs.hyprland = {
 
 **Dónde:** `environment.systemPackages` en un módulo o en `hosts/victus/configuration.nix`.
 
-**Ejemplo de tu repo** (`modules/desktop-hyprland.nix:98-110`):
+**Ejemplo de tu repo** (`modules/desktop-hyprland.nix`, bloque `environment.systemPackages`):
 
 ```nix
 environment.systemPackages = with pkgs; [
@@ -216,7 +216,7 @@ environment.systemPackages = with pkgs; [
 
 **Dónde:** módulo system-level, usando `services.X.enable`.
 
-**Ejemplo de tu repo** (`modules/desktop-hyprland.nix:66-75`):
+**Ejemplo de tu repo** (`modules/desktop-hyprland.nix`, bloque `services.displayManager.sddm`):
 
 ```nix
 services.displayManager.sddm = {
@@ -361,8 +361,8 @@ nixpkgs.overlays = [
 ### Archivos declarativos en `~/.config` (home-manager)
 
 ```nix
-# Tu mismo patrón en home/rolando.nix:240
-home.file."mako".source = config.lib.file.mkOutOfStoreSymlink
+# Tu mismo patrón en home/rolando.nix (dentro de xdg.configFile)
+xdg.configFile."mako".source = config.lib.file.mkOutOfStoreSymlink
   "${config.home.homeDirectory}/projects/dotfiles/mako/.config/mako";
 ```
 
