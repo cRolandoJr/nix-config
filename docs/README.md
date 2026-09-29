@@ -15,6 +15,7 @@ documento los necesita, enlaza ahí en vez de copiarlos: una copia se desactuali
 | Pasa | Ir a |
 |---|---|
 | Me quedo sin disco | [runbooks/disco-lleno](runbooks/disco-lleno.md) |
+| ¿El disco está sano? Scrub, SMART, errores de btrfs | [runbooks/salud-del-disco](runbooks/salud-del-disco.md) |
 | El rebuild falla o no aplicó mi cambio | [runbooks/rebuild-falla](runbooks/rebuild-falla.md) |
 | Un rebuild o update rompió algo / no bootea | [runbooks/rollback](runbooks/rollback.md) |
 | Borré un archivo de `~` | [runbooks/rollback § archivo](runbooks/rollback.md#un-archivo-borrado) |

@@ -62,9 +62,37 @@ sudo btrbk -c /etc/btrbk/home.conf prune  # aplica la retención ahora
 Si hace falta más, bajar la retención en `modules/btrbk.nix` + `rebuild` + `prune`.
 Borrar un snapshot a mano (`btrfs subvolume delete`) funciona pero no tiene vuelta atrás.
 
+### Lo que SÍ se libera en el acto (subvolúmenes fuera de los snapshots)
+
+Un subvolumen anidado no entra en el snapshot del padre (btrfs no recursa). En este equipo lo son:
+
+| Qué | Ruta | Cómo liberar |
+|---|---|---|
+| **Juegos de Steam** — la palanca más grande (531 G al 28-sep) | `~/.local/share/Steam/steamapps` | desinstalar desde Steam |
+| Cachés | `~/.cache` | `nix shell nixpkgs#go -c go clean -cache` (Go), borrar la caché de la app que sea |
+
+Ver cuánto ocupa cada juego:
+
+```bash
+for m in ~/.local/share/Steam/steamapps/appmanifest_*.acf; do
+  n=$(sed -n 's/.*"name"\s*"\(.*\)"/\1/p' "$m"); d=$(sed -n 's/.*"installdir"\s*"\(.*\)"/\1/p' "$m")
+  printf '%s\t%s\n' "$(du -sh ~/.local/share/Steam/steamapps/common/"$d" 2>/dev/null | cut -f1)" "$n"
+done | sort -rh | head
+```
+
+Otras cachés que se regeneran, pero viven en `@home` (vuelven al disco cuando rotan los
+snapshots): `~/.gradle/caches` (borrar con Gradle apagado; el próximo build de Android tarda más).
+
+El journal ya está limitado a 1G (`services.journald.settings.Journal.SystemMaxUse` en
+`modules/base.nix`): `journalctl --disk-usage` para verlo.
+
 ## 4. Por qué los números no coinciden
 
-`/nix` se monta con `compress=zstd:3`. `nix-collect-garbage` y `du` informan tamaño
+`/`, `/home` y `/nix` se montan con `compress=zstd:3`. `nix-collect-garbage` y `du` informan tamaño
 **sin comprimir**; `df` mide el disco real. Medido el 28-sep-2026: el gc dijo
 "17.9 GiB freed" y `df` bajó 10 G. No falta nada: es la misma cosa medida de dos formas.
 La cifra que importa es la de `df`.
+
+En home pasa igual: el 29-sep, borrar cachés que `du` medía en ~26 G y achicar el journal bajó `df`
+3 G EN TOTAL (texto y caché de Go comprimen muchísimo; la parte de `.gradle` además quedó en los
+snapshots). Un archivo ya comprimido (una `.iso`, un video) sí libera casi lo que dice `du`.

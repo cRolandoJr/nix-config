@@ -33,7 +33,8 @@ Steam abierto lo cause (suspendió bien con Steam en otros boots).
 3. Tras el freeze + reboot: `dmesg | grep -iE "magic number|hash matches"` nombra el device.
 
 Sospechosos sin verificar: WiFi Realtek RTL8852BE (`rtw89_8852be`, tiene historial de
-cuelgues s2idle en AMD) y la BIOS HP F.06 (oct-2024; `fwupd` no está instalado).
+cuelgues s2idle en AMD). La BIOS (HP F.06, oct-2024) quedó DESCARTADA como vía el 29-sep: HP no
+la publica para Linux (LVFS) y actualizarla exige Windows; decisión del user, no reabrir.
 Otra herramienta en reserva: `amd_s2idle.py` (amd-debug-tools).
 
 ## Gotcha del instrumento
