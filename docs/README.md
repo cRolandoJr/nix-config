@@ -26,6 +26,9 @@ documento los necesita, enlaza ahí en vez de copiarlos: una copia se desactuali
 | Conectar el disco externo y copiar | [guias/disco-externo](guias/disco-externo.md) |
 | Commit con identidad personal vs trabajo | [guias/git-identidades](guias/git-identidades.md) |
 | Usar skills, agentes y modelos en opencode | [guias/opencode](guias/opencode.md) |
+| Dejar Claude Code: poner opencode a trabajar (plan, modelos, prueba de humo) | [runbooks/opencode-primer-dia](runbooks/opencode-primer-dia.md) |
+| opencode no arranca, bloquea todo, o una skill/agente no anda | [runbooks/opencode-falla](runbooks/opencode-falla.md) |
+| Agregar regla, skill o agente; actualizar; rotar la key | [runbooks/opencode-mantenimiento](runbooks/opencode-mantenimiento.md) |
 | Atajos de nvim / yazi | [guias/nvim](guias/nvim.md) · [guias/yazi](guias/yazi.md) |
 | Espejar el celular (scrcpy) | [scrcpy-hyprland-arch](scrcpy-hyprland-arch.md) |
 | Por qué Steam tiene su subvolumen | [2026-07-14-steam-subvolumen-migracion](2026-07-14-steam-subvolumen-migracion.md) |
