@@ -26,6 +26,19 @@
       };
     };
 
+    # Las salidas marcan el compás del grafo. Por defecto los micros tienen priority.driver 2000 y
+    # el parlante 1000: como el echo-cancel de Astro abre el micro apenas suena algo, el micro pasaba
+    # a ser driver (quantum 256) y el parlante lo seguía con otro reloj → xruns y distorsión que
+    # crece con el rato (medido en CS2 el 29-sep: 900/912 s con el micro de driver, ERR en ráfagas).
+    wireplumber.extraConfig."52-output-drives-graph" = {
+      "monitor.alsa.rules" = [
+        {
+          matches = [ { "node.name" = "~alsa_output.*"; } ];
+          actions.update-props."priority.driver" = 2500;
+        }
+      ];
+    };
+
     # Front-end de audio para Astro (asistente de voz): fuente de micro PROCESADA con el módulo
     # echo-cancel de PipeWire (WebRTC) — AEC (cancela lo que suena, ej. la voz de Astro) + supresión
     # de ruido + AGC + pasa-altos. Astro captura de "astro_echo_cancel_source" (PULSE_SOURCE en su
