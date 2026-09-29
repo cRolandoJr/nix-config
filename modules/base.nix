@@ -49,6 +49,16 @@
     options = "--delete-older-than 7d";
   };
 
+  # Lee todos los bloques y verifica checksums: sin esto, un archivo corrupto que nadie abre no
+  # se detecta y los snapshots de btrbk lo copian igual. Solo "/": el default recorre CADA punto
+  # de montaje btrfs, y acá los 7 son el mismo filesystem (lo escanearía 7 veces).
+  services.btrfs.autoScrub = {
+    enable = true;
+    fileSystems = [ "/" ];
+  };
+
+  services.journald.settings.Journal.SystemMaxUse = "1G";
+
   boot.kernel.sysctl = {
     "vm.overcommit_memory" = 1;
     "vm.swappiness" = 180; # zram

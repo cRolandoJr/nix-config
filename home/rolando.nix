@@ -427,6 +427,8 @@ in
     # Este wrapper inyecta gcc-lib solo al proceso CGC; cgc-nix evita colisión con el binario de pipx.
     (writeShellScriptBin "cgc-nix" ''
       export LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+      # El cliente habla solo por socket Unix; sin esto redislite abría *:6379 en todas las interfaces.
+      export FALKORDB_PORT=0
       exec "$HOME/.local/share/pipx/venvs/codegraphcontext/bin/codegraphcontext" "$@"
     '')
 
