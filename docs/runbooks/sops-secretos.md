@@ -69,9 +69,11 @@ sops -d --extract '["TG_TOKEN"]' secrets/pedco.yaml   # uno solo
    find -L ~/.config/sops-nix/secrets -printf '%P %m\n'   # aparece NOMBRE con 400
    ```
 
-Un secreto declarado que ningún servicio lee es ruido: hoy `MOODLE_TOKEN` está
-declarado y **nada lo consume** (revisado el 28-sep-2026 en nix-config, scraper-pedco y
-curza-sync). Borrarlo o conectarlo.
+Un secreto se puede usar de dos formas, y conviene saber cuál: vía sops-nix (el
+archivo en `/run`) o descifrando el yaml directo con `sops -d`. `MOODLE_TOKEN` es del
+segundo tipo: lo lee `~/.claude/skills/tps/tablero.py` con `sops -d --extract`. Su
+declaración en `home/rolando.nix` (que además lo copia a `/run`) no la usa nadie
+(revisado el 28-sep-2026). Al buscar consumidores, barrer también `~/.claude/skills/`.
 
 ## Crear un archivo de secretos nuevo
 
