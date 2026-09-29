@@ -22,6 +22,7 @@ documento los necesita, enlaza ahí en vez de copiarlos: una copia se desactuali
 | Actualizar el sistema / pinear un input | [runbooks/actualizar-sistema](runbooks/actualizar-sistema.md) |
 | Agregar, leer o rotar un secreto; se filtró uno | [runbooks/sops-secretos](runbooks/sops-secretos.md) |
 | Se colgó al suspender | [runbooks/freeze-suspend](runbooks/freeze-suspend.md) |
+| El audio se distorsiona o chasquea (juegos, apps) | [runbooks/audio-distorsion](runbooks/audio-distorsion.md) |
 | Quiero instalar / declarar algo nuevo | [guias/nixos-practica](guias/nixos-practica.md) |
 | No me acuerdo de un comando | [guias/nix-cheatsheet](guias/nix-cheatsheet.md) |
 | Conectar el disco externo y copiar | [guias/disco-externo](guias/disco-externo.md) |
