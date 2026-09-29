@@ -25,6 +25,7 @@ documento los necesita, enlaza ahí en vez de copiarlos: una copia se desactuali
 | No me acuerdo de un comando | [guias/nix-cheatsheet](guias/nix-cheatsheet.md) |
 | Conectar el disco externo y copiar | [guias/disco-externo](guias/disco-externo.md) |
 | Commit con identidad personal vs trabajo | [guias/git-identidades](guias/git-identidades.md) |
+| Usar skills, agentes y modelos en opencode | [guias/opencode](guias/opencode.md) |
 | Atajos de nvim / yazi | [guias/nvim](guias/nvim.md) · [guias/yazi](guias/yazi.md) |
 | Espejar el celular (scrcpy) | [scrcpy-hyprland-arch](scrcpy-hyprland-arch.md) |
 | Por qué Steam tiene su subvolumen | [2026-07-14-steam-subvolumen-migracion](2026-07-14-steam-subvolumen-migracion.md) |
