@@ -376,6 +376,7 @@ in
     neovim
     vscode
     antigravity-ide
+    opencode # agente de código multi-proveedor; lee ~/.claude/skills y ~/.claude/CLAUDE.md
     gh
     lazygit
     onedrive
@@ -525,6 +526,9 @@ in
 
     "yazi".source =
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/yazi/.config/yazi";
+
+    "opencode".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/opencode/.config/opencode";
   };
 
   home.file.".config/starship.toml".source =
