@@ -101,7 +101,8 @@ in
       # (si uno falla, el pkill igual tiene que refrescar custom/gamemode).
       battery-on = "sudo systemctl stop k3s.service; sudo systemctl stop scx.service; powerprofilesctl set power-saver; pkill -RTMIN+11 waybar";
       battery-off = "sudo systemctl start k3s.service; sudo systemctl start scx.service; powerprofilesctl set balanced; pkill -RTMIN+11 waybar";
-      gc = "sudo nix-collect-garbage -d && nix-collect-garbage -d";
+      # Mismo criterio que nix.gc: `-d` borraba todas las generaciones y dejaba sin rollback.
+      gc = "sudo nix-collect-garbage --delete-older-than 7d && nix-collect-garbage --delete-older-than 7d";
 
       snap = "sudo btrbk -c /etc/btrbk/home.conf run --progress";
       snap-ls = "sudo btrbk -c /etc/btrbk/home.conf list snapshots";
