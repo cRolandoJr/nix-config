@@ -92,23 +92,8 @@ igual en cualquier máquina.
 
 ## Comandos frecuentes
 
-```bash
-# Rebuild y switch (usa nh, muestra diff pre/post)
-rebuild                 # alias = nh os switch ~/projects/nix-config
-
-# Variantes
-rebuild-test            # activa config sin hacerla el default de boot
-rebuild-boot            # la setea como default de boot sin activar ahora
-
-# Actualizar inputs del flake
-update                  # nix flake update
-
-# Garbage collection
-gc                      # nix-collect-garbage -d (user + system)
-
-# Qué commit es la generación que estoy corriendo
-nixos-version --configuration-revision
-```
+`rebuild`, `update`, `gc`, generaciones y demás: [docs/guias/nix-cheatsheet](docs/guias/nix-cheatsheet.md)
+(única copia). Índice de guías y runbooks: [docs/](docs/README.md).
 
 `system.configurationRevision` embute el commit en cada generación, así que el dato se
 consulta desde adentro del sistema booteado. Reemplazó a la función `tag-gen`, que era
@@ -137,15 +122,7 @@ mako, khal, qt6ct, yazi, starship.
 
 ## Rollback
 
-```bash
-# Listar generations disponibles
-sudo nix-env --list-generations -p /nix/var/nix/profiles/system
-
-# Volver a una generation anterior
-sudo nixos-rebuild switch --rollback
-
-# O elegir en el menú de systemd-boot al arrancar (configurationLimit = 20)
-```
+Sistema, update del flake o un archivo borrado: [docs/runbooks/rollback](docs/runbooks/rollback.md).
 
 ## Agregar un paquete
 

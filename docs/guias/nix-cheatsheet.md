@@ -16,7 +16,7 @@ Todos los aliases y funciones viven en `~/projects/nix-config/home/rolando.nix`
 | `rebuild-test` | `nh os test` — build + activa **sin** entrada de boot | Probar un cambio reversible con reboot. Primer paso ante cambios riesgosos. |
 | `rebuild-boot` | `nh os boot` — build + activa **solo al próximo boot** | Kernel/Mesa/GPU/stack gráfico: evita el logout del switch en caliente. |
 | `update` | `cd nix-config && nix flake update` | Solo mueve `flake.lock`; la descarga real pasa en el rebuild. |
-| `gc` | `nix-collect-garbage -d` system **y** user | Libera store. OJO: después no hay rollback a gens viejas. |
+| `gc` | `nix-collect-garbage --delete-older-than 7d` system **y** user | Libera store sin perder el rollback reciente (mismo criterio que el gc semanal). |
 | `nixos-version --configuration-revision` | Imprime el commit de git **de la generación booteada** | Puente git↔store. Reemplazó a `tag-gen` (28-jul-2026): esa función era manual y llegó a 9 tags sobre 144 gens. |
 
 ### Perfil de energía (jul-2026)
@@ -85,12 +85,12 @@ genérico — verificado: `sudo -n systemctl stop sshd.service` sigue pidiendo c
 
 | Comando | Qué hace | Cuándo usarlo |
 |---|---|---|
-| `rebuild-test` (alias) | Eval + build, NO activa | Primer paso siempre. Si falla, no rompiste nada. |
+| `rebuild-test` (alias) | Eval + build + activa **sin** entrada de boot | Primer paso ante cambios riesgosos: un reboot vuelve a la generación anterior. |
 | `rebuild` (alias) | Eval + build + **activa** como generación actual | Después de que `rebuild-test` pase OK. |
 | `rebuild-boot` (alias) | Build + activa **solo al próximo boot** | Si tocaste kernel/initrd/bootloader y quieres aplicar en reinicio. |
 | `nixos-version --configuration-revision` | Imprime el commit de la generación booteada | Cuando estás en una gen vieja y querés saber qué config es |
 | `NH_NOM=1 rebuild` | Igual que `rebuild` pero con árbol de build visual | Cuando quieras ver qué se está compilando en tiempo real |
-| `sudo nixos-rebuild switch --rollback` | Vuelve a la generación anterior | Si una build se rompió y quieres deshacer. |
+| `nh os rollback` | Vuelve a la generación anterior | Si una build se rompió. Detalle en [runbooks/rollback](../runbooks/rollback.md). |
 
 **Flujo recomendado al tocar config:**
 ```bash
@@ -161,7 +161,7 @@ cd ~/projects/nix-config && git checkout flake.lock
 
 ## 4. Garbage collection (liberar espacio)
 
-NixOS **nunca** borra binarios viejos solo. Los acumulas hasta que tú decidas.
+Hay un gc automático semanal (`nix.gc` en `modules/base.nix`, borra lo más viejo que 7 días). Esta sección es para cuando hace falta más. Si el disco se llena: [runbooks/disco-lleno](../runbooks/disco-lleno.md).
 
 ```bash
 # Cuánto pesa tu store
@@ -175,12 +175,14 @@ sudo nix-env --list-generations --profile /nix/var/nix/profiles/system
 nix-collect-garbage                       # user
 sudo nix-collect-garbage                  # system
 
-# GC duro: borra todas las generaciones viejas (deja solo la actual)
-sudo nix-collect-garbage -d               # tu alias: `gc` lo hace para system+user
-nix-collect-garbage -d                    # idem para user
+# GC duro: borra TODAS las generaciones viejas (deja solo la actual, sin rollback)
+sudo nix-collect-garbage -d               # evitarlo: usar `gc` (7 días) o `+N` abajo
 
 # Borrar generaciones más viejas que N días
 sudo nix-collect-garbage --delete-older-than 30d
+
+# Dejar solo las últimas N generaciones
+sudo nix-env --delete-generations +5 --profile /nix/var/nix/profiles/system
 
 # Borrar generaciones específicas
 sudo nix-env --delete-generations 1 2 3 --profile /nix/var/nix/profiles/system
@@ -189,7 +191,7 @@ sudo nix-env --delete-generations 1 2 3 --profile /nix/var/nix/profiles/system
 nix-store --optimise
 ```
 
-**Cuándo correr `gc`**: cuando `/nix` esté >70% lleno, o cada par de meses. Después de un `gc -d` ya no puedes hacer rollback a generaciones viejas.
+**Cuándo correr `gc` a mano**: casi nunca, el semanal ya corre. Si el gc libera poco, lo que retiene suele ser un `result` o un `.direnv` olvidado (ver el runbook). Después de un `-d` ya no hay rollback a generaciones viejas.
 
 ---
 

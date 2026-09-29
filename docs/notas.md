@@ -173,19 +173,10 @@ inicio con "could not mmap". Es el valor estándar que recomiendan Steam y Cachy
 
 ## 5. Comandos de utilidad
 
+Los del día a día: [guias/nix-cheatsheet](guias/nix-cheatsheet.md). Lo propio de esta nota:
+
 ```bash
-# Rebuild del sistema
-rebuild              # alias: sudo nixos-rebuild switch --flake ~/projects/nix-config#victus
-rebuild-test         # prueba sin generar nueva entrada de boot
-rebuild-boot         # activa después del próximo reboot, no ahora
-
-# Mantenimiento
-update               # nix flake update en este repo
-gc                   # garbage-collect del store
-
-# Diagnóstico
-nix flake check      # validar que evalúa
-systemctl is-active scx ananicy   # verificar daemons de gaming
+systemctl is-active scx ananicy   # verificar daemons de gaming (§3)
 ```
 
 ---
