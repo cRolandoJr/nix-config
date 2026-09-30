@@ -276,12 +276,17 @@ in
     Unit = {
       Description = "Pedco Bot — ronda de avisos (oneshot)";
       After = [ "sops-nix.service" ];
+      # Al despertar, el catch-up corre antes de que haya red; reintentar en vez de perder la ronda.
+      StartLimitIntervalSec = "30min";
+      StartLimitBurst = 5;
     };
     Service = {
       Type = "oneshot";
       WorkingDirectory = "%h/projects/scraper-pedco";
       EnvironmentFile = config.sops.templates."pedco.env".path;
       ExecStart = "${pedcoBot}/bin/pedco-bot notify";
+      Restart = "on-failure";
+      RestartSec = "2min";
       NoNewPrivileges = true;
       PrivateTmp = true;
     };
