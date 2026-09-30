@@ -99,11 +99,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1790740592,
-        "narHash": "sha256-qzr4PNJRhEnBseJi3iA2Lu60mBRr/H1p/VGEyQQu/QE=",
+        "lastModified": 1790770796,
+        "narHash": "sha256-SG1MuAgNOoN/dgOfmdDikvW4u6k46mhOsPEkdIAkmb8=",
         "owner": "cRolandoJr",
         "repo": "scraper-pedco",
-        "rev": "104c56dad2b0fc956021c7a2d064f5b8c5b66a04",
+        "rev": "554dae3274345da08539a60558e51fc0d1e2484c",
         "type": "github"
       },
       "original": {
