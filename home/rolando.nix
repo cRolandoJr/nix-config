@@ -48,12 +48,6 @@ in
         excludesfile = "${config.home.homeDirectory}/.gitignore_global";
       };
     };
-    includes = [
-      {
-        condition = "gitdir:~/work/**";
-        path = "${config.home.homeDirectory}/work/.gitconfig-empresa";
-      }
-    ];
   };
 
   programs.zsh = {
