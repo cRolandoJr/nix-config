@@ -535,6 +535,10 @@ in
   home.file.".config/starship.toml".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/starship/.config/starship.toml";
 
+  # markdownlint-cli lee ~/.markdownlintrc (verificado): apaga largo de línea y estilo de tablas.
+  home.file.".markdownlintrc".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/markdownlint/.markdownlintrc";
+
   xdg.desktopEntries."org.telegram.desktop" = {
     name = "Telegram";
     comment = "New era of messaging";
