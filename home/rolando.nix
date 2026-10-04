@@ -378,7 +378,7 @@ in
     opencode # agente de código multi-proveedor; lee ~/.claude/skills y ~/.claude/CLAUDE.md
     gh
     lazygit
-    onedrive
+    chatgpt
 
     # Dev: CLI
     bat
