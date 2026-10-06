@@ -83,6 +83,10 @@ in
       # Lanza el asistente Astro (run.sh carga config + secreto y corre el daemon).
       astro = "~/projects/astro/run.sh";
 
+      # Ruta Nix: marca la fila pendiente del calendario (nada avanza sin ✅); `ruta` solo la muestra.
+      hecho = "~/Documentos/Obsidian\\ Vault/Ruta-Nix/herramientas/hecho.sh";
+      ruta = "~/Documentos/Obsidian\\ Vault/Ruta-Nix/herramientas/hecho.sh ver";
+
       # nh detecta el host por hostname; no hace falta especificar #victus.
       rebuild = "nh os switch ~/projects/nix-config";
       rebuild-test = "nh os test ~/projects/nix-config";
