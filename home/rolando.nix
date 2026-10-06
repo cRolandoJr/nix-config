@@ -301,6 +301,81 @@ in
     Install.WantedBy = [ "timers.target" ];
   };
 
+  # Ruta Nix — aviso diario por Telegram: 09:00 "hoy te toca" y 20:00 "¿cumpliste el checkpoint?".
+  # Lee la fila de hoy en Ruta-Nix/Calendario.md (vault) y usa el mismo bot y token que pedco-bot.
+  # Sin fila para hoy, el script sale en silencio. Mismo patrón oneshot + timer que pedco-bot-notify.
+  systemd.user.services.ruta-nix-manana = {
+    Unit = {
+      Description = "Ruta Nix — aviso de la mañana (tarea y checkpoint)";
+      After = [ "sops-nix.service" ];
+      StartLimitIntervalSec = "30min";
+      StartLimitBurst = 5;
+    };
+    Service = {
+      Type = "oneshot";
+      EnvironmentFile = config.sops.templates."pedco.env".path;
+      Environment = "PATH=${
+        lib.makeBinPath [
+          pkgs.coreutils
+          pkgs.gnugrep
+          pkgs.gawk
+          pkgs.curl
+        ]
+      }";
+      ExecStart = ''${pkgs.bash}/bin/bash "%h/Documentos/Obsidian Vault/Ruta-Nix/herramientas/notificar.sh" manana'';
+      Restart = "on-failure";
+      RestartSec = "2min";
+      NoNewPrivileges = true;
+      PrivateTmp = true;
+    };
+  };
+
+  systemd.user.services.ruta-nix-noche = {
+    Unit = {
+      Description = "Ruta Nix — aviso de la noche (¿checkpoint cumplido?)";
+      After = [ "sops-nix.service" ];
+      StartLimitIntervalSec = "30min";
+      StartLimitBurst = 5;
+    };
+    Service = {
+      Type = "oneshot";
+      EnvironmentFile = config.sops.templates."pedco.env".path;
+      Environment = "PATH=${
+        lib.makeBinPath [
+          pkgs.coreutils
+          pkgs.gnugrep
+          pkgs.gawk
+          pkgs.curl
+        ]
+      }";
+      ExecStart = ''${pkgs.bash}/bin/bash "%h/Documentos/Obsidian Vault/Ruta-Nix/herramientas/notificar.sh" noche'';
+      Restart = "on-failure";
+      RestartSec = "2min";
+      NoNewPrivileges = true;
+      PrivateTmp = true;
+    };
+  };
+
+  systemd.user.timers.ruta-nix-manana = {
+    Unit.Description = "Ruta Nix — 09:00 (con catch-up)";
+    Timer = {
+      OnCalendar = "*-*-* 09:00:00";
+      Persistent = true;
+      RandomizedDelaySec = "30";
+    };
+    Install.WantedBy = [ "timers.target" ];
+  };
+
+  systemd.user.timers.ruta-nix-noche = {
+    Unit.Description = "Ruta Nix — 20:00 (con catch-up)";
+    Timer = {
+      OnCalendar = "*-*-* 20:00:00";
+      Persistent = true;
+      RandomizedDelaySec = "30";
+    };
+    Install.WantedBy = [ "timers.target" ];
+  };
+
   dconf.settings."org/gnome/desktop/wm/preferences".button-layout = "appmenu:";
 
   gtk = {
