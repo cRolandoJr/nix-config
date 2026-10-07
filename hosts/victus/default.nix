@@ -22,6 +22,7 @@
     ../../modules/smartd.nix
     ../../modules/k3s.nix
     ../../modules/ollama.nix
+    ../../modules/studio.nix
   ];
 
   networking.hostName = "victus";
