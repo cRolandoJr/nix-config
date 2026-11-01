@@ -18,6 +18,9 @@
     capSysNice = true;
   };
 
+  hardware.uinput.enable = true;
+  users.users.rolando.extraGroups = [ "uinput" ];
+
   programs.gamemode.enable = true;
 
   environment.systemPackages = with pkgs; [
