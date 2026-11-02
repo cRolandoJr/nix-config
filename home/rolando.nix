@@ -322,6 +322,7 @@ in
         lib.makeBinPath [
           pkgs.coreutils
           pkgs.gnugrep
+          pkgs.gnused
           pkgs.gawk
           pkgs.curl
         ]
@@ -348,6 +349,7 @@ in
         lib.makeBinPath [
           pkgs.coreutils
           pkgs.gnugrep
+          pkgs.gnused
           pkgs.gawk
           pkgs.curl
         ]
