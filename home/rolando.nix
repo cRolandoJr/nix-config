@@ -427,6 +427,7 @@ in
     foot
     thunar
     yazi
+    xh
 
     # Capturas de pantalla
     grim
