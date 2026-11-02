@@ -15,7 +15,7 @@ in
 
   home.username = "rolando";
   home.homeDirectory = "/home/rolando";
-  home.stateVersion = "25.11"; # no cambiar después de instalar
+  home.stateVersion = "25.11";
 
   programs.home-manager.enable = true;
 
@@ -410,10 +410,10 @@ in
     # los .so que tiene en su propio wrapper.
     (rofi.override {
       plugins = [
-        rofi-calc # modo `calc`: 1920/2.5 dentro del propio lanzador
+        rofi-calc
       ];
     })
-    eww # widgets custom (calendar popup, hub)
+    eww
     mako
     awww
     hypridle
@@ -421,18 +421,17 @@ in
     swayosd
     cliphist
     wl-clipboard
-    brightnessctl # CLI de brillo; usado por el slider del hub
+    brightnessctl
     libnotify
-    kdePackages.qt6ct # paleta en apps Qt efímeras (share-picker); Qt Fusion es built-in
+    kdePackages.qt6ct
     foot
     thunar
     yazi
-    xh
 
     # Capturas de pantalla
     grim
     slurp
-    satty # anotar: grim | satty
+    satty
     imagemagick
 
     # Multimedia
@@ -440,7 +439,7 @@ in
     mpv
     spotify
     sox
-    cava # ecualizador del reproductor del hub; lo lanza eww/scripts/cava-mpris.sh
+    cava
 
     # Ocio y comunicación
     telegram-desktop
@@ -450,14 +449,14 @@ in
     # Productividad
     obsidian
     libreoffice
-    khal # calendario local; TUI ikhal en SUPER+I (el widget de eww no lo usa)
+    khal
     tzdata
 
     # Dev: editores y git
     neovim
     vscode
     antigravity-ide
-    opencode # agente de código multi-proveedor; lee ~/.claude/skills y ~/.claude/CLAUDE.md
+    opencode
     gh
     lazygit
     codex
@@ -465,17 +464,17 @@ in
     # Dev: CLI
     bat
     eza
-    ripgrep # Telescope live_grep
-    fd # Telescope find_files
+    ripgrep
+    fd
     httpie
     poppler-utils
     fastfetch
-    nix-output-monitor # activado via NH_NOM=1
+    nix-output-monitor
     postman
 
     # Infra: secretos
-    sops # editar secretos: sops secrets/pedco.yaml
-    ssh-to-age # derivar el recipient age de la SSH
+    sops
+    ssh-to-age
 
     # Infra: k3s single-node (modules/k3s.nix; el servicio arranca a mano)
     kubectl
@@ -487,9 +486,9 @@ in
     scrcpy
 
     # Fuera de nixpkgs
-    (callPackage ../pkgs/boundary-desktop.nix { }) # no está en nixpkgs
-    (callPackage ../pkgs/balena-etcher.nix { }) # ídem; removido de nixpkgs
-    ryogami # vendorizado de Ryoku, con parches propios (ver el let)
+    (callPackage ../pkgs/boundary-desktop.nix { })
+    (callPackage ../pkgs/balena-etcher.nix { })
+    ryogami
 
     # Python + CodeGraphContext
     python3
@@ -514,18 +513,18 @@ in
     '')
 
     # Neovim toolchain
-    gcc # parsers treesitter + telescope-fzf-native
+    gcc
     gnumake
     tree-sitter
     nodejs
 
     # LSPs
-    go # gopls resuelve root_dir con 'go env GOMODCACHE'; sin toolchain rompe en buffers Go
+    go
     gopls
     pyright
     rust-analyzer
     typescript-language-server
-    vscode-langservers-extracted # html, css, json, eslint
+    vscode-langservers-extracted
     yaml-language-server
     bash-language-server
     lua-language-server
@@ -534,7 +533,7 @@ in
     stylua
     ruff
     gofumpt
-    (lib.lowPrio gotools) # goimports; lowPrio para que gopls gane en conflictos
+    (lib.lowPrio gotools)
     rustfmt
     prettierd
     shfmt
