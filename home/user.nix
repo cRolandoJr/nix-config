@@ -463,6 +463,7 @@ in
     gh
     lazygit
     codex
+    gemini-cli
 
     # Dev: CLI
     bat
