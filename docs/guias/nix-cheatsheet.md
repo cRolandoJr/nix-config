@@ -1,7 +1,7 @@
 # Nix / NixOS — cheatsheet práctico
 
 Tu setup: flake en `~/projects/nix-config/`, host `victus`, user `rolando`.
-Todos los aliases y funciones viven en `~/projects/nix-config/home/rolando.nix`
+Todos los aliases y funciones viven en `~/projects/nix-config/home/user.nix`
 (sección `programs.zsh`). Inventario completo y qué hace cada uno: **sección 0**.
 
 ---
@@ -93,6 +93,7 @@ genérico — verificado: `sudo -n systemctl stop sshd.service` sigue pidiendo c
 | `nh os rollback` | Vuelve a la generación anterior | Si una build se rompió. Detalle en [runbooks/rollback](../runbooks/rollback.md). |
 
 **Flujo recomendado al tocar config:**
+
 ```bash
 rebuild-test          # verifica que evalúa y compila
 rebuild               # si OK, activa (crea nueva generación)
@@ -309,7 +310,7 @@ Tu sistema es flake-only. Los `nix-channel` son el sistema viejo. Si ves un coma
 | "Git tree is dirty" warning en rebuild | Tienes cambios sin commitear en `~/projects/nix-config`. Inofensivo, pero el hash del flake es no-determinista hasta que commits. |
 | Rebuild dice "X is broken" | Paquete marcado como broken en nixpkgs. Override con `allowBroken = true;` en `nixpkgs.config` o usa otra versión. |
 | Rebuild dice "infinite recursion" | Importaste el mismo módulo dos veces, o tienes una `imports` cíclica. |
-| Cambié un dotfile y home-manager no lo aplica | Si está en `xdg.configFile."x".source = mkOutOfStoreSymlink ...` el archivo del dotfile es el "source of truth" — editar ahí basta, no hace falta rebuild. Para cambios en `home/rolando.nix` sí hay que `rebuild`. |
+| Cambié un dotfile y home-manager no lo aplica | Si está en `xdg.configFile."x".source = mkOutOfStoreSymlink ...` el archivo del dotfile es el "source of truth" — editar ahí basta, no hace falta rebuild. Para cambios en `home/user.nix` sí hay que `rebuild`. |
 | "file 'nixpkgs' was not found in the Nix search path" | `NIX_PATH` no apunta a nada. En flakes no se usa; el flake.lock pinea todo. Si un comando viejo lo pide: `export NIX_PATH=nixpkgs=flake:nixpkgs`. |
 | `error: hash mismatch` en una build | El hash declarado de un fetch no coincide con lo descargado. Si es tu paquete custom (`pkgs/*.nix`), actualiza el `hash =`. Si es de nixpkgs, problema del upstream. |
 | Sesión gráfica no recoge env var nueva tras rebuild | home.sessionVariables se aplican al **iniciar la sesión**. Logout/login para que se carguen. O workaround: `systemctl --user import-environment FOO`. |
@@ -520,11 +521,11 @@ btrfs subvolume create ~/.local/share/Steam/steamapps
 
 ## 20. Recursos
 
-- **Wiki oficial**: https://wiki.nixos.org/
-- **Buscar paquetes**: https://search.nixos.org/packages
-- **Opciones NixOS**: https://search.nixos.org/options
-- **Opciones home-manager**: https://home-manager-options.extranix.com/
-- **Manual NixOS**: https://nixos.org/manual/nixos/stable/
-- **Nix Pills** (entender Nix profundo): https://nixos.org/guides/nix-pills/
-- **pre-commit-hooks.nix**: https://github.com/cachix/pre-commit-hooks.nix
-- **nix-direnv**: https://github.com/nix-community/nix-direnv
+- **Wiki oficial**: <https://wiki.nixos.org/>
+- **Buscar paquetes**: <https://search.nixos.org/packages>
+- **Opciones NixOS**: <https://search.nixos.org/options>
+- **Opciones home-manager**: <https://home-manager-options.extranix.com/>
+- **Manual NixOS**: <https://nixos.org/manual/nixos/stable/>
+- **Nix Pills** (entender Nix profundo): <https://nixos.org/guides/nix-pills/>
+- **pre-commit-hooks.nix**: <https://github.com/cachix/pre-commit-hooks.nix>
+- **nix-direnv**: <https://github.com/nix-community/nix-direnv>

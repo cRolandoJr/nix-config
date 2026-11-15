@@ -2,6 +2,7 @@
   config,
   pkgs,
   lib,
+  username,
   ...
 }:
 
@@ -19,7 +20,7 @@
   };
 
   hardware.uinput.enable = true;
-  users.users.rolando.extraGroups = [ "uinput" ];
+  users.users.${username}.extraGroups = [ "uinput" ];
 
   programs.gamemode.enable = true;
 

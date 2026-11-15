@@ -94,6 +94,7 @@
 | `,` | Abrir menu de sort |
 
 Opciones en el menu:
+
 - `m` — por fecha de modificacion (util para logs, configs)
 - `s` — por tamano (util para `/nix/store`)
 - `n` — natural (alfanumerico, default)
@@ -145,7 +146,7 @@ Yazi, el shell quede parado en el directorio donde estabas. Si algún día la qu
 canónica es home-manager y no pegar una función en `.zshrc`:
 
 ```nix
-# home/rolando.nix — hoy yazi entra como paquete suelto; esto lo reemplaza
+# home/user.nix — hoy yazi entra como paquete suelto; esto lo reemplaza
 programs.yazi = {
   enable = true;
   enableZshIntegration = true;   # crea la función `yy` (shellWrapperName)
@@ -154,7 +155,6 @@ programs.yazi = {
 
 Ojo: la config de yazi ya se enlaza con `xdg.configFile."yazi"` desde dotfiles; no
 declarar `programs.yazi.settings` o habría dos dueños del mismo `yazi.toml`.
-
 
 ---
 
@@ -189,7 +189,7 @@ declarar `programs.yazi.settings` o habría dos dueños del mismo `yazi.toml`.
 
 ### Navegar /nix/store sin volverse loco
 
-```
+```text
 # Desde yazi, ve a /nix/store y filtra por nombre de paquete:
 # Presiona f, escribe "neovim", ves solo los closures relevantes.
 # Presiona s para busqueda recursiva si queres encontrar un binario especifico.
@@ -205,7 +205,7 @@ Yazi funciona en SSH. Para navegar `/var/log/` en un server y previsualizar logs
 
 ### Operaciones masivas
 
-```
+```text
 # Mover todos los .ics de una carpeta a otra:
 # 1. Filtrar: f -> .ics
 # 2. Ctrl+a (seleccionar todo lo visible)

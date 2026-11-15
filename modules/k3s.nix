@@ -5,7 +5,7 @@
   ...
 }:
 
-# k3s single-node. kubeconfig: /etc/rancher/k3s/k3s.yaml (mode 644). CLI tools en home/rolando.nix.
+# k3s single-node. kubeconfig: /etc/rancher/k3s/k3s.yaml (mode 644). CLI tools en home/user.nix.
 
 {
   services.k3s = {

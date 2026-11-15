@@ -1,0 +1,4 @@
+{
+  username = "rolando";
+  hostname = "victus";
+}

@@ -7,13 +7,14 @@ affected: pkgs/boundary-desktop.nix
 tags: [electron, deb, hashicorp, setuid, zstd, autoPatchelfHook]
 ---
 
-# boundary-desktop — empaquetar el .deb oficial en NixOS
+## boundary-desktop — empaquetar el .deb oficial en NixOS
 
 `boundary-desktop` (cliente GUI de HashiCorp Boundary) no existe en nixpkgs, solo
 el CLI/server `boundary`. Lo empaquetamos a mano desde el `.deb` que HashiCorp
 publica en `releases.hashicorp.com`.
 
 Probado con:
+
 - boundary-desktop 2.6.0
 - nixos-unstable @ 26.05.20260515.d233902
 - AMD GPU (radeonsi), Wayland (Hyprland)
@@ -22,19 +23,19 @@ Probado con:
 
 Tres errores encadenados, en este orden, durante `nixos-rebuild`:
 
-```
+```text
 tar: ./usr/lib/boundary-desktop/chrome-sandbox: Cannot change mode to
   rwsr-xr-x: Operation not permitted
 tar: Exiting with failure status due to previous errors
 dpkg-deb: error: tar subprocess failed with exit status 2
 ```
 
-```
+```text
 tar (child): zstd: Cannot exec: No such file or directory
 tar (child): Error is not recoverable: exiting now
 ```
 
-```
+```text
 Builder called die: Cannot wrap '.../opt/boundary-desktop/boundary-desktop'
 because it is not an executable file
 ```
@@ -104,7 +105,7 @@ stdenv.mkDerivation rec {
 }
 ```
 
-Y en `home/rolando.nix` dentro de `home.packages`:
+Y en `home/user.nix` dentro de `home.packages`:
 
 ```nix
 (callPackage ../pkgs/boundary-desktop.nix {})
@@ -138,8 +139,8 @@ Y en `home/rolando.nix` dentro de `home.packages`:
 
 ## Referencias
 
-- https://releases.hashicorp.com/boundary-desktop/
-- https://developer.hashicorp.com/boundary/docs/api-clients/desktop
+- <https://releases.hashicorp.com/boundary-desktop/>
+- <https://developer.hashicorp.com/boundary/docs/api-clients/desktop>
 - Patrón de `ar x` + `tar --no-same-permissions` para `.deb` con setuid:
   derivaciones de Discord, Slack, VSCode en nixpkgs
 - Sobre setuid en `/nix/store`: módulo `security.wrappers` de NixOS

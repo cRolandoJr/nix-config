@@ -80,7 +80,7 @@ users.users.<u>.extraGroups = [ "adbusers" ];  # el grupo no existe
 
 Error que tira si lo agregás:
 
-```
+```text
 The option definition `programs.adb' [...] no longer has any effect; please remove it.
 This option is no longer needed as systemd 258 handles uaccess rules automatically.
 ```
@@ -90,7 +90,7 @@ This option is no longer needed as systemd 258 handles uaccess rules automatical
 Solo instalar el paquete:
 
 ```nix
-home.packages = [ pkgs.android-tools ];   # ya está en home/rolando.nix
+home.packages = [ pkgs.android-tools ];   # ya está en home/user.nix
 ```
 
 **systemd uaccess** maneja los permisos USB automáticamente — basado en sesión local
@@ -207,11 +207,13 @@ error en logs).
 **Regla**: **path absoluto siempre en cualquier `exec`/`exec-once` que apunte a un script**.
 
 Mal:
+
 ```jsonc
 "exec": "stdbuf -oL ~/.config/hypr/scripts/waybar-layout.sh"
 ```
 
 Bien:
+
 ```jsonc
 "exec": "stdbuf -oL /home/rolando/.config/hypr/scripts/waybar-layout.sh"
 ```
@@ -259,6 +261,7 @@ parece no haber tenido efecto.
 que actualiza la fuente, fontconfig cache queda desincronizado del store.
 
 Fix:
+
 ```bash
 rm -rf ~/.cache/fontconfig
 fc-cache -fv
@@ -272,6 +275,7 @@ los glyphs MDI se pueden **borrar silenciosamente** al guardar → el array qued
 `["","","","",...]` con strings vacíos.
 
 Para verificar:
+
 ```bash
 python3 -c "
 import json, re
@@ -293,6 +297,7 @@ NixOS setea la zona del sistema vía `time.timeZone`. Pero waybar cuando se lanz
 `exec-once` (ej: manualmente desde una terminal sin TZ propagada) puede usar UTC.
 
 Fix robusto: declarar la zona **explícita en el módulo clock** del config:
+
 ```jsonc
 "clock": {
   "timezone": "America/Argentina/Buenos_Aires",
@@ -321,6 +326,7 @@ Material Design Icons cambiaron de codepoints en Nerd Fonts 3.x. Los rangos vige
 | WiFi strength | U+F091F → U+F0928 | md-wifi_strength_0 .. _4 |
 
 Cómo encontrar nuevos:
+
 ```bash
 nix-shell -p python3Packages.fonttools --run 'python3 -c "
 from fontTools.ttLib import TTFont
@@ -333,7 +339,8 @@ for code, name in sorted(f.getBestCmap().items()):
 ### 7.9 Reloj y zona horaria en autostart
 
 El `exec-once` del autostart le pasa `env TZ=...` a waybar:
-```
+
+```text
 exec-once = env TZ=America/Argentina/Buenos_Aires waybar
 ```
 
@@ -352,7 +359,7 @@ Eso + el `"timezone"` explícito del módulo = doble defensa. No confiar solo en
 
 `services.blueman.enable = true;` deja el unit user en `bad-setting`:
 
-```
+```text
 blueman-applet.service: Service has more than one ExecStart= setting,
 which is only allowed for Type=oneshot services. Refusing.
 ```

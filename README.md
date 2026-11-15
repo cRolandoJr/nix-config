@@ -4,8 +4,9 @@ NixOS flake para HP Victus 16 (AMD Ryzen 5 7535HS + Radeon RX 6500M dGPU / 680M 
 
 ## Estructura
 
-```
+```text
 flake.nix               — inputs, outputs, devShell, pre-commit hooks
+personal.nix            — username y hostname, consumidos por el flake
 .sops.yaml              — reglas de cifrado (recipient age derivado de la SSH)
 secrets/
   pedco.yaml            — TG_TOKEN + SECRET_KEY cifrados con sops
@@ -27,11 +28,27 @@ modules/
   btrbk.nix             — snapshots btrfs de @home cada hora (retención 24h/7d/4w/6m)
   k3s.nix               — cluster Kubernetes single-node local
 home/
-  rolando.nix           — home-manager: zsh, git, starship, fzf, dotfiles symlinks, paquetes,
+  user.nix              — home-manager: zsh, git, starship, fzf, dotfiles symlinks, paquetes,
                           systemd user services (pedco-bot: daemon + timer de avisos 8/20h)
 pkgs/
   boundary-desktop.nix  — derivación custom de HashiCorp Boundary Desktop (no en nixpkgs)
 ```
+
+## Identidad y rutas
+
+`personal.nix` declara `username = "rolando"` y `hostname = "victus"`.
+El flake pasa esos valores a los módulos mediante `specialArgs`; Home Manager
+recibe `username` mediante `extraSpecialArgs`. El módulo de usuario es
+`home/user.nix`, cuyo nombre no depende del login.
+
+El home se deriva de `username`. En `home/user.nix`, `dotfilesDir` centraliza
+`${config.home.homeDirectory}/projects/dotfiles` para los 16 enlaces externos.
+Las rutas Android también se derivan del home. Los repositorios continúan separados.
+
+`hostname` selecciona el output y `hosts/${hostname}`: cambiarlo exige mantener
+coherente la carpeta del host. Cambiar `username` no migra archivos, permisos ni
+credenciales de una cuenta existente; esta abstracción conserva los valores actuales.
+La identidad Git y la descripción personal de la cuenta son datos distintos del login.
 
 ## Instalación en una máquina nueva
 
@@ -126,7 +143,7 @@ Sistema, update del flake o un archivo borrado: [docs/runbooks/rollback](docs/ru
 
 ## Agregar un paquete
 
-**User-level** (solo para rolando): agregar en `home/rolando.nix` → `home.packages`.
+**User-level** (solo para rolando): agregar en `home/user.nix` → `home.packages`.
 
 **System-level** (disponible para todos los usuarios / necesario para root):
 agregar en el módulo correspondiente o en `modules/base.nix` → `environment.systemPackages`.
@@ -141,7 +158,7 @@ agregar en el módulo correspondiente o en `modules/base.nix` → `environment.s
 - Workarounds retirados: el `lib.mkForce` de bwrap (bubblewrap 0.11) ya no existe en
   `gaming.nix`, y el de blueman-applet nunca se aplicó — con UWSM el applet corre vía
   XDG-autostart y la unit systemd afectada queda sin uso (historia en `docs/notas.md` §8).
-- `pedco-bot` (bot de Telegram) se declara en `home/rolando.nix` vía `inputs.pedco-bot`
+- `pedco-bot` (bot de Telegram) se declara en `home/user.nix` vía `inputs.pedco-bot`
   (GitHub pin de `cRolandoJr/scraper-pedco`). Para actualizar el bot: push a su `main`,
   luego `nix flake update pedco-bot` + `rebuild`. Los avisos 8/20h los dispara
   `pedco-bot-notify.timer` (`Persistent=true`, con catch-up tras suspend/apagado).

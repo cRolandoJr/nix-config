@@ -3,6 +3,7 @@
   pkgs,
   lib,
   inputs,
+  hostname,
   ...
 }:
 
@@ -25,7 +26,7 @@
     ../../modules/studio.nix
   ];
 
-  networking.hostName = "victus";
+  networking.hostName = hostname;
 
   system.stateVersion = "25.11"; # no cambiar después de instalar
 }

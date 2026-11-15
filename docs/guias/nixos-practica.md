@@ -8,7 +8,7 @@ Referencia para tu flake en `~/projects/nix-config/`. No es la documentación of
 
 Cuando quieras "instalar X" en NixOS, contestate **estas 3 preguntas** en orden:
 
-```
+```text
 1. ¿Es un paquete (binario que ejecuto) o una configuración (servicio/feature)?
      │
      ├── Paquete simple ──> ir a la pregunta 2
@@ -19,7 +19,7 @@ Cuando quieras "instalar X" en NixOS, contestate **estas 3 preguntas** en orden:
 
 2. Si es paquete: ¿es para vos (user) o para todo el sistema (root también)?
      │
-     ├── User-level ──> home.packages en home/rolando.nix
+     ├── User-level ──> home.packages en home/user.nix
      │
      └── System-wide ──> environment.systemPackages en module
 
@@ -41,8 +41,8 @@ NixOS expone **dos catálogos distintos**. Buscar en el equivocado es el error m
 
 | Catálogo | Para qué sirve | Dónde se busca | Comando local |
 |---|---|---|---|
-| **Packages** | Listado de binarios disponibles (~120k) | https://search.nixos.org/packages | `nix search nixpkgs <nombre>` |
-| **Options** | Opciones declarativas (servicios, hardware, programas configurables) | https://search.nixos.org/options | `man configuration.nix` (system), `man home-configuration.nix` (user) |
+| **Packages** | Listado de binarios disponibles (~120k) | <https://search.nixos.org/packages> | `nix search nixpkgs <nombre>` |
+| **Options** | Opciones declarativas (servicios, hardware, programas configurables) | <https://search.nixos.org/options> | `man configuration.nix` (system), `man home-configuration.nix` (user) |
 
 ### Ejemplo concreto de ambas
 
@@ -70,7 +70,7 @@ Tarda en la primera corrida (descarga el index), después es instantáneo.
 
 Tu repo está modularizado así:
 
-```
+```text
 ~/projects/nix-config/
 ├── flake.nix                       # inputs (nixpkgs, home-manager, etc.)
 ├── hosts/
@@ -106,9 +106,9 @@ Estos son los patrones que vas a usar el 95% del tiempo. Cada uno con un ejemplo
 
 **Cuándo:** un binario que solo usás vos, sin daemon ni config compleja.
 
-**Dónde:** `home/rolando.nix` → `home.packages`
+**Dónde:** `home/user.nix` → `home.packages`
 
-**Ejemplo de tu repo** (`home/rolando.nix`):
+**Ejemplo de tu repo** (`home/user.nix`):
 
 ```nix
 home.packages = with pkgs; [
@@ -160,7 +160,7 @@ home.packages = with pkgs; [
 
 **Dónde:** mismo nivel que el resto del módulo (system o user).
 
-**Ejemplo de tu repo** (`home/rolando.nix`, bloque `programs.firefox`):
+**Ejemplo de tu repo** (`home/user.nix`, bloque `programs.firefox`):
 
 ```nix
 programs.firefox = {
@@ -361,7 +361,7 @@ nixpkgs.overlays = [
 ### Archivos declarativos en `~/.config` (home-manager)
 
 ```nix
-# Tu mismo patrón en home/rolando.nix (dentro de xdg.configFile)
+# Tu mismo patrón en home/user.nix (dentro de xdg.configFile)
 xdg.configFile."mako".source = config.lib.file.mkOutOfStoreSymlink
   "${config.home.homeDirectory}/projects/dotfiles/mako/.config/mako";
 ```
@@ -374,7 +374,7 @@ xdg.configFile."mako".source = config.lib.file.mkOutOfStoreSymlink
 
 ### Workflow moderno: alias + `nh`
 
-Tu flujo habitual usa tres alias definidos en `home/rolando.nix`:
+Tu flujo habitual usa tres alias definidos en `home/user.nix`:
 
 | Alias | Expande a | Cuándo |
 |---|---|---|
@@ -414,7 +414,7 @@ nh search ripgrep                        # busca paquetes en TUI interactiva
 nh clean all --keep 5                    # limpia generaciones, guarda las últimas 5
 ```
 
-Para home-manager solo (sin tocar sistema) — útil si solo cambiaste `home/rolando.nix`:
+Para home-manager solo (sin tocar sistema) — útil si solo cambiaste `home/user.nix`:
 
 ```bash
 home-manager switch --flake ~/projects/nix-config
@@ -477,6 +477,7 @@ La cadena `self.rev or self.dirtyRev or "dirty"` importa: `self.rev` **solo exis
 ### Cómo funciona en tu setup
 
 Tu `flake.nix` tiene:
+
 1. Un input `pre-commit-hooks.nix` que provee las herramientas.
 2. Un `devShell` cuyo `shellHook` instala `.git/hooks/pre-commit` automáticamente.
 3. Un `.envrc` en el root del repo con `use flake`, que activa el devShell al entrar al directorio.
@@ -577,7 +578,7 @@ La clave es que `nixos-rebuild`, `btrbk` y `nix-collect-garbage` son las tres op
 use flake
 ```
 
-3. La primera vez que entrás al directorio, direnv pide permiso:
+1. La primera vez que entrás al directorio, direnv pide permiso:
 
 ```bash
 cd ~/projects/nix-config
@@ -585,7 +586,7 @@ cd ~/projects/nix-config
 direnv allow
 ```
 
-4. Desde ese momento, al entrar el directorio, las deps del `devShell` aparecen en el PATH. Al salir, desaparecen. Sin tocar el sistema global.
+1. Desde ese momento, al entrar el directorio, las deps del `devShell` aparecen en el PATH. Al salir, desaparecen. Sin tocar el sistema global.
 
 ### Ejemplo concreto
 
@@ -620,7 +621,7 @@ direnv status         # ver si el .envrc está activo y qué exporta
 
 ### Cómo funciona la cadena
 
-```
+```text
 ~/.ssh/id_ed25519  ──ssh-to-age──►  identidad age  ──►  descifra secrets/*.yaml
                                                           │
                                           sops-nix.service (al activar HM)
@@ -643,7 +644,7 @@ creation_rules:
 ```
 
 ```nix
-# home/rolando.nix
+# home/user.nix
 imports = [ inputs.sops-nix.homeManagerModules.sops ];
 
 sops = {
@@ -759,7 +760,10 @@ sudo nix run github:nix-community/disko/latest -- \
 
 ### El error: linea por linea
 
-```
+La salida siguiente conserva el nombre histórico `home/rolando.nix`; hoy el módulo
+se encuentra en `home/user.nix`.
+
+```text
 error: attribute 'satti' missing
        at /home/rolando/projects/nix-config/home/rolando.nix:128:5:
           127|     slurp
@@ -770,6 +774,7 @@ error: attribute 'satti' missing
 ```
 
 **Cómo se lee:**
+
 - `attribute 'satti' missing` → un paquete u opción con ese nombre no existe.
 - La línea y columna te dicen dónde lo escribiste mal.
 - A veces sugiere — `Did you mean satty?` — confiá pero verificá en search.nixos.org.
@@ -934,7 +939,7 @@ nh clean all --keep 5
 `scraper-pedco` expone su propio `flake.nix`; en `nix-config` es un input con
 `follows = "nixpkgs"` (evita duplicar nixpkgs en el lock). El daemon + el timer de
 avisos (`Persistent=true` = catch-up tras suspend/apagado) se declaran en
-`home/rolando.nix` con el binario pineado al store. Actualizar el bot:
+`home/user.nix` con el binario pineado al store. Actualizar el bot:
 `nix flake update pedco-bot && rebuild`.
 **Desvío del plan original:** los secretos NO migraron a sops-nix — quedaron vía
 `EnvironmentFile=` apuntando fuera del repo, que ya era suficiente (no había
@@ -967,7 +972,7 @@ exactamente las units que difieren; y **no crean generaciones** —viven dentro 
 toplevel—, así que togglear no toca el profile. Sirven cuando el delta es grande o
 necesitás elegirlo **al bootear**; para "parar dos daemons", son desproporcionadas.
 
-<details><summary>Implementación histórica (referencia)</summary>
+### Implementación histórica (referencia)
 
 Estaba en `modules/battery.nix` (no TLP como imaginaba la nota original — ppd ya cubre
 la capa hardware):
@@ -981,6 +986,7 @@ specialisation.battery.configuration = {
 ```
 
 **Tres lecciones que la nota original no sabía:**
+
 1. **El cambio de perfil es en caliente, sin reboot** (la nota decía "solo
    reiniciando" — falso): el script de activación de la variante para/arranca
    exactamente las units del delta. Aliases: `battery-on` / `battery-off`.
@@ -995,8 +1001,6 @@ specialisation.battery.configuration = {
 **Fase 2 con gatillo:** medir a batería (`upower -i ... | grep energy-rate`, 5 min
 por perfil) y sumar ananicy/gamescope al mkForce SOLO si el ahorro de k3s+scx no alcanza.
 
-</details>
-
 **El pendiente de medir sigue vivo**, ahora sin specialisation: comparar `energy-rate`
 con k3s+scx corriendo vs parados (`battery-on`). Si el delta es despreciable, hasta los
 aliases sobran.
@@ -1005,18 +1009,19 @@ aliases sobran.
 
 ## 11. Recursos canónicos (cuando esta guía no alcance)
 
-- **NixOS Manual** → https://nixos.org/manual/nixos/stable/
-- **Nixpkgs Manual** (para overrides y patterns avanzados) → https://nixos.org/manual/nixpkgs/stable/
-- **Home-Manager options** → https://nix-community.github.io/home-manager/options.xhtml
+- **NixOS Manual** → <https://nixos.org/manual/nixos/stable/>
+- **Nixpkgs Manual** (para overrides y patterns avanzados) → <https://nixos.org/manual/nixpkgs/stable/>
+- **Home-Manager options** → <https://nix-community.github.io/home-manager/options.xhtml>
 - **search.nixos.org** — todo lo de búsqueda
-- **NixOS Discourse** → https://discourse.nixos.org/ — el foro, MUY útil para errores raros
+- **NixOS Discourse** → <https://discourse.nixos.org/> — el foro, MUY útil para errores raros
 - **noogle.dev** — buscador de funciones de la stdlib de Nix
 - **Reddit r/NixOS** — comunidad activa, buenas discusiones de patrones
-- **pre-commit-hooks.nix** → https://github.com/cachix/pre-commit-hooks.nix
-- **nix-direnv** → https://github.com/nix-community/nix-direnv
+- **pre-commit-hooks.nix** → <https://github.com/cachix/pre-commit-hooks.nix>
+- **nix-direnv** → <https://github.com/nix-community/nix-direnv>
 
 **Para Flakes específicamente** (que es lo que vos usás):
-- https://nixos.wiki/wiki/Flakes
+
+- <https://nixos.wiki/wiki/Flakes>
 - "Zero to Nix" (zero-to-nix.com) — guía moderna 100% flakes
 
 ---

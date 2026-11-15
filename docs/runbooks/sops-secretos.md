@@ -55,24 +55,30 @@ sops -d --extract '["TG_TOKEN"]' secrets/pedco.yaml   # uno solo
 ## Agregar un secreto nuevo
 
 1. Editar el archivo (con la variable exportada) y agregar la línea `NOMBRE: valor`:
+
    ```bash
+
    sops secrets/pedco.yaml
+
    ```
-2. Declararlo en `home/rolando.nix`, bloque `sops.secrets`:
+
+2. Declararlo en `home/user.nix`, bloque `sops.secrets`:
    `NOMBRE.sopsFile = ../secrets/pedco.yaml;`
 3. Que el servicio lo reciba: sumarlo al template (`sops.templates."pedco.env"`) si el
    unit usa `EnvironmentFile`, o leer `config.sops.secrets.NOMBRE.path` si espera un archivo.
 4. El servicio debe declarar `After`/`Wants` de `sops-nix.service`, o arranca antes de que
    el secreto exista.
 5. `rebuild`, y verificar:
+
    ```bash
+
    find -L ~/.config/sops-nix/secrets -printf '%P %m\n'   # aparece NOMBRE con 400
    ```
 
 Un secreto se puede usar de dos formas, y conviene saber cuál: vía sops-nix (el
 archivo en `/run`) o descifrando el yaml directo con `sops -d`. `MOODLE_TOKEN` es del
 segundo tipo: lo lee `~/.claude/skills/tps/tablero.py` con `sops -d --extract`. Su
-declaración en `home/rolando.nix` (que además lo copia a `/run`) no la usa nadie
+declaración en `home/user.nix` (que además lo copia a `/run`) no la usa nadie
 (revisado el 28-sep-2026). Al buscar consumidores, barrer también `~/.claude/skills/`.
 
 ## Crear un archivo de secretos nuevo

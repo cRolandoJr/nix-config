@@ -3,18 +3,20 @@
   pkgs,
   lib,
   inputs,
+  username,
   ...
 }:
 
 let
+  dotfilesDir = "${config.home.homeDirectory}/projects/dotfiles";
   pedcoBot = inputs.pedco-bot.packages.${pkgs.stdenv.hostPlatform.system}.pedco-bot;
   ryogami = pkgs.callPackage ../pkgs/ryogami { };
 in
 {
   imports = [ inputs.sops-nix.homeManagerModules.sops ];
 
-  home.username = "rolando";
-  home.homeDirectory = "/home/rolando";
+  home.username = username;
+  home.homeDirectory = "/home/${username}";
   home.stateVersion = "25.11";
 
   programs.home-manager.enable = true;
@@ -427,6 +429,7 @@ in
     foot
     thunar
     yazi
+    xh
 
     # Capturas de pantalla
     grim
@@ -560,8 +563,8 @@ in
     QT_QPA_PLATFORMTHEME = "qt6ct";
     EDITOR = "nvim";
     VISUAL = "nvim";
-    ANDROID_SDK_ROOT = "/home/rolando/Android/Sdk";
-    ANDROID_HOME = "/home/rolando/Android/Sdk";
+    ANDROID_SDK_ROOT = "${config.home.homeDirectory}/Android/Sdk";
+    ANDROID_HOME = "${config.home.homeDirectory}/Android/Sdk";
     MOODLE_URL = "https://pedco.uncoma.edu.ar/webservice/rest/server.php";
 
     NH_NOM = "1"; # nh pipea el build por nix-output-monitor
@@ -570,55 +573,43 @@ in
   };
 
   xdg.configFile = {
-    "hypr".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/hypr/.config/hypr";
+    "hypr".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/hypr/.config/hypr";
 
-    "waybar".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/waybar/.config/waybar";
+    "waybar".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/waybar/.config/waybar";
 
-    "eww".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/eww/.config/eww";
+    "eww".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/eww/.config/eww";
 
-    "cliphist".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/cliphist/.config/cliphist";
+    "cliphist".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/cliphist/.config/cliphist";
 
-    "rofi".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/rofi/.config/rofi";
+    "rofi".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/rofi/.config/rofi";
 
     "fastfetch".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/fastfetch/.config/fastfetch";
+      config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/fastfetch/.config/fastfetch";
 
-    "nvim".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/nvim/.config/nvim";
+    "nvim".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/nvim/.config/nvim";
 
     "quickshell".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/quickshell/.config/quickshell";
+      config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/quickshell/.config/quickshell";
 
-    "foot".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/foot/.config/foot";
+    "foot".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/foot/.config/foot";
 
-    "mako".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/mako/.config/mako";
+    "mako".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/mako/.config/mako";
 
-    "khal".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/khal/.config/khal";
+    "khal".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/khal/.config/khal";
 
-    "qt6ct".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/qt6ct/.config/qt6ct";
+    "qt6ct".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/qt6ct/.config/qt6ct";
 
-    "yazi".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/yazi/.config/yazi";
+    "yazi".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/yazi/.config/yazi";
 
-    "opencode".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/opencode/.config/opencode";
+    "opencode".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/opencode/.config/opencode";
   };
 
   home.file.".config/starship.toml".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/starship/.config/starship.toml";
+    config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/starship/.config/starship.toml";
 
   # markdownlint-cli lee ~/.markdownlintrc (verificado): apaga largo de línea y estilo de tablas.
   home.file.".markdownlintrc".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/markdownlint/.markdownlintrc";
+    config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/markdownlint/.markdownlintrc";
 
   xdg.desktopEntries."org.telegram.desktop" = {
     name = "Telegram";

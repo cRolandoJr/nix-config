@@ -46,6 +46,8 @@
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
+      personal = import ./personal.nix;
+      inherit (personal) username hostname;
 
       # Hooks instalados en .git/hooks al entrar al devShell (direnv `use flake`).
       pre-commit-check = pre-commit-hooks.lib.${system}.run {
@@ -61,13 +63,13 @@
       };
     in
     {
-      nixosConfigurations.victus = nixpkgs.lib.nixosSystem {
+      nixosConfigurations.${hostname} = nixpkgs.lib.nixosSystem {
         inherit system;
-        specialArgs = { inherit inputs; };
+        specialArgs = { inherit inputs username hostname; };
         modules = [
-          ./hosts/victus
+          ./hosts/${hostname}
           inputs.disko.nixosModules.disko
-          ./hosts/victus/disk.nix
+          ./hosts/${hostname}/disk.nix
           # Se lee DESDE la generación booteada: `nixos-version --configuration-revision`.
           { system.configurationRevision = self.rev or self.dirtyRev or "dirty"; }
           home-manager.nixosModules.home-manager
@@ -75,8 +77,8 @@
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.backupFileExtension = "backup";
-            home-manager.extraSpecialArgs = { inherit inputs; };
-            home-manager.users.rolando = import ./home/rolando.nix;
+            home-manager.extraSpecialArgs = { inherit inputs username; };
+            home-manager.users.${username} = import ./home/user.nix;
           }
         ];
       };

@@ -2,6 +2,7 @@
   config,
   pkgs,
   lib,
+  username,
   ...
 }:
 
@@ -31,7 +32,7 @@
     auto-optimise-store = true;
     trusted-users = [
       "root"
-      "rolando"
+      username
     ];
     substituters = [
       "https://cache.nixos.org"
@@ -72,7 +73,7 @@
 
   nixpkgs.config.allowUnfree = true;
 
-  users.users.rolando = {
+  users.users.${username} = {
     isNormalUser = true;
     description = "Rolando";
     extraGroups = [
@@ -98,7 +99,7 @@
     '';
     extraRules = [
       {
-        users = [ "rolando" ];
+        users = [ username ];
         commands = [
           {
             command = "/run/current-system/sw/bin/nixos-rebuild";

@@ -2,7 +2,7 @@
 
 Agente de código multi-proveedor que reemplaza a Claude Code con modelos más baratos.
 Config en `~/projects/dotfiles/opencode/.config/opencode/` (enlazada a `~/.config/opencode/`;
-editar el origen). Versión y paquete: `home/rolando.nix`. Todo lo de esta guía se probó el
+editar el origen). Versión y paquete: `home/user.nix`. Todo lo de esta guía se probó el
 28-sep-2026 con opencode 1.18.31.
 
 ## Qué ya trae configurado
@@ -23,7 +23,7 @@ skill es lo que decide si se dispara: escribila con las palabras con que vas a p
 
 **Forzada: `/skill <nombre> <tarea>`** (comando propio, `commands/skill.md`):
 
-```
+```text
 /skill tps armá el TP3 de Automatización
 /skill ai-loop agregar filtro por categoría al listado de torneos
 /skill bug-sniper el login falla con 104 después del reinicio
