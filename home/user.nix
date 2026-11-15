@@ -95,12 +95,6 @@ in
       rebuild-boot = "nh os boot ~/projects/nix-config";
       update = "cd ~/projects/nix-config && nix flake update";
 
-      # Una invocación POR unit: sudoers matchea el comando con sus argumentos, así
-      # que los dos units juntos no coincidirían con ninguna regla y pediría clave.
-      # `;` y no `&&`: los cuatro pasos son independientes y todos deben intentarse
-      # (si uno falla, el pkill igual tiene que refrescar custom/gamemode).
-      battery-on = "sudo systemctl stop k3s.service; sudo systemctl stop scx.service; powerprofilesctl set power-saver; pkill -RTMIN+11 waybar";
-      battery-off = "sudo systemctl start k3s.service; sudo systemctl start scx.service; powerprofilesctl set balanced; pkill -RTMIN+11 waybar";
       # Mismo criterio que nix.gc: `-d` borraba todas las generaciones y dejaba sin rollback.
       gc = "sudo nix-collect-garbage --delete-older-than 7d && nix-collect-garbage --delete-older-than 7d";
 

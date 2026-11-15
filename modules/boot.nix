@@ -31,8 +31,6 @@
   ];
 
   boot.consoleLogLevel = 0;
-  boot.initrd.verbose = false;
 
-  boot.initrd.systemd.enable = true;
   boot.plymouth.enable = true;
 }

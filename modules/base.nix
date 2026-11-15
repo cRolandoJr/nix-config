@@ -113,7 +113,7 @@
             command = "/run/current-system/sw/bin/nix-collect-garbage";
             options = [ "NOPASSWD" ];
           }
-          # Botón modo juego + aliases battery-on/off. sudoers exige match exacto
+          # Botón modo juego. sudoers exige match exacto
           # del comando con sus argumentos, así que NO habilita systemctl genérico.
           {
             command = "/run/current-system/sw/bin/systemctl stop k3s.service";
@@ -121,14 +121,6 @@
           }
           {
             command = "/run/current-system/sw/bin/systemctl start k3s.service";
-            options = [ "NOPASSWD" ];
-          }
-          {
-            command = "/run/current-system/sw/bin/systemctl stop scx.service";
-            options = [ "NOPASSWD" ];
-          }
-          {
-            command = "/run/current-system/sw/bin/systemctl start scx.service";
             options = [ "NOPASSWD" ];
           }
         ];
