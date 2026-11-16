@@ -1,9 +1,10 @@
 # dotfiles
+
 Configuración personal de **Hyprland** sobre **NixOS**, gestionada con [home-manager `mkOutOfStoreSymlink`](https://nix-community.github.io/home-manager/options.xhtml#opt-home.file._name_.source).
 
-> **Cómo funciona el enlace:** home-manager crea symlinks que apuntan a archivos *fuera* del Nix store (directamente a `~/projects/dotfiles/…`). Esto significa que podés editar cualquier archivo acá y el cambio aplica **en vivo**, sin hacer `nixos-rebuild`. Solo se necesita rebuild cuando cambiás qué archivos se enlazan, no su contenido.
+> **Cómo funciona el enlace:** home-manager crea symlinks que apuntan a archivos *fuera* del Nix store (directamente a `~/projects/nix-config/dotfiles/…`). Esto significa que podés editar cualquier archivo acá y el cambio aplica **en vivo**, sin hacer `nixos-rebuild`. Solo se necesita rebuild cuando cambiás qué archivos se enlazan, no su contenido.
 
-El repositorio del sistema NixOS (flake, módulos, paquetes) vive por separado en [`~/projects/nix-config/`](https://github.com/cRolandoJr/nix-config). Este repo contiene solo las configuraciones de las apps; aquel repo es el que los *enlaza* al sistema.
+Esta carpeta forma parte del repositorio `nix-config`: sistema, configuraciones y wallpapers se versionan juntos.
 
 ---
 
@@ -46,7 +47,7 @@ Paleta unificada en todos los componentes:
 - **Chip NixOS en waybar**: muestra generación actual + símbolo NixOS coloreado (azul = flake limpio, rojo = dirty con cambios sin commitear).
 - **Keybinds viewer** (`SUPER+K`): cheatsheet fuzzy de todos los binds, leídos en vivo de `hyprctl binds` (los que Hyprland tiene cargados de verdad), agrupado por submap.
 - **Wallhaven fetch** (`SUPER+SHIFT+W`): browser de wallpapers con preview grid (thumbnails cacheados), búsqueda por término y descarga directa.
-- **Wallselect local** (`SUPER+W`): selector de wallpapers en `~/Wallpapers/` con thumbnails, borrado con `Alt+D`.
+- **Wallselect local** (`SUPER+W`): selector de wallpapers en `~/projects/nix-config/dotfiles/Wallpapers/` con thumbnails, borrado con `Alt+D`.
 - **Hyprlock con viñeta** (`SUPER+L`): lockscreen con shader GLSL de viñeta Deep Ocean activado en el compositor (Hyprland `decoration:screen_shader`) antes de lanzar hyprlock.
 - **Night light manual** (`SUPER+CTRL+N`): toggle 6500K ↔ 3500K vía hyprsunset IPC (schedule deshabilitado por bug en v0.3.3).
 - **Spotify en special workspace** (`SUPER+M`): toggle que detecta la ventana por clase Hyprland (no pgrep) porque NixOS empaqueta Spotify como `.spotify-wrapped`.
@@ -95,7 +96,7 @@ Paleta unificada en todos los componentes:
 
 ## 📁 Estructura
 
-```
+```text
 dotfiles/
 ├── hypr/             # hyprland.lua + configs/{autostart,binds,environments,monitors,rules,settings,workspaces}.lua
 │                     # hypridle/hyprlock/hyprsunset.conf
@@ -122,24 +123,12 @@ Cada directorio refleja la estructura de `~/.config/`: `hypr/` contiene `.config
 
 Este repo **no usa GNU Stow** ni se instala con un script. Los symlinks los gestiona [home-manager](https://nix-community.github.io/home-manager/) desde el repo NixOS.
 
-**Flujo típico para una máquina nueva:**
+Clonar `nix-config` en `~/projects/nix-config` y seguir la sección de instalación del
+[README principal](../README.md). Home Manager obtiene los dotfiles de esa copia local;
+no hace falta clonar otro repositorio.
 
-1. Clonar este repo en `~/projects/dotfiles/`.
-2. Clonar el flake NixOS en `~/projects/nix-config/`.
-3. En `nix-config`, el módulo home-manager usa `mkOutOfStoreSymlink` apuntando a las rutas de este repo:
-   ```nix
-   xdg.configFile."hypr".source =
-     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/projects/dotfiles/hypr/.config/hypr";
-   ```
-4. Copiar `~/.ssh/id_ed25519` desde el backup — de esa clave se deriva la identidad
-   age que descifra los secretos de `nix-config`.
-5. Aplicar con `sudo nixos-rebuild switch --flake ~/projects/nix-config#<host>`.
+Después, editar en `~/projects/nix-config/dotfiles/` y recargar la aplicación afectada.
+Agregar o quitar enlaces requiere construir y activar Home Manager.
 
-> **El orden de los pasos 1 y 2 no es opcional.** `mkOutOfStoreSymlink` apunta a
-> `~/projects/dotfiles/…`: si ese path no existe cuando se activa home-manager, la
-> activación falla. Instalación completa desde cero (incluido el particionado con disko):
-> ver la sección *Instalación en una máquina nueva* del README de `nix-config`.
-
-Después de eso, editar directamente en `~/projects/dotfiles/` aplica en vivo. No se necesita rebuild para cambios de config; sí se necesita para agregar/quitar symlinks.
-
-> Si estás en Arch u otra distro, podés usar GNU Stow como alternativa (`stow hypr`, `stow waybar`, etc.) pero el setup está pensado y testeado para NixOS.
+`Super + Tab` abre y cierra la vista general de Hymission. Sus fuentes se fijan en el
+`flake.lock` del repositorio principal y su biblioteca se construye contra nuestro Hyprland.

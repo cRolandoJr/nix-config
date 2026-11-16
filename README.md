@@ -23,14 +23,16 @@ modules/
   fonts.nix             — Noto, JetBrainsMono, Nerd Fonts
   desktop-hyprland.nix  — Hyprland+UWSM, SDDM, XDG portals, polkit, notify-layout
   gpu-amd.nix           — amdgpu, RADV, LACT, variables VA-API/VDPAU
-  gaming.nix            — Steam, gamescope, gamemode, ananicy-cpp, scx_lavd
+  gaming.nix            — Steam, gamescope, gamemode, ananicy-cpp
   virtualisation.nix    — libvirt/KVM, virt-manager, Podman rootless
   btrbk.nix             — snapshots btrfs de @home cada hora (retención 24h/7d/4w/6m)
   k3s.nix               — cluster Kubernetes single-node local
 home/
   user.nix              — home-manager: zsh, git, starship, fzf, dotfiles symlinks, paquetes,
                           systemd user services (pedco-bot: daemon + timer de avisos 8/20h)
+dotfiles/               — configuraciones editables y Wallpapers/
 pkgs/
+  hymission/            — plugin de vista general, construido contra nuestro Hyprland
   boundary-desktop.nix  — derivación custom de HashiCorp Boundary Desktop (no en nixpkgs)
 ```
 
@@ -42,8 +44,9 @@ recibe `username` mediante `extraSpecialArgs`. El módulo de usuario es
 `home/user.nix`, cuyo nombre no depende del login.
 
 El home se deriva de `username`. En `home/user.nix`, `dotfilesDir` centraliza
-`${config.home.homeDirectory}/projects/dotfiles` para los 16 enlaces externos.
-Las rutas Android también se derivan del home. Los repositorios continúan separados.
+`${config.home.homeDirectory}/projects/nix-config/dotfiles` para los enlaces externos.
+Los wallpapers viven en `dotfiles/Wallpapers/`. Las rutas Android también se derivan del home.
+El sistema, los dotfiles y los wallpapers se mantienen en este único repositorio.
 
 `hostname` selecciona el output y `hosts/${hostname}`: cambiarlo exige mantener
 coherente la carpeta del host. Cambiar `username` no migra archivos, permisos ni
@@ -53,7 +56,8 @@ La identidad Git y la descripción personal de la cuenta son datos distintos del
 ## Instalación en una máquina nueva
 
 El orden importa: **home-manager enlaza los dotfiles con `mkOutOfStoreSymlink`**, así que
-si `~/projects/dotfiles` no existe al primer switch, la activación falla.
+el checkout local debe existir en `~/projects/nix-config`, con su carpeta `dotfiles/`,
+antes de activar sus enlaces. El código descargado al store por el flake no sustituye ese checkout.
 
 ```bash
 # ── 1. Desde el ISO de NixOS, particionar y formatear con disko.
@@ -68,7 +72,6 @@ sudo nixos-install --flake github:cRolandoJr/nix-config#victus
 
 # ── 3. Reiniciar y entrar. Después, ANTES de cualquier rebuild:
 mkdir -p ~/projects
-git clone git@github.com:cRolandoJr/dotfiles.git   ~/projects/dotfiles
 git clone git@github.com:cRolandoJr/nix-config.git ~/projects/nix-config
 
 # ── 4. La SSH descifra los secretos: copiarla desde el backup.
@@ -130,9 +133,17 @@ Para instalarlos manualmente: `nix develop` o `nix flake check`.
 
 ## Dotfiles
 
-Los dotfiles **no** viven en este repo. Están en `~/projects/dotfiles/` y se
-enlazan como `mkOutOfStoreSymlink` desde home-manager. Para editar: modificar
-el archivo en `~/projects/dotfiles/`, no el symlink en `~/.config/`.
+Los dotfiles viven en `dotfiles/` dentro de este repo. Home Manager los enlaza
+mediante `mkOutOfStoreSymlink`. Editar el origen en `~/projects/nix-config/dotfiles/`.
+Los cambios de contenido requieren la recarga propia de la aplicación; cambiar los
+enlaces o paquetes requiere construir y activar la configuración.
+
+Los wallpapers se seleccionan y descargan en `dotfiles/Wallpapers/`.
+`hymission` se carga desde el enlace que gestiona Home Manager; `Super + Tab`
+alterna la vista general de ventanas y workspaces.
+
+Los dotfiles permanecen fuera del store: un rollback de generación no revierte
+sus ediciones. Para recuperar su contenido se usa Git o el respaldo correspondiente.
 
 Herramientas enlazadas: hypr, waybar, eww, cliphist, rofi, fastfetch, nvim, foot,
 mako, khal, qt6ct, yazi, starship.

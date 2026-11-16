@@ -17,3 +17,6 @@ Thumbs.db
 *.bak
 *.orig
 home/dotfiles
+
+# Permisos locales del asistente
+dotfiles/.claude/

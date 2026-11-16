@@ -1,7 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Read(//home/rolando/projects/nix-config/**)"
-    ]
-  }
-}
