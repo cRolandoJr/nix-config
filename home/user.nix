@@ -4,13 +4,14 @@
   lib,
   inputs,
   username,
+  ryogamiPackage,
   ...
 }:
 
 let
   dotfilesDir = "${config.home.homeDirectory}/projects/nix-config/dotfiles";
   pedcoBot = inputs.pedco-bot.packages.${pkgs.stdenv.hostPlatform.system}.pedco-bot;
-  ryogami = pkgs.callPackage ../pkgs/ryogami { };
+  ryogami = ryogamiPackage;
   hymission = import ../pkgs/hymission {
     inherit pkgs;
     src = inputs.hymission;

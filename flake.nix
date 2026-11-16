@@ -82,7 +82,10 @@
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.backupFileExtension = "backup";
-            home-manager.extraSpecialArgs = { inherit inputs username; };
+            home-manager.extraSpecialArgs = {
+              inherit inputs username;
+              ryogamiPackage = self.packages.${system}.ryogami;
+            };
             home-manager.users.${username} = import ./home/user.nix;
           }
         ];
@@ -96,6 +99,12 @@
       # Mismo paquete que el hook de pre-commit, para que no formateen distinto.
       formatter.${system} = pkgs.nixfmt;
 
-      checks.${system} = { inherit pre-commit-check; };
+      # La misma derivación se instala con Home Manager y se valida en CI.
+      packages.${system}.ryogami = pkgs.callPackage ./pkgs/ryogami { };
+
+      checks.${system} = {
+        inherit pre-commit-check;
+        ryogami = self.packages.${system}.ryogami;
+      };
     };
 }
