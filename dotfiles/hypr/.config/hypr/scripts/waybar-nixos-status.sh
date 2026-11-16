@@ -7,17 +7,19 @@ set -euo pipefail
 
 ICON=$''   # nf-linux-nixos (símbolo NixOS NerdFont)
 FLAKE_DIR="$HOME/projects/nix-config"
+SYSTEM_PROFILE="${NIXOS_SYSTEM_PROFILE:-/nix/var/nix/profiles/system}"
+NIXOS_VER_FILE="${NIXOS_VERSION_FILE:-/run/current-system/nixos-version}"
 
 # Generation actual del system profile (sin sudo).
-GEN=$(basename "$(readlink /nix/var/nix/profiles/system 2>/dev/null)" | grep -oE '[0-9]+' || echo "?")
+GEN=$(basename "$(readlink "$SYSTEM_PROFILE" 2>/dev/null)" | grep -oE '[0-9]+' || echo "?")
 
 # Versión NixOS major.minor (e.g. "26.05").
-VER=$(cut -d. -f1-2 /run/current-system/nixos-version 2>/dev/null || echo "?")
+VER=$(cut -d. -f1-2 "$NIXOS_VER_FILE" 2>/dev/null || echo "?")
 
 KERNEL=$(uname -r)
 
 # Última rebuild — sin segundos para que entre en una línea.
-LAST=$(stat -c '%y' /nix/var/nix/profiles/system 2>/dev/null | cut -d: -f1-2 || echo "?")
+LAST=$(stat -c '%y' "$SYSTEM_PROFILE" 2>/dev/null | cut -d: -f1-2 || echo "?")
 
 # Estado del flake (git porcelain).
 DIRTY_COUNT=0
