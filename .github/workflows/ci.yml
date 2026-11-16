@@ -1,0 +1,48 @@
+name: "CI NixOS Config (victus)"
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  secrets-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+
+      - name: "Verify SOPS encryption in secrets/"
+        run: |
+          for f in secrets/*; do
+            [ -f "$f" ] || continue
+            if ! grep -q '^sops:' "$f" || ! grep -q 'ENC\[AES256_GCM' "$f"; then
+              echo "::error file=$f::Archivo en secrets/ sin cifrado SOPS detectado."
+              exit 1
+            fi
+            echo "OK (SOPS): $f"
+          done
+
+  nixos-flake-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+
+      - name: "Install Nix"
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: "Setup Magic Nix Cache"
+        uses: DeterminateSystems/magic-nix-cache-action@main
+
+      - name: "Nix Flake Check (lint, fmt y host victus)"
+        run: nix flake check
+
+      - name: "Evaluate Disko script (victus)"
+        run: nix eval --raw .#nixosConfigurations.victus.config.system.build.diskoScript.drvPath
+

@@ -17,7 +17,7 @@ VER=$(cut -d. -f1-2 /run/current-system/nixos-version 2>/dev/null || echo "?")
 KERNEL=$(uname -r)
 
 # Última rebuild — sin segundos para que entre en una línea.
-LAST=$(stat -c '%y' /nix/var/nix/profiles/system 2>/dev/null | cut -d: -f1-2)
+LAST=$(stat -c '%y' /nix/var/nix/profiles/system 2>/dev/null | cut -d: -f1-2 || echo "?")
 
 # Estado del flake (git porcelain).
 DIRTY_COUNT=0

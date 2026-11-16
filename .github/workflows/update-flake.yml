@@ -1,0 +1,30 @@
+name: "Update flake.lock"
+
+on:
+  schedule:
+    # Lunes 12:00 UTC (09:00 ART)
+    - cron: "0 12 * * 1"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-flake-lock:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+
+      - name: "Install Nix"
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: "Update flake.lock and open PR"
+        uses: DeterminateSystems/update-flake-lock@main
+        with:
+          pr-title: "chore(flake): actualizar flake.lock"
+          pr-labels: |
+            dependencies
+            automated
+
