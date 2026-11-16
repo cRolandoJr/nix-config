@@ -5,7 +5,7 @@ NixOS flake para HP Victus 16 (AMD Ryzen 5 7535HS + Radeon RX 6500M dGPU / 680M 
 ## Estructura
 
 ```text
-flake.nix               — inputs, outputs, devShell, pre-commit hooks
+flake.nix               — inputs, outputs, devShell, pre-commit hooks, paquete y check Ryogami
 personal.nix            — username y hostname, consumidos por el flake
 .sops.yaml              — reglas de cifrado (recipient age derivado de la SSH)
 secrets/
@@ -35,6 +35,28 @@ pkgs/
   hymission/            — plugin de vista general, construido contra nuestro Hyprland
   boundary-desktop.nix  — derivación custom de HashiCorp Boundary Desktop (no en nixpkgs)
 ```
+
+## Ryogami: paquete verificable y procedencia
+
+Ryogami se define una sola vez en `packages.x86_64-linux.ryogami` del
+`flake.nix`; Home Manager utiliza **esa misma derivación** y no vuelve
+a llamar a `pkgs.callPackage`. También se expone bajo
+`checks.x86_64-linux.ryogami`, de modo que `nix flake check` ejecuta
+el build de Nix y, dentro de su `buildPhase`, `go test ./...` antes de
+compilar el daemon Go. Esto comprueba el paquete; no demuestra que
+todas las funciones gráficas se comporten correctamente en hardware real.
+
+Para construirlo o verificarlo explícitamente:
+
+```bash
+nix build .#ryogami
+nix flake check
+```
+
+El daemon deriva de Ryoku (GPL-3.0) y el selector QML de
+`skwd-wall` de liixini (MIT). Los textos legales conservados,
+comparaciones de procedencia y limitaciones están en
+[licencias y atribuciones](docs/LICENCIAS.md).
 
 ## Identidad y rutas
 
