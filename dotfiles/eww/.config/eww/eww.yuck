@@ -1,0 +1,632 @@
+;; ╔════════════════════════════════════════════════════════════════╗
+;; ║   E  W  W  ·  hub · Deep Ocean · bento grid                    ║
+;; ║   cRolandoJr · github.com/cRolandoJr                           ║
+;; ╚════════════════════════════════════════════════════════════════╝
+;;
+;; Reload: eww reload | Open: eww open hub
+
+;; ── Polls ────────────────────────────────────────────────────────────────────
+
+(defpoll date_header
+  :interval "60s"
+  :initial "..."
+  "LC_TIME=es_AR.UTF-8 date '+%A, %d de %B'")
+
+(defpoll weather
+  :interval "5m"
+  :initial '{"temp":"--","desc":"...","icon":"󰖑","city":""}'
+  "$HOME/.config/eww/scripts/weather.sh")
+
+(defpoll notif_count
+  :interval "10s"
+  :initial "0"
+  "makoctl list -j 2>/dev/null | jq 'length' || echo 0")
+
+(defpoll uptime
+  :interval "60s"
+  :initial "..."
+  "$HOME/.config/eww/scripts/uptime.sh")
+
+(defpoll network
+  :interval "2s"
+  :initial '{"wifi_enabled":"false","wifi_ssid":"","wifi_signal":"","bt_powered":"false","bt_device":"","bt_battery":""}'
+  "$HOME/.config/eww/scripts/net-status.sh")
+
+(defpoll brillo
+  :interval "3s"
+  :initial "50"
+  "if command -v brightnessctl >/dev/null 2>&1; then brightnessctl -m | cut -d, -f4 | tr -d %; else echo 0; fi")
+
+(defpoll volume
+  :interval "3s"
+  :initial "50"
+  "wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print int($2*100)}'")
+
+(defpoll battery
+  :interval "30s"
+  :initial '{"capacity":"0","status":"unknown","power_uw":"0"}'
+  ;; power_now viene en µW; se convierte a W en el widget. Es 0 cuando está a la red.
+  "jq -n --arg c \"$(cat /sys/class/power_supply/BAT0/capacity 2>/dev/null || echo 0)\" --arg s \"$(cat /sys/class/power_supply/BAT0/status 2>/dev/null || echo unknown)\" --arg w \"$(cat /sys/class/power_supply/BAT0/power_now 2>/dev/null || echo 0)\" '{capacity: $c, status: $s, power_uw: $w}'")
+
+(defpoll dnd_active
+  :interval "5s"
+  :initial "false"
+  "makoctl mode | grep -q 'do-not-disturb' && echo true || echo false")
+
+(defpoll mpris_meta
+  :interval "2s"
+  :initial '{"title":"Nada sonando","artist":"","album":"","player":"","shuffle":"Off","loop":"None","volume":0}'
+  "$HOME/.config/eww/scripts/media-meta.sh")
+
+(defpoll mpris_art
+  :interval "3s"
+  :initial ""
+  ;; el script ya emite la ruta (o vacío), así que acá solo hay que elegir el player
+  "bash -c 'P=$(playerctl --list-all 2>/dev/null | grep -i spotify | head -1); [ -z \"$P\" ] && P=$(playerctl --list-all 2>/dev/null | head -1); $HOME/.config/eww/scripts/mpris-art.sh \"$P\"'")
+
+(defpoll gpu
+  :interval "3s"
+  :initial '{"busy":0,"vram_used":0,"vram_total":0,"temp":0}'
+  "$HOME/.config/eww/scripts/gpu-stat.sh")
+
+(defpoll media_tick
+  :interval "500ms"
+  :initial '{"status":"stopped","position":0,"pct":0,"elapsed":"","total":"","remaining":"","stalled":false,"lyric":"","lyric_prev":"","lyric_next":""}'
+  "$HOME/.config/eww/scripts/media-tick.sh")
+
+(defvar ram_mode "pct")
+
+
+;; ── Header ───────────────────────────────────────────────────────────────────
+
+(defwidget header-card []
+  (box :class "header-card"
+       :orientation "h"
+       :space-evenly false
+       :spacing 12
+    (label :class "header-avatar" :text "◉")
+    (box :orientation "v"
+         :space-evenly false
+         :spacing 2
+         :hexpand true
+         :valign "center"
+      (label :class "header-name" :text "rolando" :halign "start")
+      (label :class "header-sub"  :text "Uptime · ${uptime}" :halign "start"))
+    (box :class "notif-badge-wrap"
+         :visible {notif_count != "0"}
+         :valign "center"
+      (label :class "notif-badge" :text notif_count))
+    (button :class "header-close"
+            :onclick "eww close hub"
+            :valign "center"
+      (label :text "✕"))))
+
+
+;; ── Calendar + clima ─────────────────────────────────────────────────────────
+
+(defwidget calendar-card []
+  (box :class "card calendar-card"
+       :orientation "v"
+       :space-evenly false
+       :spacing 8
+       :hexpand false
+    (label :class "card-title" :text date_header :halign "start")
+    (box :class "weather-row"
+         :orientation "h"
+         :space-evenly false
+         :spacing 8
+      (label :class "weather-icon" :text {weather.icon})
+      (label :class "weather-temp" :text "${weather.temp}°")
+      (label :class "weather-desc" :text {weather.desc})
+      (label :class "weather-city" :text "· ${weather.city}"))
+    (calendar :class "hub-calendar"
+              :show-week-numbers false
+              :show-heading true
+              :show-day-names true)))
+
+
+;; ── Media (MPRIS / Spotify) ───────────────────────────────────────────────────
+
+(defwidget media-band []
+  ;; El box exterior pinta el fondo de la card: GtkOverlay NO dibuja background
+  ;; propio en GTK3, así que ponerle la clase `card` al overlay dejaba el texto
+  ;; flotando sobre el escritorio.
+  (box :class "card media-band"
+    (overlay
+      ;; primer hijo del overlay = el fondo (el ecualizador)
+      (eq-row)
+      (box :orientation "v"
+           :space-evenly false
+           :spacing 4
+           :hexpand true
+
+        ;; ── Fila 1: portada | info | controles ────────────────────────────
+        (box :orientation "h"
+             :space-evenly false
+             :spacing 12
+
+          ;; La portada va DENTRO del anillo de progreso: reemplaza la barra
+          ;; recta y libera la franja de abajo para la letra. GTK recorta la
+          ;; imagen en círculo, así que no hay esquinas contra el trazo.
+          ;; Sin :start-at — probados 0, 25, 50 y 75 y el arco arranca igual.
+          (eventbox :class "media-art-click"
+                    :cursor "pointer"
+                    :valign "center"
+                    :onclick "hyprctl dispatch 'hl.dsp.focus({ window = \"class:spotify\" })' >/dev/null 2>&1 || true"
+            ;; Anillo DECORATIVO: value fijo en 100 para que no se redibuje con el
+            ;; progreso. Se queda porque es el que recorta la portada en círculo
+            ;; (GTK aplica el clip del circular-progress a su hijo); sin él la
+            ;; portada vuelve a ser cuadrada.
+            (circular-progress :class "media-ring"
+                               :value 100
+                               :thickness 4
+                               :width 128
+                               :height 128
+              (box :class "media-art-box" :halign "center" :valign "center"
+                (image :class "media-art"
+                       :path mpris_art
+                       :image-width 104
+                       :image-height 104
+                       :visible {mpris_art != ""})
+                (label :class "media-art-empty"
+                       :text "󰎈"
+                       :visible {mpris_art == ""}))))
+
+          (box :orientation "v"
+               :space-evenly false
+               :spacing 5
+               :hexpand true
+               :valign "center"
+            (label :class "media-title"
+                   :text {mpris_meta.title}
+                   :wrap true
+                   :limit-width 38
+                   :lines 2
+                   :halign "start")
+            ;; artista · álbum. El álbum se oculta en singles, donde repetiría
+            ;; el título.
+            (box :orientation "h" :space-evenly false :spacing 6
+              (label :class "media-artist"
+                     :text {mpris_meta.artist}
+                     :limit-width 26
+                     :show-truncated true
+                     :halign "start")
+              (label :class "media-album"
+                     :text "· ${mpris_meta.album}"
+                     :limit-width 24
+                     :show-truncated true
+                     :halign "start"
+                     :visible {mpris_meta.album != "" && mpris_meta.album != mpris_meta.title}))
+            ;; Estado y de qué player sale el audio (el poll cae al primero
+            ;; disponible si no hay Spotify, así que no siempre es obvio).
+            ;; Sin línea de tiempos: ese espacio se lo queda la letra.
+            (box :orientation "h" :space-evenly false :spacing 8
+              ;; `stalled` = Spotify dice Playing pero la posición no avanza. Pasa
+              ;; con canciones no disponibles; antes el único indicio era el
+              ;; ecualizador plano.
+              (label :class {media_tick.stalled ? "media-status stalled"
+                              : media_tick.status == "playing" ? "media-status playing"
+                              : "media-status"}
+                     :text {media_tick.stalled ? "⚠ sin audio"
+                             : media_tick.status == "playing" ? "● reproduciendo"
+                             : "● pausado"})
+              (label :class "media-player"
+                     :text "· ${mpris_meta.player}"
+                     :visible {mpris_meta.player != ""})))
+
+          ;; controles + volumen del player, a la derecha
+          (box :orientation "v"
+               :space-evenly false
+               :spacing 8
+               :valign "center"
+            (box :class "media-controls"
+                 :orientation "h"
+                 :space-evenly false
+                 :halign "end"
+                 :spacing 14
+              (button :class {mpris_meta.shuffle == "On" ? "media-btn media-btn-on" : "media-btn"}
+                      :onclick "playerctl --player='${mpris_meta.player}' shuffle toggle"
+                      :tooltip {mpris_meta.shuffle == "On" ? "Aleatorio activado" : "Aleatorio desactivado"}
+                (label :text "󰒟"))
+              (button :class "media-btn"
+                      :onclick "playerctl --player='${mpris_meta.player}' previous"
+                (label :text "󰒮"))
+              (button :class "media-btn media-btn-play"
+                      :onclick "playerctl --player='${mpris_meta.player}' play-pause"
+                (label :text {media_tick.status == "playing" ? "󰏤" : "󰐊"}))
+              (button :class "media-btn"
+                      :onclick "playerctl --player='${mpris_meta.player}' next"
+                (label :text "󰒭"))
+              ;; loop: None → Track → Playlist → None. El ícono distingue
+              ;; repetir-una de repetir-todo, que un glifo único perdería.
+              (button :class {mpris_meta.loop != "None" ? "media-btn media-btn-on" : "media-btn"}
+                      :onclick "playerctl --player='${mpris_meta.player}' loop ${mpris_meta.loop == 'None' ? 'Track' : mpris_meta.loop == 'Track' ? 'Playlist' : 'None'}"
+                      :tooltip {mpris_meta.loop == "Track" ? "Repetir esta canción"
+                                 : mpris_meta.loop == "Playlist" ? "Repetir la lista"
+                                 : "Sin repetición"}
+                (label :text {mpris_meta.loop == "Track" ? "󰑘" : "󰑖"})))
+            ;; volumen DEL PLAYER, distinto del volumen del sistema de arriba.
+            ;; playerctl toma 0.0-1.0 y el slider da 0-100, de ahí el awk.
+            (box :class "media-vol-box"
+                 :orientation "h"
+                 :space-evenly false
+                 :spacing 6
+                 :halign "end"
+              (label :class "media-vol-icon" :text {mpris_meta.volume < 5 ? "󰸈" : "󰕾"})
+              (scale :class "media-vol"
+                     :min 0 :max 100
+                     :value {mpris_meta.volume}
+                     :onchange "playerctl --player='${mpris_meta.player}' volume $(awk \"BEGIN{print {}/100}\")"))))
+
+        ;; ── Fila 2: la letra, a lo ancho ──────────────────────────────────
+        ;; Tres líneas: de dónde viene, la que suena, y la que sigue. Llena la
+        ;; franja que la info sola dejaba vacía. Se oculta completa si la
+        ;; canción no tiene letra sincronizada.
+        (box :class "media-lyrics"
+             :orientation "v"
+             :space-evenly false
+             :spacing 1
+             :halign "center"
+             :visible {media_tick.lyric != "" || media_tick.lyric_next != ""}
+          (label :class "media-lyric-side"
+                 :text {media_tick.lyric_prev}
+                 :limit-width 74
+                 :show-truncated true
+                 :visible {media_tick.lyric_prev != ""})
+          (label :class "media-lyric-now"
+                 :text {media_tick.lyric}
+                 :limit-width 74
+                 :show-truncated true
+                 :visible {media_tick.lyric != ""})
+          (label :class "media-lyric-side"
+                 :text {media_tick.lyric_next}
+                 :limit-width 74
+                 :show-truncated true
+                 :visible {media_tick.lyric_next != ""}))))))
+
+
+(defwidget circ-stat [value label icon cls extra]
+  (box :class "circ-stat-wrap"
+       :orientation "h"
+       :space-evenly false
+       :spacing 10
+       :hexpand true
+    (circular-progress
+      :value value
+      :class "circ ${cls}"
+      :thickness 7
+      :width 70
+      :height 70
+      :valign "center"
+      (label :class "circ-icon" :text icon))
+    (box :orientation "v" :space-evenly false :spacing 1 :valign "center"
+      (label :class "circ-value" :text "${value}%" :halign "start")
+      (label :class "circ-label" :text label :halign "start")
+      (label :class "circ-extra" :text extra :halign "start"))))
+
+(defwidget circ-stat-ram []
+  (eventbox :cursor "pointer"
+            :onclick "eww update ram_mode=${ram_mode == 'gib' ? 'swap' : 'gib'}"
+    (box :class "circ-stat-wrap"
+         :orientation "h"
+         :space-evenly false
+         :spacing 10
+         :hexpand true
+      (circular-progress
+        :value {EWW_RAM.used_mem_perc}
+        :class "circ circ-ram"
+        :thickness 7
+        :width 70
+        :height 70
+        :valign "center"
+        (label :class "circ-icon" :text "󰘚"))
+      (box :orientation "v" :space-evenly false :spacing 1 :valign "center"
+        (label :class "circ-value" :text "${round(EWW_RAM.used_mem_perc, 0)}%" :halign "start")
+        (label :class "circ-label" :text "RAM" :halign "start")
+        ;; click alterna GiB usado/total ↔ swap: el % no dice cuánto queda
+        (label :class "circ-extra"
+               :text {ram_mode == "swap"
+                       ? "swap ${round((EWW_RAM.total_swap - EWW_RAM.free_swap) / 1073741824, 1)} / ${round(EWW_RAM.total_swap / 1073741824, 0)} GiB"
+                       : "${round(EWW_RAM.used_mem / 1073741824, 1)} / ${round(EWW_RAM.total_mem / 1073741824, 1)} GiB"}
+               :halign "start")))))
+
+(defwidget stats-card []
+  (box :class "card stats-card"
+       :orientation "v"
+       :space-evenly false
+       :spacing 4          ;; 2 gaps × 4px: los 8px exactos que sobraban en esta columna
+       :hexpand true
+    ;; 2x2 en vez de 4 en fila: cada celda gana ancho para un dato que el
+    ;; porcentaje no responde, y la card gana el alto que balancea la columna.
+    (box :orientation "h" :space-evenly true :spacing 8
+      (circ-stat :value {round(EWW_CPU.avg, 0)}
+                 :label "CPU"
+                 :icon "󰻠"
+                 :cls "circ-cpu"
+                 :extra "${round(EWW_TEMPS.K10TEMP_TCTL, 1)}°C")
+      (circ-stat-ram))
+    ;; GPU dedicada (RX 6500M) y red. Con GPU híbrida muxless saber CUÁL de las
+    ;; dos trabaja no estaba en ningún lado del sistema.
+    (box :orientation "h" :space-evenly true :spacing 8
+      (circ-stat :value {gpu.busy}
+                 :label "GPU"
+                 :icon "󰢮"
+                 :cls "circ-gpu"
+                 :extra "${gpu.temp}°C · ${gpu.vram_used} MiB")
+      ;; el anillo se llena contra un techo de 100 Mbps (12.5 MB/s), que es lo
+      ;; que da esta WiFi; sin techo una velocidad no tiene porcentaje
+      (circ-stat :value {round(EWW_NET.wlo1.NET_DOWN / 131072, 0)}
+                 :label "Red"
+                 :icon "󰀂"
+                 :cls "circ-net"
+                 :extra {EWW_NET.wlo1.NET_DOWN > 1048576
+                          ? "${round(EWW_NET.wlo1.NET_DOWN / 1048576, 1)} MiB/s ↓"
+                          : "${round(EWW_NET.wlo1.NET_DOWN / 1024, 0)} KiB/s ↓"}))
+    (box :orientation "h" :space-evenly true :spacing 8
+      (circ-stat :value {battery.capacity}
+                 :label {battery.status == "Charging" ? "Cargando"
+                          : battery.status == "Full" ? "Llena"
+                          : "Batería"}
+                 :icon {battery.status == "Charging" ? "󰂄"
+                         : battery.status == "Full" ? "󰂅"
+                         : "󰁹"}
+                 :cls {battery.capacity < "20" ? "circ-bat-crit"
+                        : battery.status == "Charging" ? "circ-bat-ok"
+                        : "circ-bat"}
+                 ;; los watts solo informan cuando descarga; a la red son 0 fijo
+                 :extra {battery.status == "Discharging"
+                          ? "${round(battery.power_uw / 1000000, 1)} W"
+                          : "enchufado"})
+      (circ-stat :value {round(EWW_DISK["/"].used_perc, 0)}
+                 :label "Disco"
+                 :icon "󰋊"
+                 :cls "circ-disk"
+                 :extra "${round(EWW_DISK["/"].free / 1073741824, 0)} GiB libres"))))
+
+
+;; ── Network ───────────────────────────────────────────────────────────────────
+
+(defwidget net-row [icon label value active click_cmd right_cmd]
+  (eventbox :class "net-row ${active == 'true' ? 'net-active' : ''}"
+            :onclick click_cmd
+            :onrightclick right_cmd
+            :cursor "pointer"
+    (box :orientation "h"
+         :space-evenly false
+         :spacing 10
+      (box :class "net-chip" :valign "center"
+        (label :class "net-icon" :text icon))
+      (box :orientation "v"
+           :space-evenly false
+           :spacing 1
+           :hexpand true
+           :valign "center"
+        (label :class "net-label" :text label :halign "start")
+        (label :class "net-value"
+               :text value
+               :halign "start"
+               :limit-width 20
+               :show-truncated true))
+      (label :class "net-chevron" :text "›" :valign "center"))))
+
+(defwidget network-card []
+  (box :class "card network-card"
+       :orientation "v"
+       :space-evenly false
+       :spacing 8
+       :hexpand true
+    (net-row :icon "󰖩"
+             :label "WiFi"
+             :active {network.wifi_enabled}
+             :value {network.wifi_enabled == "true"
+                      ? (network.wifi_ssid != ""
+                          ? "${network.wifi_ssid} · ${network.wifi_signal}%"
+                          : "Sin conexión")
+                      : "Apagado"}
+             :click_cmd "setsid -f $HOME/.config/rofi/wifi/wifi_manager.sh"
+             :right_cmd "$HOME/.config/eww/scripts/net-toggle.sh wifi")
+    (net-row :icon "󰂯"
+             :label "Bluetooth"
+             :active {network.bt_powered}
+             :value {network.bt_powered == "true"
+                      ? (network.bt_device != ""
+                          ? (network.bt_battery != ""
+                              ? "${network.bt_device} · ${network.bt_battery}%"
+                              : network.bt_device)
+                          : "Sin dispositivo")
+                      : "Apagado"}
+             :click_cmd "~/.config/hypr/scripts/open-bt.sh"
+             :right_cmd "$HOME/.config/eww/scripts/net-toggle.sh bt")))
+
+
+;; ── Power ─────────────────────────────────────────────────────────────────────
+
+(defwidget power-btn [icon label cls cmd]
+  (button :class "power-btn ${cls}"
+          :onclick cmd
+    (box :orientation "v"
+         :space-evenly false
+         :spacing 4
+      (label :class "power-icon" :text icon)
+      (label :class "power-label" :text label))))
+
+(defwidget power-card []
+  (box :class "card power-card"
+       :orientation "v"
+       :space-evenly false
+       :spacing 8
+       :hexpand true
+    (box :orientation "h"
+         :space-evenly true
+         :spacing 8
+      (power-btn :icon "󰌾" :label "Lock"     :cls ""            :cmd "loginctl lock-session")
+      (power-btn :icon "󰒲" :label "Suspend"  :cls ""            :cmd "systemctl suspend")
+      (power-btn :icon "󰈲" :label "Logout"   :cls ""            :cmd "hyprctl dispatch 'hl.dsp.exit()'"))
+    (box :orientation "h"
+         :space-evenly true
+         :spacing 8
+      (power-btn :icon "󰜗" :label "Hibernar" :cls ""            :cmd "systemctl hibernate")
+      (power-btn :icon "󰜉" :label "Reiniciar":cls ""            :cmd "systemctl reboot")
+      (power-btn :icon "󰐥" :label "Apagar"   :cls "destructive" :cmd "systemctl poweroff"))))
+
+
+;; ── Sliders modernos (pill + gradient) ──────────────────────────────────────
+;; eww no soporta widgets como args → cada slider se construye inline
+
+(defwidget sliders-card []
+  (box :class "card sliders-card"
+       :orientation "v"
+       :space-evenly false
+       :spacing 2
+       :hexpand true
+    ;; — Brillo —
+    (box :class "slider-block"
+         :orientation "v"
+         :space-evenly false
+         :spacing 2
+      (box :orientation "h"
+           :space-evenly false
+           :spacing 8
+           :valign "center"
+        (label :class "slider-icon-modern"
+               :text {brillo < "30" ? "󰃞" : brillo < "70" ? "󰃝" : "󰃠"})
+        (label :class "slider-name" :text "Brillo"
+               :hexpand true :halign "start"))
+      (scale :class "hub-slider slider-brightness"
+             :min 1 :max 100
+             :value brillo
+             :onchange "brightnessctl s {}% >/dev/null"
+             :hexpand true))
+    ;; — Volumen —
+    (box :class "slider-block"
+         :orientation "v"
+         :space-evenly false
+         :spacing 2
+      (box :orientation "h"
+           :space-evenly false
+           :spacing 8
+           :valign "center"
+        (label :class "slider-icon-modern"
+               :text {volume < "10" ? "󰸈" : "󰕾"})
+        (label :class "slider-name" :text "Volumen"
+               :hexpand true :halign "start"))
+      (scale :class "hub-slider slider-volume"
+             :min 0 :max 100
+             :value volume
+             :onchange "wpctl set-volume @DEFAULT_AUDIO_SINK@ {}%"
+             :hexpand true))
+    ;; — Toggles integrados —
+    (box :orientation "h"
+         :space-evenly true
+         :spacing 8
+      (button :class "qtoggle ${dnd_active == 'true' ? 'qtoggle-on' : ''}"
+              :onclick "$HOME/.config/hypr/scripts/toggle-dnd.sh"
+        (box :orientation "h" :space-evenly false :spacing 8
+          (label :class "qtoggle-icon"
+                 :text {dnd_active == "true" ? "󰂛" : "󰂚"})
+          (label :class "qtoggle-label" :text "No molestar")))
+      (button :class "qtoggle"
+              :onclick "$HOME/.config/hypr/scripts/toggle-nightlight.sh"
+        (box :orientation "h" :space-evenly false :spacing 8
+          (label :class "qtoggle-icon" :text "󰖔")
+          (label :class "qtoggle-label" :text "Night light"))))))
+
+
+
+
+;; ═════════════════════════════════════════════════════════════════════════════
+;; HUB — layout 2 columnas (bottom-right)
+;;
+;;  ┌── IZQUIERDA ──────────┐  ┌── DERECHA ────────────────────────────────┐
+;;  │  calendar-card        │  │  header-card                              │
+;;  │  media-card           │  │  stats-card  (CPU / RAM / Bat)            │
+;;  │                       │  │  network-card                             │
+;;  │                       │  │  power-card                               │
+;;  │                       │  │  sliders-card + toggles                   │
+;;  └───────────────────────┘  └───────────────────────────────────────────┘
+;; ═════════════════════════════════════════════════════════════════════════════
+
+(defwidget hub-content []
+  (box :class "hub-root"
+       :orientation "v"
+       :space-evenly false
+       :spacing 10
+    ;; ── Arriba: las dos columnas ─────────────────────────────────────────
+    (box :orientation "h"
+         :space-evenly false
+         :spacing 10
+      ;; Col izquierda: info
+      (box :class "hub-col-left"
+           :orientation "v"
+           :space-evenly false
+           :hexpand true        ;; sin esto las columnas quedan en su ancho natural
+           :spacing 8
+        (calendar-card)
+        (stats-card))
+      ;; Col derecha: controles
+      (box :class "hub-col-right"
+           :orientation "v"
+           :space-evenly false
+           :hexpand true        ;; y la banda se veía ~49px más ancha que ellas
+           :spacing 8
+        (header-card)
+        (network-card)
+        (power-card)
+        (sliders-card)))
+    ;; ── Al pie: el reproductor, cruzando todo el ancho ───────────────────
+    (media-band)))
+
+
+(defwindow hub
+  :monitor 0
+  :geometry (geometry :x "5px"
+                      :y "20px"
+                      :width "820px"
+                      :height "800px"
+                      :anchor "bottom right")
+  :stacking "fg"
+  :focusable "ondemand"
+  :exclusive false
+  :namespace "hub"
+  (hub-content))
+
+;; ═════════════════════════════════════════════════════════════════════════════
+;; ECUALIZADOR (cava) — ventana de test TEMPORAL
+;; Se integra a la media-band y se borra esta ventana en la Fase 7 del plan.
+;; ═════════════════════════════════════════════════════════════════════════════
+
+(deflisten cava_bars
+  :initial "[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]"
+  "$HOME/.config/eww/scripts/cava-mpris.sh")
+
+;; 14 progress explícitos y NO el `for` de eww: el `for` reconstruye su contenedor
+;; en cada emisión, o sea 14 widgets GTK destruidos y creados 30 veces por segundo.
+(defwidget eq-row []
+  ;; Fondo de la banda: 24 barras a todo el ancho que se desvanecen hacia
+  ;; arriba (ver .eq-bar en el scss). space-evenly reparte el ancho entre las 24.
+  (box :class "eq-row" :orientation "h" :space-evenly true :spacing 2
+       :visible {media_tick.status == "playing"}
+    (progress :orientation "v" :flipped true :value {cava_bars[0]} :class "eq-bar")
+    (progress :orientation "v" :flipped true :value {cava_bars[1]} :class "eq-bar")
+    (progress :orientation "v" :flipped true :value {cava_bars[2]} :class "eq-bar")
+    (progress :orientation "v" :flipped true :value {cava_bars[3]} :class "eq-bar")
+    (progress :orientation "v" :flipped true :value {cava_bars[4]} :class "eq-bar")
+    (progress :orientation "v" :flipped true :value {cava_bars[5]} :class "eq-bar")
+    (progress :orientation "v" :flipped true :value {cava_bars[6]} :class "eq-bar")
+    (progress :orientation "v" :flipped true :value {cava_bars[7]} :class "eq-bar")
+    (progress :orientation "v" :flipped true :value {cava_bars[8]} :class "eq-bar")
+    (progress :orientation "v" :flipped true :value {cava_bars[9]} :class "eq-bar")
+    (progress :orientation "v" :flipped true :value {cava_bars[10]} :class "eq-bar")
+    (progress :orientation "v" :flipped true :value {cava_bars[11]} :class "eq-bar")
+    (progress :orientation "v" :flipped true :value {cava_bars[12]} :class "eq-bar")
+    (progress :orientation "v" :flipped true :value {cava_bars[13]} :class "eq-bar")
+    (progress :orientation "v" :flipped true :value {cava_bars[14]} :class "eq-bar")
+    (progress :orientation "v" :flipped true :value {cava_bars[15]} :class "eq-bar")
+    (progress :orientation "v" :flipped true :value {cava_bars[16]} :class "eq-bar")
+    (progress :orientation "v" :flipped true :value {cava_bars[17]} :class "eq-bar")
+    (progress :orientation "v" :flipped true :value {cava_bars[18]} :class "eq-bar")
+    (progress :orientation "v" :flipped true :value {cava_bars[19]} :class "eq-bar")
+    (progress :orientation "v" :flipped true :value {cava_bars[20]} :class "eq-bar")
+    (progress :orientation "v" :flipped true :value {cava_bars[21]} :class "eq-bar")
+    (progress :orientation "v" :flipped true :value {cava_bars[22]} :class "eq-bar")
+    (progress :orientation "v" :flipped true :value {cava_bars[23]} :class "eq-bar")))

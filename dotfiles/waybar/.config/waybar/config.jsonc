@@ -1,0 +1,219 @@
+// ╔════════════════════════════════════════════════════════════════╗
+// ║   W  A  Y  B  A  R  ·  Deep Ocean                              ║
+// ║   cRolandoJr · github.com/cRolandoJr                           ║
+// ╚════════════════════════════════════════════════════════════════╝
+{
+  "layer": "top",
+  "height": 28,
+  "margin-top": 2,
+  "margin-bottom": 0,
+  // margin-left/right: 7 → matchea hyprland gaps_out:7 de las ventanas.
+  // Los chips pegados al borde del bar quedan alineados con el borde de
+  // las ventanas tiled.
+  // OJO: no fijar "width" (waybar lo autocalcula como screen - margins).
+  "margin-left": 7,
+  "margin-right": 7,
+  "reload_on_change": true,
+  "reload_style_on_change": true,
+
+  "modules-left": ["group/sistema", "mpris"],
+  "modules-center": ["hyprland/window"],
+  // Todo visible: un modulo plegado es un modulo que se olvida. El orden va de
+  // interactivos a estado pasivo, y termina en las anclas que no se mueven.
+  "modules-right": [
+    "custom/agenda",
+    "pulseaudio",
+    "idle_inhibitor",
+    "custom/gamemode",
+    "temperature",
+    "battery",
+    "clock",
+    "network",
+    "tray",
+  ],
+
+  "keyboard-state": {
+    "numlock": true,
+    "capslock": false,
+    "scrolllock": false,
+    "format": "{icon}",
+    "format-icons": {
+      "locked": "<span size='12pt'>󰎠</span> NUM",
+      "unlocked": "",
+    },
+  },
+
+  "custom/agenda": {
+    "exec": "$HOME/.config/hypr/scripts/waybar-agenda.sh",
+    "return-type": "json",
+    "interval": 60,
+    "format": "{}",
+    "max-length": 48,
+    "tooltip": true,
+    "on-click-right": "foot --app-id=foot_float ikhal",
+  },
+
+  // ─── NixOS chip — gen + flake status ─────────────────────────────────────
+  //   Click izq → hub | Click der → foot en el flake dir (para resolver dirty)
+  "custom/nixos": {
+    "exec": "$HOME/.config/hypr/scripts/waybar-nixos-status.sh",
+    "return-type": "json",
+    "interval": 10,
+    "format": "{}",
+    "tooltip": true,
+    "on-click": "~/.config/hypr/scripts/hub-toggle.sh",
+    "on-click-right": "foot --working-directory ~/projects/nix-config",
+  },
+
+  "hyprland/window": {
+    "max-length": 60,
+    "separate-outputs": true,
+    "tooltip": false,
+    "rewrite": {
+      "(.*) — Mozilla Firefox": "󰈹  $1",
+      "(.*) — Chromium": "󰊯  $1",
+      "(.*)foot(.*)": "terminal",
+      "(.*)nvim(.*)": "nvim",
+      "(.*)Code(.*)": "󰨞  code",
+      "(.*)Discord(.*)": "󰙯  discord",
+      "(.*)Telegram(.*)": "telegram",
+      "": "escritorio",
+    },
+  },
+
+  "network": {
+    "format-wifi": "<span size='12pt'>{icon}</span>",
+    "format-ethernet": "<span size='12pt'>󰈀</span>",
+    "format-linked": "<span size='12pt'>󰈀</span> sin IP",
+    "format-disconnected": "<span color='#7a8ba8' size='12pt'>󰤭</span>",
+    "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
+    "tooltip-format-wifi": "{essid} · {signalStrength}%\n{ipaddr}/{cidr}\n↓ {bandwidthDownBits}   ↑ {bandwidthUpBits}",
+    "tooltip-format-ethernet": "{ifname}\n{ipaddr}/{cidr}",
+    "tooltip-format-disconnected": "Sin conexion",
+    "on-click": "~/.config/rofi/wifi/wifi_manager.sh",
+  },
+
+  "pulseaudio": {
+    "tooltip": false,
+    "scroll-step": 5,
+    "format": "<span size='12pt'>{icon}</span> {volume}%",
+    "format-muted": "<span size='12pt'>󰝟</span> {volume}%",
+    "on-click": "~/.config/hypr/scripts/hub-toggle.sh",
+    "on-click-right": "pavucontrol",
+    "on-scroll-up": "wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+",
+    "on-scroll-down": "wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%-",
+    "format-icons": {
+      "default": ["󰕿", "󰖀", "󰕾"],
+    },
+  },
+
+  // Control de Spotify. Click=play/pause, scroll=next/prev, der=abrir Spotify.
+  // Desaparece sin player (format-stopped vacío).
+  "mpris": {
+    "player": "spotify",
+    "format": "󰐊  {title}",
+    "format-paused": "󰏤  {title}",
+    "format-stopped": "",
+    "max-length": 28,
+    "tooltip-format": "{title}\n{artist} · {album}",
+    "on-click": "playerctl --player=spotify play-pause",
+    "on-click-right": "$HOME/.config/hypr/scripts/spotify-toggle.sh",
+    "on-scroll-up": "playerctl --player=spotify next",
+    "on-scroll-down": "playerctl --player=spotify previous",
+  },
+
+  // Sin persistent-workspaces: muestra solo los ocupados + el activo (dinámico).
+  "hyprland/workspaces": {
+    "on-click": "activate",
+    // {id} = número del ws. El CSS oculta el label en los inactivos (quedan
+    // dots) y solo lo revela en el activo.
+    "format": "{id}",
+  },
+
+  "temperature": {
+    // Anclado al CPU AMD (k10temp) vía PCI BDF estable, no thermal_zone0
+    // (que puede reasignarse entre reboots).
+    "hwmon-path-abs": "/sys/devices/pci0000:00/0000:00:18.3/hwmon",
+    "input-filename": "temp1_input",
+    "critical-threshold": 90,
+    "interval": 2,
+    "tooltip": false,
+    "format-critical": "<span size='12pt'>{icon}</span> {temperatureC}°C",
+    "format": "<span size='12pt'>{icon}</span> {temperatureC}°C",
+    "format-icons": ["󰔏"],
+    "on-click": "~/.config/hypr/scripts/hub-toggle.sh",
+  },
+
+  "battery": {
+    "states": { "good": 95, "warning": 30, "critical": 10 },
+    "format": "{icon} {capacity}%",
+    "format-charging": "<span color='#2d9c6f' size='12pt'>󰂄</span> {capacity}%",
+    "format-alt": "<span color='#cdd6f4'>{time}</span> {icon}",
+    "format-icons": [
+      "<span color='#f87171' size='12pt'>󰁺</span>",
+      "<span color='#f87171' size='12pt'>󰁻</span>",
+      "<span color='#fb923c' size='12pt'>󰁼</span>",
+      "<span color='#fb923c' size='12pt'>󰁽</span>",
+      "<span color='#00B4D8E6' size='12pt'>󰁾</span>",
+      "<span color='#00B4D8E6' size='12pt'>󰁿</span>",
+      "<span color='#00B4D8E6' size='12pt'>󰂀</span>",
+      "<span color='#00B4D8E6' size='12pt'>󰂁</span>",
+      "<span color='#00B4D8E6' size='12pt'>󰂂</span>",
+      "<span color='#00B4D8E6' size='12pt'>󰁹</span>",
+    ],
+    "on-click": "~/.config/hypr/scripts/hub-toggle.sh",
+  },
+
+  "clock": {
+    "tooltip": true,
+    "tooltip-format": "{:%A %d de %B de %Y}",
+    "locale": "es_AR.UTF-8",
+    "interval": 60,
+    "timezone": "America/Argentina/Buenos_Aires",
+    "format": "<span size='12pt'>󰥔</span> {:%H:%M}",
+    "on-click": "~/.config/hypr/scripts/hub-toggle.sh",
+  },
+
+  "tray": {
+    "icon-size": 16,
+    "spacing": 8,
+  },
+
+  // Mantener pantalla despierta (inhibe hypridle mientras está activado).
+  "idle_inhibitor": {
+    "format": "{icon}",
+    "format-icons": { "activated": "<span size='12pt'></span>", "deactivated": "<span size='12pt'></span>" },
+    "tooltip-format-activated": "Idle inhibido — la pantalla no se bloquea",
+    "tooltip-format-deactivated": "Idle normal",
+  },
+
+  // Un solo island para todo lo de la izquierda, como .modules-right. mpris
+  // queda afuera a proposito: es el unico que aparece y desaparece, y dentro
+  // haria respirar la capsula entera cada vez que arranca o para la musica.
+  // Sin "drawer": es un contenedor, no un plegable.
+  "group/sistema": {
+    "orientation": "horizontal",
+    "modules": ["custom/nixos", "hyprland/workspaces", "custom/layout", "keyboard-state"]
+  },
+
+  "custom/layout": {
+    "exec": "stdbuf -oL $HOME/.config/hypr/scripts/waybar-layout.sh",
+    "return-type": "json",
+    "format": "{}",
+    "restart-interval": 3,
+    "on-click": "hyprctl switchxkblayout current next",
+  },
+
+  // ─── Modo juego — libera k3s (6.7% CPU y 539 MiB en idle) ────────────────
+  //   El estado lo deriva de systemctl, no de un flag, así que no se
+  //   desincroniza si k3s arranca o se para por otra vía.
+  "custom/gamemode": {
+    "exec": "$HOME/.config/hypr/scripts/waybar-gamemode.sh",
+    "return-type": "json",
+    "interval": 10,
+    "signal": 11,
+    "format": "{}",
+    "tooltip": true,
+    "on-click": "$HOME/.config/hypr/scripts/waybar-gamemode.sh toggle",
+  },
+}

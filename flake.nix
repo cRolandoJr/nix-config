@@ -33,6 +33,11 @@
       url = "github:cRolandoJr/scraper-pedco";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    hymission = {
+      url = "github:gfhdhytghd/hymission/4fe476c29203b25b891e22198a330d8acab76d8f";
+      flake = false;
+    };
   };
 
   outputs =

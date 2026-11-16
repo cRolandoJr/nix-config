@@ -1,0 +1,59 @@
+# ╔════════════════════════════════════════════════════════════════╗
+# ║   M  A  K  O  ·  Deep Ocean                                    ║
+# ║   cRolandoJr · github.com/cRolandoJr                           ║
+# ╚════════════════════════════════════════════════════════════════╝
+#
+# Posición: top-right, debajo del waybar (height=28 + margin-top=4 ≈ 32).
+# Layer top (no overlay) para respetar exclusive zone.
+
+# === Geometría / posición ===
+anchor=top-right
+layer=top
+outer-margin=0,0
+margin=10
+padding=14
+width=380
+height=160
+border-size=2
+border-radius=12
+icons=1
+max-icon-size=48
+
+# === Tipografía ===
+font=JetBrainsMono Nerd Font 11
+
+# === Historial ===
+max-history=30
+sort=-time
+
+# === Colores base (Deep Ocean) ===
+background-color=#0f1623ec
+text-color=#cdd6f4
+border-color=#00b4d8bf
+progress-color=over #151e2d
+
+# === Defaults ===
+default-timeout=4000
+ignore-timeout=0
+
+# === Por urgency ===
+# low: borde navy tenue, fg opaco
+[urgency=low]
+default-timeout=2500
+border-color=#1e3a5fff
+text-color=#7a8ba8
+
+# normal: cyan glow (acento principal Deep Ocean)
+[urgency=normal]
+default-timeout=4000
+border-color=#00b4d8bf
+
+# critical: rojo, sin auto-dismiss
+[urgency=critical]
+default-timeout=0
+border-color=#f87171ff
+text-color=#ffd7d7
+
+# Modo Do-Not-Disturb (activar con `makoctl mode -t do-not-disturb`)
+[mode=do-not-disturb]
+invisible=1

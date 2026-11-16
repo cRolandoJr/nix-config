@@ -1,0 +1,642 @@
+// GTK CSS: no flex-grow, no overflow, no max-width, gaps = spacing en yuck
+
+// ═══ 1. PRIMITIVOS ═══════════════════════════════════════════════════════════
+// Los ÚNICOS hex del archivo. Cambiar la paleta = cambiar solo esto.
+// El orden importa: SCSS exige declarar antes de usar, y todo lo de abajo
+// deriva de acá.
+$cyan:      #00b4d8;   // acento principal
+$blue:      #3b82f6;   // acento secundario (azul NixOS)
+$navy:      #1a2744;   // azul profundo de los bordes
+$ink:       #0a0e17;   // el fondo más oscuro
+$fg:        #cdd6f4;
+$fg-dim:    #7a8ba8;
+$ok:        #34d399;
+$warn:      #fb923c;
+$crit:      #f87171;
+$white:     #ffffff;   // hover de máximo contraste
+
+// ═══ 2. SUPERFICIES ══════════════════════════════════════════════════════════
+// Escala de elevación: cada nivel es un paso más claro que el anterior.
+// `mix($cyan, $ink, N%)` tiñe el negro con una pizca de cyan, así que la
+// superficie sube de nivel SIN depender de transparencia — que es lo que hacía
+// que los botones se vieran grises.
+$bg:        $ink;
+$glass:     rgba(12, 18, 30, 0.94);   // el vidrio de las cards (sobre wallpaper)
+$glass-hi:  rgba(14, 22, 38, 0.96);   // vidrio del header, un pelo más opaco
+$surface:   #0f1623;                  // color propio, no derivado: se deja tal cual
+$surface-1: mix($cyan, $ink, 10%);    // controles en reposo  ← botones y filas
+$surface-2: mix($cyan, $ink, 16%);    // controles en hover
+
+// ═══ 3. DERIVADOS ════════════════════════════════════════════════════════════
+// Todo con rgba($token, N): un solo lugar define el color, la opacidad se
+// ajusta acá sin volver a escribir el hex en decimal.
+$border:    rgba($navy, 0.85);
+$border-hi: rgba($cyan, 0.35);
+
+$cyan-soft: rgba($cyan, 0.14);
+$cyan-dim:  rgba($cyan, 0.15);
+$cyan-glow: rgba($cyan, 0.30);
+
+$blue-dim:  rgba($blue, 0.20);
+$ok-dim:    rgba($ok,   0.20);
+$warn-dim:  rgba($warn, 0.20);
+$crit-dim:  rgba($crit, 0.18);
+$crit-glow: rgba($crit, 0.30);
+
+$shadow:    rgba(0, 0, 0, 0.50);
+
+$rad:       18px;
+$rad-sm:    12px;
+
+// ── Raíz ──────────────────────────────────────────────────────────────────────
+window {
+  background-color: transparent;
+}
+
+.hub-root {
+  background-color: transparent;
+  font-family: "JetBrainsMono Nerd Font", monospace;
+  font-size: 13px;
+  color: $fg;
+  padding: 12px;
+}
+
+// Columna izquierda más angosta (calendar fija en 320px); derecha expande
+.hub-col-left {
+  min-width: 320px;
+}
+
+.hub-col-right {
+  min-width: 380px;
+}
+
+// ── Card base ─────────────────────────────────────────────────────────────────
+.card {
+  background-color: $glass;
+  border-radius: $rad;
+  border: 1px solid $border;
+  padding: 14px 16px;
+}
+
+// ── Header ───────────────────────────────────────────────────────────────────
+.header-card {
+  background-color: $glass-hi;
+  border-radius: $rad;
+  border: 1px solid $border;
+  padding: 12px 14px;
+
+  .header-avatar {
+    color: $cyan;
+    font-size: 22px;
+    min-width: 28px;
+  }
+  .header-name {
+    color: $fg;
+    font-size: 15px;
+    font-weight: bold;
+  }
+  .header-sub {
+    color: $fg-dim;
+    font-size: 11px;
+  }
+  .notif-badge-wrap {
+    margin-right: 4px;
+  }
+  .notif-badge {
+    background-color: $cyan;
+    color: $bg;
+    border-radius: 100px;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 2px 7px;
+    min-width: 20px;
+    min-height: 18px;
+  }
+  .header-close {
+  background-image: none;   // GTK pinta el gradiente del tema encima del background-color
+    background-color: $cyan-dim;
+    border: 1px solid $border-hi;
+    border-radius: 100px;
+    color: $cyan;
+    font-size: 12px;
+    padding: 2px 10px;
+    min-width: 28px;
+    min-height: 28px;
+  }
+  .header-close:hover {
+  background-image: none;   // GTK pinta el gradiente del tema encima del background-color
+    background-color: $cyan-glow;
+    color: $white;
+  }
+}
+
+// ── Calendar card ─────────────────────────────────────────────────────────────
+// min-width fijo → protagonista; el box derecho (media+stats) ocupa el resto
+.calendar-card {
+  min-width: 320px;
+}
+
+.card-title {
+  color: $cyan;
+  font-size: 11px;
+  font-weight: bold;
+  margin-bottom: 2px;
+}
+
+.weather-row {
+  padding: 8px 0;
+  margin-bottom: 4px;
+
+  .weather-icon { color: $cyan; font-size: 22px; }
+  .weather-temp { color: $fg; font-size: 18px; font-weight: bold; }
+  .weather-desc { color: $fg; font-size: 15px; }
+  .weather-city { color: $fg-dim; font-size: 13px; }
+}
+
+.hub-calendar {
+  background-color: transparent;
+  color: $fg;
+  font-size: 15px;
+}
+.hub-calendar:selected {
+  background-color: $cyan;
+  color: $bg;
+  border-radius: 8px;
+  font-weight: bold;
+}
+.hub-calendar.other-month {
+  color: rgba($fg, 0.18);
+}
+.hub-calendar.day-name {
+  color: $cyan;
+  font-weight: bold;
+}
+.hub-calendar.header {
+  color: $fg;
+  font-weight: bold;
+}
+.hub-calendar.button {
+  color: $cyan;
+}
+.hub-calendar.highlight {
+  background-color: $cyan-dim;
+  border-radius: 6px;
+}
+
+// ── Media band (al pie, cruzando las dos columnas) ────────────────────────────
+.media-band {
+  min-height: 150px;
+}
+
+// El anillo de progreso que rodea la portada. Reemplaza a la barra recta.
+.media-ring {
+  color: $cyan;                          // el trazo cumplido
+  background-color: rgba($cyan, 0.18);   // el pendiente: navy al 55% no se veía
+}
+
+.media-art-box {
+  background-color: $cyan-soft;
+  border-radius: $rad-sm;
+  min-width: 104px;
+  min-height: 104px;
+}
+
+.media-art {
+  border-radius: $rad-sm;
+}
+
+.media-art-empty {
+  color: $fg-dim;
+  font-size: 40px;
+  min-width: 104px;
+  min-height: 104px;
+}
+
+// Las tres líneas de letra. La actual en cyan y un punto más grande; la anterior
+// y la siguiente atenuadas, para que el ojo caiga en la que suena.
+.media-lyrics {
+  margin-top: -27px;  // sube a ocupar el espacio que dejó la línea de tiempos
+}
+.media-lyric-now {
+  color: $cyan;
+  font-size: 13px;
+  font-style: italic;
+}
+.media-lyric-side {
+  color: rgba($fg, 0.30);
+  font-size: 11px;
+  font-style: italic;
+}
+
+.media-time {
+  color: $fg-dim;
+  font-size: 11px;
+}
+
+.media-remaining {
+  color: rgba($fg, 0.28);
+  font-size: 11px;
+}
+
+// Álbum, al lado del artista. Oculto en singles (repetiría el título).
+.media-album {
+  color: rgba($fg, 0.35);
+  font-size: 12px;
+}
+
+.media-title {
+  color: $fg;
+  font-size: 16px;
+  font-weight: bold;
+}
+.media-artist {
+  color: $fg-dim;
+  font-size: 13px;
+}
+.media-status {
+  color: $fg-dim;
+  font-size: 10px;
+}
+.media-status.playing {
+  color: $ok;
+}
+
+// Spotify dice que reproduce pero no sale audio: naranja de advertencia, no rojo
+// (no está roto, la canción no está disponible).
+.media-status.stalled {
+  color: $warn;
+}
+
+.media-controls {
+  margin-top: 2px;
+}
+
+.media-btn {
+  background-image: none;   // idem: el gradiente del tema GTK tapaba el transparent
+  background-color: transparent;
+  border: none;
+  padding: 0 4px;
+  min-width: 0;
+  min-height: 0;
+}
+.media-btn label {
+  color: $fg-dim;
+  font-size: 16px;
+}
+.media-btn:hover label {
+  color: $cyan;
+}
+
+// shuffle/repeat activos. Va DESPUÉS de `.media-btn label` a propósito: las dos
+// reglas tienen la misma especificidad (clase + elemento), así que gana la última
+// del archivo. Puesta antes, el gris de .media-btn label la pisaba.
+.media-btn-on label {
+  color: $cyan;
+}
+
+// Volumen DEL PLAYER, más chico que los sliders del hub para que se lea como
+// control secundario y no compita con el volumen del sistema.
+.media-vol-box {
+  margin-left: 12px;
+}
+.media-vol-icon {
+  color: $fg-dim;
+  font-size: 13px;
+}
+.media-vol {
+  min-width: 78px;
+
+  trough {
+    background-color: rgba($navy, 0.55);
+    background-image: none;
+    border: none;
+    border-radius: 100px;
+    min-height: 4px;
+  }
+  highlight {
+    background-color: $cyan;
+    background-image: none;
+    border-radius: 100px;
+    min-height: 4px;
+  }
+  slider {
+    background-color: $fg-dim;
+    background-image: none;
+    border: none;
+    border-radius: 100px;
+    min-width: 10px;
+    min-height: 10px;
+    margin: -4px;
+  }
+}
+
+.media-player {
+  color: $fg-dim;
+  font-size: 11px;
+}
+
+.media-btn-play label {
+  color: $cyan;
+  font-size: 20px;
+}
+.media-btn-play:hover label {
+  color: $white;
+}
+
+// ── Stats card ───────────────────────────────────────────────────────────────
+.circ {
+  background-color: rgba($navy, 0.60);
+  color: $cyan;
+  border-radius: 100px;
+}
+.circ-cpu   { color: $blue; background-color: $blue-dim; }
+.circ-ram   { color: $cyan; background-color: $cyan-soft; }
+.circ-bat   { color: $ok;   background-color: $ok-dim; }
+.circ-bat-ok  { color: $ok;  background-color: $ok-dim; }
+.circ-bat-crit { color: $crit; background-color: $crit-dim; }
+.circ-disk  { color: $warn; background-color: $warn-dim; }
+.circ-gpu   { color: $blue; background-color: $blue-dim; }
+.circ-net   { color: $ok;   background-color: $ok-dim; }
+
+.circ-icon {
+  font-size: 22px;
+  color: $fg-dim;
+}
+.circ-value {
+  color: $fg;
+  font-size: 13px;
+  font-weight: bold;
+}
+.circ-label {
+  color: $fg-dim;
+  font-size: 10px;
+}
+
+// El dato que el porcentaje no responde: temperatura, GiB libres, watts.
+.circ-extra {
+  color: $cyan;
+  font-size: 10px;
+}
+
+// ── Network card ─────────────────────────────────────────────────────────────
+.net-row {
+  background-color: $surface-1;
+  border-radius: $rad-sm;
+  padding: 10px 12px;
+}
+.net-row.net-active {
+  background-color: $surface-2;
+  border: 1px solid $border-hi;
+}
+.net-row:hover {
+  background-color: $surface-2;
+}
+.net-chip {
+  background-color: rgba($cyan, 0.22);
+  border-radius: 100px;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 6px;
+}
+.net-row.net-active .net-chip {
+  background-color: $cyan-glow;
+}
+.net-icon {
+  color: rgba($cyan, 0.85);
+  font-size: 14px;
+}
+.net-row.net-active .net-icon {
+  color: $cyan;
+}
+.net-label {
+  color: $fg;
+  font-size: 12px;
+  font-weight: bold;
+}
+.net-value {
+  color: $fg-dim;
+  font-size: 10px;
+}
+.net-row.net-active .net-value {
+  color: $fg;
+}
+.net-chevron {
+  color: rgba($fg, 0.30);
+  font-size: 18px;
+}
+.net-row:hover .net-chevron {
+  color: $cyan;
+}
+
+// ── Power card ────────────────────────────────────────────────────────────────
+.power-card {
+  // hexpand true en yuck
+}
+
+.power-btn {
+  background-image: none;   // GTK pinta el gradiente del tema encima del background-color
+  background-color: $surface-1;
+  border: 1px solid $border;
+  border-radius: $rad-sm;
+  padding: 10px 6px;
+  min-width: 54px;
+}
+.power-btn:hover {
+  background-image: none;   // GTK pinta el gradiente del tema encima del background-color
+  background-color: $surface-2;
+  border-color: $border-hi;
+}
+.power-icon {
+  color: $cyan;
+  font-size: 18px;
+}
+.power-label {
+  color: $fg;
+  font-size: 10px;
+  font-weight: bold;
+}
+.power-btn.destructive {
+  background-image: none;   // GTK pinta el gradiente del tema encima del background-color
+  background-color: $crit-dim;
+  border-color: $crit-glow;
+}
+.power-btn.destructive .power-icon,
+.power-btn.destructive .power-label {
+  color: $crit;
+}
+.power-btn.destructive:hover {
+  background-image: none;   // GTK pinta el gradiente del tema encima del background-color
+  background-color: $crit-glow;
+  border-color: $crit;
+}
+.power-btn.destructive:hover .power-icon,
+.power-btn.destructive:hover .power-label {
+  color: $white;
+}
+
+// ── Sliders modernos ─────────────────────────────────────────────────────────
+// Inspirado en athena-eww: trough grueso, gradient fill, thumb pill
+// padding vertical reducido para emparejar la altura de las dos columnas:
+// era la card más alta de la derecha y la que más aire tenía
+.sliders-card {
+  padding: 0 16px 4px 16px;   // 4px abajo: los toggles quedaban pegados al borde
+}
+
+.slider-block {
+  padding: 1px 2px;
+}
+
+.slider-icon-modern {
+  color: $cyan;
+  font-size: 16px;
+  min-width: 22px;
+}
+
+.slider-name {
+  color: $fg;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.slider-pct-modern {
+  color: $cyan;
+  font-size: 11px;
+  font-weight: bold;
+  min-width: 34px;
+}
+
+// Trough grueso con gradient — el truco de athena
+.hub-slider trough {
+  background-color: rgba($navy, 0.80);
+  border-radius: 10px;
+  min-height: 10px;
+}
+.hub-slider trough highlight {
+  border-radius: 10px;
+  min-height: 10px;
+}
+// Brightness: cyan → blue
+.slider-brightness trough highlight {
+  background-color: $cyan;
+}
+// Volume: blue → cyan (más fresco)
+.slider-volume trough highlight {
+  background-color: $blue;
+}
+.hub-slider trough slider {
+  background-color: $cyan;
+  border-radius: 100px;
+  min-width: 20px;
+  min-height: 15px;
+  margin: -4px;
+  box-shadow: 0 1px 4px $shadow;
+}
+.hub-slider:hover trough slider {
+  background-color: $cyan;
+}
+.slider-volume trough slider {
+  background-color: $blue;
+}
+
+// ── Toggles integrados en sliders-card ───────────────────────────────────────
+.qtoggle {
+  background-image: none;   // GTK pinta el gradiente del tema encima del background-color
+  background-color: $surface-1;
+  border: 1px solid $border;
+  border-radius: $rad-sm;
+  padding: 6px 12px;
+  margin-bottom: 1px;   // el padding de la card lo absorbía GTK; el margin del
+                        // botón sí empuja el borde
+}
+.qtoggle:hover {
+  background-image: none;   // GTK pinta el gradiente del tema encima del background-color
+  background-color: $surface-2;
+  border-color: $border-hi;
+}
+.qtoggle.qtoggle-on {
+  background-image: none;   // GTK pinta el gradiente del tema encima del background-color
+  background-color: $cyan-dim;
+  border-color: $border-hi;
+}
+.qtoggle-icon {
+  color: $fg-dim;       // el ícono apagado indica el estado
+  font-size: 18px;
+}
+.qtoggle-label {
+  color: $fg;           // el texto siempre legible (antes iba en $fg-dim y el botón se leía muerto)
+  font-size: 11px;
+  font-weight: bold;
+}
+.qtoggle.qtoggle-on .qtoggle-icon,
+.qtoggle.qtoggle-on .qtoggle-label {
+  color: $cyan;
+}
+
+// ── Tooltip ───────────────────────────────────────────────────────────────────
+tooltip {
+  background-color: rgba($ink, 0.98);
+  color: $fg;
+  border: 1px solid $border;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-family: "JetBrainsMono Nerd Font", monospace;
+  font-size: 12px;
+}
+tooltip label {
+  color: $fg;
+  padding: 0;
+}
+tooltip decoration {
+  background-color: transparent;
+}
+
+// ── Ecualizador (cava) ────────────────────────────────────────────────────────
+// El trough del progress se hace invisible y el relleno lleva el degradado, así
+// la barra crece desde abajo. background-image: none es obligatorio: GTK pinta el
+// gradiente de su tema encima de cualquier background-color propio.
+.eq-row {
+  padding: 0;
+  margin: 0;
+}
+
+.eq-bar {
+  min-width: 8px;
+  // El overlay toma el tamaño de su PRIMER hijo, y ese es el eq-row. O sea que
+  // este min-height define el alto de toda la banda: si es menor que lo que
+  // necesita el contenido, las líneas de letra se recortan sin aviso.
+  // 178 = portada 116 + las 3 líneas de letra + spacings. Al sacar la línea de
+  // tiempos la letra sube y necesita menos alto total.
+  min-height: 178px;
+
+  background-color: transparent;
+  background-image: none;
+}
+
+// En GTK3 un progressbar es `progressbar > trough > progress`. Sin apuntar al
+// trough explícitamente queda el gris del tema y las barras se ven como cajas.
+// Trough transparente: con fondo visible los 14 rectángulos vacíos pesaban
+// más que las barras activas y el ecualizador parecía roto cuando cava sacaba
+// valores solo en las frecuencias bajas.
+.eq-bar trough {
+  background-color: transparent;
+  background-image: none;
+  border: none;
+  border-radius: 2px;
+  min-width: 10px;
+}
+
+// Gradiente que se DESVANECE hacia arriba: la barra es sólida abajo y
+// transparente donde empieza el texto, así el ecualizador no compite con el
+// título ni con la portada.
+.eq-bar trough progress {
+  background-color: transparent;
+  // Desvanecido hacia arriba. Para volver al anterior (más tenue arriba):
+  //   rgba($cyan, 0.55) 0%, rgba($blue, 0.28) 45%, rgba($blue, 0.00) 100%
+  background-image: linear-gradient(to top,
+                      rgba($cyan, 0.55) 0%,
+                      rgba($blue, 0.40) 45%,
+                      rgba($blue, 0.12) 100%);
+  border: none;
+  border-radius: 2px;
+  min-width: 8px;
+}

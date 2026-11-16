@@ -1,0 +1,53 @@
+/* Rofi theme: keybinds viewer (Deep Ocean)
+ * Hereda paleta del config.rasi global; sobrescribe geometría y listview
+ * para que entre la cheatsheet horizontal.
+ */
+@import "../config.rasi"
+
+window {
+    width: 780px;
+    border-radius: 12px;
+}
+
+mainbox {
+    padding: 14px;
+    spacing: 10px;
+    children: [ "inputbar", "message", "listview" ];
+}
+
+message {
+    background-color: @hint-bg;
+    border-radius: 8px;
+    padding: 6px 10px;
+}
+
+textbox {
+    text-color: @fg-alt;
+    padding: 0px;
+}
+
+/* fixed-height:true ata el alto a `lines`; en false rofi estira hasta el borde
+   de la pantalla porque intenta mostrar los 92 binds de una. */
+listview {
+    lines: 17;
+    fixed-height: true;
+    spacing: 2px;
+    scrollbar: true;
+}
+
+element {
+    padding: 4px 12px;
+    border-radius: 6px;
+    spacing: 0;
+}
+
+element-text {
+    font: "JetBrainsMono Nerd Font 10";
+    text-color: @fg;
+}
+
+element selected.normal {
+    background-color: @sel-bg;
+    border: 1px;
+    border-color: @accent;
+}

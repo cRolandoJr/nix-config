@@ -75,6 +75,23 @@
         "type": "github"
       }
     },
+    "hymission": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1794720641,
+        "narHash": "sha256-caGhCn1gI22igIvjLl6Qs67R4Ej2feGpRQYXEdTsTmo=",
+        "owner": "gfhdhytghd",
+        "repo": "hymission",
+        "rev": "4fe476c29203b25b891e22198a330d8acab76d8f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "gfhdhytghd",
+        "repo": "hymission",
+        "rev": "4fe476c29203b25b891e22198a330d8acab76d8f",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1794537146,
@@ -137,6 +154,7 @@
       "inputs": {
         "disko": "disko",
         "home-manager": "home-manager",
+        "hymission": "hymission",
         "nixpkgs": "nixpkgs",
         "pedco-bot": "pedco-bot",
         "pre-commit-hooks": "pre-commit-hooks",

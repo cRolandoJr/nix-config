@@ -1,0 +1,178 @@
+/* ╔════════════════════════════════════════════════════════════════╗
+   ║   R  O  F  I  ·  Deep Ocean                                    ║
+   ║   cRolandoJr · github.com/cRolandoJr                           ║
+   ╚════════════════════════════════════════════════════════════════╝ */
+
+/* Sintaxis de Rofi 2.0.0: el selector es element-icon (no "element icon"), y el
+   alpha va al final del hex: #RRGGBBAA.
+
+   Este archivo es el tema del launcher. Los menús con layout propio
+   (wifi, cliphist, keybinds) pasan su -theme aparte. */
+
+configuration {
+    display-drun: "Applications:";
+    display-run:  "Run:";
+    display-window: "Windows:";
+    drun-display-format: "{icon} {name}";
+    font: "JetBrainsMono Nerd Font Medium 10";
+    modi: "window,run,drun,ssh,keys,filebrowser";
+    show-icons: true;
+    icon-theme: "Papirus";
+    terminal: "foot";
+}
+
+* {
+    /* Palette — Deep Ocean */
+    bg:         #0a0e17;
+    bg-alt:     #0f1623;
+    fg:         #cdd6f4;
+    fg-alt:     #7a8ba8;
+
+    accent:     #3b82f6;   /* azul NixOS */
+
+    /* Transparent variants (RGBA: #RRGGBBAA) */
+    win-bg:     #0a0e17e6;
+    panel-bg:   #0f1623e6;
+    sel-bg:     #151e2df0;
+    hint-bg:    #0f162399;
+
+    background-color: transparent;
+    text-color: @fg;
+
+    /* Spacing defaults */
+    margin: 0;
+    padding: 0;
+    spacing: 0;
+}
+
+/* Window */
+window {
+    location: center;
+    anchor: center;
+    fullscreen: false;
+
+    width: 40%;
+    border: 0px;
+    border-color: @accent;
+    border-radius: 16px;
+
+    background-color: @win-bg;
+}
+
+/* Main layout */
+mainbox {
+    padding: 14px;
+    spacing: 12px;
+    children: [ "inputbar", "message", "listview" ];
+}
+
+/* Input */
+inputbar {
+    background-color: @panel-bg;
+    border-radius: 14px;
+    padding: 10px;
+    spacing: 10px;
+    children: [ "prompt", "entry" ];
+}
+
+prompt {
+    enabled: true;
+    text-color: @accent;
+    background-color: transparent;
+}
+
+entry {
+    background-color: transparent;
+    text-color: @fg;
+    placeholder: "Buscar…";
+    placeholder-color: @fg-alt;
+    padding: 0px;
+}
+
+/* Optional message line */
+message {
+    background-color: transparent;
+}
+
+textbox {
+    background-color: @hint-bg;
+    text-color: @fg-alt;
+    border-radius: 12px;
+    padding: 10px;
+}
+
+/* List */
+listview {
+    background-color: transparent;
+    columns: 1;
+    lines: 8;
+    fixed-height: true;
+
+    spacing: 6px;
+    scrollbar: true;
+    padding: 2px;
+}
+
+/* Elements */
+element {
+    background-color: transparent;
+    border-radius: 12px;
+    padding: 10px;
+    spacing: 10px;
+
+    border: 1px;
+    border-color: transparent;
+}
+
+element normal.normal {
+    background-color: transparent;
+}
+
+element selected.normal {
+    background-color: @sel-bg;
+    border-color: @accent;
+}
+
+element-text {
+    background-color: transparent;
+    text-color: @fg;
+    vertical-align: 0.5;
+}
+
+element-text selected.normal {
+    text-color: @fg;
+}
+
+element-icon {
+    size: 22px;
+}
+
+/* Scrollbar */
+scrollbar {
+    width: 6px;
+    handle-width: 6px;
+    background-color: transparent;
+    handle-color: @hint-bg;
+    border-radius: 10px;
+}
+
+/* Separators (if enabled by mode) */
+separator {
+    background-color: transparent;
+    text-color: @fg-alt;
+}
+
+/* Buttons (some scripts/modes use them) */
+button {
+    background-color: @panel-bg;
+    text-color: @fg;
+    border-radius: 12px;
+    padding: 8px 10px;
+}
+
+button selected {
+    background-color: @sel-bg;
+    text-color: @fg;
+    border: 2px;
+    border-color: @accent;
+}

@@ -1,0 +1,78 @@
+# ╔════════════════════════════════════════════════════════════════╗
+# ║   S  T  A  R  S  H  I  P  ·  Deep Ocean                        ║
+# ║   cRolandoJr · github.com/cRolandoJr                           ║
+# ╚════════════════════════════════════════════════════════════════╝
+
+add_newline = false
+palette = "hyprnix"
+
+format = """
+[](fg:base)\
+$os\
+[](fg:base bg:dir)\
+$directory\
+[](fg:dir bg:git)\
+$git_branch\
+$git_status\
+[](fg:git bg:time_bg)\
+$time\
+[](fg:time_bg)\
+\n$character"""
+
+right_format = ""
+
+[palettes.hyprnix]
+# Paleta Deep Ocean — coherente con waybar/eww/mako/rofi/hyprland borders.
+base = "#cdd6f4"     # fg principal
+base_fg = "#0a0e17"  # bg-bar para texto sobre la "base"
+
+# Acentos
+dir = "#3b82f6"      # azul NixOS
+git = "#00b4d8"      # cyan Deep Ocean
+lav = "#5eead4"      # teal (acento sin purple)
+time_bg = "#0f1623"  # bg-surface
+time_fg = "#cdd6f4"  # fg
+
+# Estados semánticos
+ok = "#34d399"       # verde Deep Ocean
+warn = "#fb923c"     # naranja Deep Ocean (no yellow chillón)
+err = "#f87171"      # rojo Deep Ocean
+
+[os]
+disabled = false
+style = "bg:base fg:base_fg bold"
+# si querés que salga Nix sí o sí, usa el símbolo de NixOS:
+ symbols.NixOS = " "
+symbols.Arch = " "
+format = "[$symbol]($style)"
+
+[directory]
+style = "bg:dir fg:base_fg bold"
+format = "[ $path ]($style)"
+truncation_length = 3
+truncation_symbol = "…/"
+
+[git_branch]
+symbol = "󰊢 "
+style = "bg:git fg:base_fg bold"
+format = "[ $symbol$branch ]($style)"
+
+[git_status]
+style = "bg:git fg:base_fg bold"
+format = "([$all_status$ahead_behind]($style))"
+
+[time]
+disabled = false
+time_format = "%R"
+style = "bg:time_bg fg:time_fg bold"
+format = "[  $time ]($style)"
+
+[character]
+success_symbol = "[󰁔](bold white)"
+error_symbol = "[󰁔](bold err)"
+
+[sudo]
+disabled = true
+
+[hostname]
+disabled = true

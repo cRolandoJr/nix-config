@@ -8,9 +8,13 @@
 }:
 
 let
-  dotfilesDir = "${config.home.homeDirectory}/projects/dotfiles";
+  dotfilesDir = "${config.home.homeDirectory}/projects/nix-config/dotfiles";
   pedcoBot = inputs.pedco-bot.packages.${pkgs.stdenv.hostPlatform.system}.pedco-bot;
   ryogami = pkgs.callPackage ../pkgs/ryogami { };
+  hymission = import ../pkgs/hymission {
+    inherit pkgs;
+    src = inputs.hymission;
+  };
 in
 {
   imports = [ inputs.sops-nix.homeManagerModules.sops ];
@@ -605,6 +609,11 @@ in
   home.file.".markdownlintrc".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/markdownlint/.markdownlintrc";
 
+  home.file.".local/lib/hyprland/libhymission.so".source = "${hymission}/lib/libhymission.so";
+
+  home.file.".local/bin/hymission-search-input".source =
+    "${hymission}/libexec/hymission-search-input";
+
   xdg.desktopEntries."org.telegram.desktop" = {
     name = "Telegram";
     comment = "New era of messaging";
@@ -654,14 +663,14 @@ in
 
       # El daemon NO expande `~`: con "~/Wallpapers" devuelve cero wallpapers y
       # no avisa. Por eso la ruta se interpola absoluta desde Nix.
-      ${pkgs.jq}/bin/jq '.paths.wallpaper = "${config.home.homeDirectory}/Wallpapers"
+      ${pkgs.jq}/bin/jq '.paths.wallpaper = "${dotfilesDir}/Wallpapers"
         | .features.matugen = false' "$daemon_cfg" > "$daemon_cfg.new"
       mv "$daemon_cfg.new" "$daemon_cfg"
 
       # matugen en false a proposito: sus plantillas escriben temas en
       # ~/.config/{kitty,yazi,qt6ct}. Hoy no rompe nada porque home-manager deja
       # esas rutas de solo lectura, pero no conviene depender de eso.
-      ${pkgs.jq}/bin/jq '.paths.wallpaper = "${config.home.homeDirectory}/Wallpapers"
+      ${pkgs.jq}/bin/jq '.paths.wallpaper = "${dotfilesDir}/Wallpapers"
         | .components.wallpaperSelector.displayMode = "slices"
         | .features.matugen = false
         | .transition = {enabled: true, shader: "random", durationMs: 600}' \

@@ -1,0 +1,317 @@
+/* Waybar - Deep Ocean
+ * Reload: pkill -SIGUSR2 waybar
+ * Los colores son los @define-color de abajo. */
+
+@define-color fg          #cdd6f4;
+@define-color fg-dim      rgba(122, 139, 168, 0.85);
+@define-color island-bg   rgba(15, 22, 35, 0.90);
+@define-color bar-bg      rgba(10, 14, 23, 0.00);
+@define-color border      rgba(26, 39, 68, 0.90);
+
+/* Un solo acento: lo activo y lo enfocado. */
+@define-color accent      rgba(59, 130, 246, 0.90);
+@define-color accent-glow rgba(59, 130, 246, 0.40);
+@define-color accent-dim  rgba(59, 130, 246, 0.18);
+
+/* Excepcion deliberada al acento unico: el layout se lee de un vistazo. */
+@define-color lang-us     rgba(0, 180, 216, 0.90);
+@define-color lang-es     rgba(94, 234, 212, 0.85);
+
+@define-color crit        rgba(248, 113, 113, 0.90);
+@define-color warn        rgba(251, 146, 60, 0.90);
+@define-color ok          rgba(45, 156, 111, 0.95);
+
+* {
+  border: none;
+  border-radius: 0;
+  font-family: "JetBrainsMono Nerd Font", sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  min-height: 0;
+}
+
+window#waybar {
+  background: @bar-bg;
+  color: @fg;
+}
+
+/* ========= LEFT: ONE island container ========= */
+/* Mismo molde que .modules-right. mpris no entra: es el unico que aparece y
+   desaparece, y adentro haria respirar la capsula al arrancar la musica. */
+#sistema {
+  background: @island-bg;
+  margin: 2px 0;                  /* pegado al borde izquierdo del bar */
+  padding: 0 8px;                 /* sin vertical: sumaba 4px al alto del bar */
+  min-height: 20px;
+  border-radius: 14px;            /* capsule completa (Variante A) */
+  border: 1px solid @border;
+
+  /* Glow sutil: borde cyan superior-izquierdo, azul navy inferior-derecho */
+  box-shadow:
+    -1px -1px 0 0 @accent-dim,
+     1px  1px 0 0 rgba(37, 99, 235, 0.40);
+}
+
+/* Módulos internos: transparentes, sin margin, separadores sutiles. */
+#sistema > widget > * {
+  background: transparent;
+  margin: 0;
+  padding: 0 8px;
+  border-radius: 0;
+  box-shadow: none;
+  border: none;
+}
+
+#sistema > widget > *:not(:last-child) {
+  border-right: 1px solid rgba(205, 214, 244, 0.08);
+}
+
+/* El padding de arriba le gana a `#keyboard-state { padding: 0 }` por
+   especificidad (contenedor + hijo vs id suelto), y le reservaba 16 px aunque
+   estuviera apagado y sin pintar nada. Medido con un fondo de prueba. */
+#sistema > widget > #keyboard-state {
+  padding: 0;
+}
+
+/* Mismo motivo de especificidad. El tamaño de los dots NO lo fija este padding:
+   GTK estira los botones al alto del island, y lo que lo frena es el margin
+   vertical de `#workspaces button` (medido: 12x12 inactivo, 16 de alto activo). */
+#sistema > widget > #workspaces {
+  padding: 2px 6px;
+}
+
+/* Logo NixOS — primer elemento del island */
+#custom-nixos {
+  color: @accent;
+  font-size: 12px;
+  padding: 0 10px 0 4px;          /* asimetrico: centra el glyph opticamente */
+  transition: color 140ms ease;
+}
+
+#custom-nixos:hover {
+  color: #ffffff;
+}
+
+#workspaces {
+  color: @fg;
+}
+
+/* Dots de workspace */
+#workspaces button {
+  all: unset;
+  margin: 5px 5px;                /* el vertical frena el estirado de GTK al alto del island */
+  min-width: 12px;
+  min-height: 12px;
+  border-radius: 999px;
+  background: rgba(205, 214, 244, 0.15);
+}
+
+/* Label oculto por defecto → cada ws inactivo queda como dot */
+#workspaces button label { font-size: 0px; }
+
+#workspaces button:hover {
+  background: @accent-dim;
+}
+
+#workspaces button.active {
+  background: @accent;
+  box-shadow: 0 0 10px @accent-glow;
+  min-height: 16px;               /* altura suficiente para que el número centre */
+  margin: 3px 5px;
+  padding: 0 8px;                 /* sin min-width: el padding define el ancho y el dígito no se recorta */
+}
+
+/* Solo el activo muestra su número */
+#workspaces button.active label {
+  font-size: 11px;
+  color: #0a0e17;
+}
+
+#workspaces button.urgent {
+  background: @crit;
+  box-shadow: 0 0 10px rgba(248, 113, 113, 0.50);
+}
+
+/* ========= CENTER: window title island ========= */
+#window {
+  background: @island-bg;
+  margin: 2px 0;
+  padding: 2px 16px;
+  min-height: 20px;
+  border-radius: 14px;
+  color: @fg;
+  border: 1px solid @border;
+
+  box-shadow:
+    -1px -1px 0 0 @accent-dim,
+     1px  1px 0 0 rgba(37, 99, 235, 0.40),
+     0px  0px 18px 0px rgba(0, 180, 216, 0.08);
+}
+
+/* Cuando no hay ventana activa */
+#window.empty {
+  background: transparent;
+  box-shadow: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* ========= RIGHT: ONE island container ========= */
+.modules-right {
+  background: @island-bg;
+  margin: 2px 0;                  /* pegado al borde derecho del bar */
+  padding: 2px 8px;
+  min-height: 20px;
+  border-radius: 14px;            /* capsule completa (Variante A) */
+  border: 1px solid @border;
+
+  box-shadow:
+    -1px -1px 0 0 @accent-dim,
+     1px  1px 0 0 rgba(37, 99, 235, 0.40);
+}
+
+/* Módulos internos: transparentes, sin margin, separadores sutiles. */
+.modules-right > widget > * {
+  background: transparent;
+  margin: 0;
+  padding: 0 8px;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.modules-right > widget > *:not(:last-child) {
+  border-right: 1px solid rgba(205, 214, 244, 0.08);
+}
+
+
+
+#clock {
+  color: @accent;
+  font-weight: 800;
+}
+
+/* Módulos estándar: cada uno declara su padding. */
+#temperature, #pulseaudio, #battery {
+  color: @fg;
+  padding: 0 8px;
+}
+
+/* Estados */
+#pulseaudio.muted { color: @fg-dim; }
+
+/* MPRIS: island propio al lado de workspaces (canción actual) */
+#mpris {
+  background: @island-bg;
+  color: @fg;
+  margin: 2px 0 2px 6px;
+  padding: 0 12px;
+  min-height: 20px;
+  border-radius: 14px;
+  border: 1px solid @border;
+}
+#mpris.playing { color: @accent; }
+#mpris.paused { color: @fg-dim; font-style: italic; }
+
+#temperature.critical {
+  color: @crit;
+  animation: blink 1s linear infinite;
+}
+
+@keyframes blink {
+  to { color: rgba(248, 113, 113, 0.40); }
+}
+
+/* Layout de teclado — color por clase que emite waybar-layout.sh */
+#custom-layout {
+  color: @fg;
+  padding: 0 6px;
+  min-width: 22px;
+}
+#custom-layout.us      { color: @lang-us; }
+#custom-layout.es      { color: @lang-es; }
+#custom-layout.unknown { color: @fg-dim; }
+
+/* Leader del grupo plegable: sin dato, solo superficie de hover. Se enciende
+ * al apuntarlo para que se lea como control y no como adorno. */
+
+#custom-expand:hover {
+  color: @accent;
+}
+
+/* Systray (blueman, telegram, kdeconnect…) */
+#tray {
+  padding: 0 8px;
+}
+#tray > .passive {
+  -gtk-icon-effect: dim;
+}
+#tray > .needs-attention {
+  -gtk-icon-effect: highlight;
+}
+
+/* Idle inhibitor: apagado = discreto, activado = cyan (pantalla despierta).
+ * El ojo se dibuja más ancho que el avance que declara la Nerd Font, así que
+ * con el padding común invade al vecino: lleva el suyo, como #custom-layout. */
+#idle_inhibitor {
+  color: @fg-dim;
+  padding: 0 12px;
+}
+#idle_inhibitor.activated {
+  color: @accent;
+}
+
+/* Num lock: solo se ve encendido. El ancho lo pone el label .locked y no el
+ * módulo, porque apagado el label no lleva esa clase; así no queda aire
+ * (medido contra no tener el módulo: 0 px). El separador se fue al entrar al
+ * island: quedaba pegado al borde de la capsula y se leia como doble linea. */
+#keyboard-state {
+  padding: 0;
+  border-right: none;
+}
+#keyboard-state label.locked {
+  color: @warn;
+  padding: 0 8px;
+}
+
+/* Modo juego: misma semántica que idle_inhibitor — cyan = activo (k3s parado) */
+#custom-agenda {
+  color: @fg-dim;
+  padding: 0 6px;
+}
+#custom-agenda.soon {
+  color: @accent;
+}
+#custom-agenda.now {
+  color: @crit;
+}
+#custom-agenda.error {
+  color: @warn;
+}
+
+#custom-gamemode {
+  color: @fg-dim;
+  padding: 0 6px;
+}
+#custom-gamemode.on {
+  color: @accent;
+}
+#custom-gamemode.busy {
+  color: @warn;
+}
+/* Perfil battery: k3s no existe, no hay nada que togglear */
+#custom-gamemode.absent {
+  color: @fg-dim;
+}
+
+/* Tooltip coherente */
+tooltip {
+  background: @island-bg;
+  color: @fg;
+  border-radius: 10px;
+  border: 1px solid @border;
+  padding: 6px 10px;
+  box-shadow: 0 0 12px @accent-glow;
+}
+
+tooltip label { color: @fg; }
