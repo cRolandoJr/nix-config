@@ -92,6 +92,23 @@
         "type": "github"
       }
     },
+    "hyprcapture": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1794729394,
+        "narHash": "sha256-644DnXYqaGVX+PUT2dwOD8gROHZt7GGoFDANwCUGMcA=",
+        "owner": "gfhdhytghd",
+        "repo": "HyprCapture",
+        "rev": "7ebc3f36f782d7b62ad7f20906f7c921aa27231f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "gfhdhytghd",
+        "repo": "HyprCapture",
+        "rev": "7ebc3f36f782d7b62ad7f20906f7c921aa27231f",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1794537146,
@@ -155,6 +172,7 @@
         "disko": "disko",
         "home-manager": "home-manager",
         "hymission": "hymission",
+        "hyprcapture": "hyprcapture",
         "nixpkgs": "nixpkgs",
         "pedco-bot": "pedco-bot",
         "pre-commit-hooks": "pre-commit-hooks",

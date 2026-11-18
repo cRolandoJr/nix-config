@@ -38,14 +38,6 @@ hl.window_rule({
 })
 
 hl.window_rule({
-    name   = "satty_float",
-    match  = { class = [[^(com\.gabm\.satty)$]] },
-    float  = true,
-    size   = { 1280, 720 },
-    center = true,
-})
-
-hl.window_rule({
     name   = "blueman_float",
     match  = { class = [[^(blueman-manager|\.blueman-manager-wrapped_?)$]] },
     float  = true,
@@ -98,8 +90,3 @@ hl.layer_rule({ match = { namespace = "^(rofi)$" }, blur = true, ignore_alpha = 
 -- rectangular creaba un halo gris visible en las esquinas redondeadas.
 -- El defwindow hub usa :namespace "hub" en eww.yuck — esto lo matchea.
 hl.layer_rule({ match = { namespace = "^(hub)$" }, ignore_alpha = 0.0 })
-
--- slurp (overlay de selección) — sin animaciones. Hyprland >=0.55 aplica
--- fade-out al cerrar slurp; grim dispara antes de que termine y captura
--- restos del dim/borde. Sin anim, slurp desaparece instantáneo.
-hl.layer_rule({ match = { namespace = "^(selection)$" }, no_anim = true })

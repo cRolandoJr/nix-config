@@ -91,10 +91,11 @@ in
 
   security.polkit.enable = true;
 
+  systemd.packages = [ pkgs.hyprpolkitagent ];
+  systemd.user.services.hyprpolkitagent.wantedBy = [ "graphical-session.target" ];
+
   environment.systemPackages = with pkgs; [
-    # El agente polkit lo lanza el XDG-autostart del propio paquete (via UWSM);
-    # no declarar una unit manual: el segundo registro falla ("agent already exists").
-    polkit_gnome
+    hyprpolkitagent
     qalculate-gtk
     gparted
     baobab

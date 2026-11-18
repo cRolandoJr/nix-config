@@ -12,6 +12,10 @@ let
   dotfilesDir = "${config.home.homeDirectory}/projects/nix-config/dotfiles";
   pedcoBot = inputs.pedco-bot.packages.${pkgs.stdenv.hostPlatform.system}.pedco-bot;
   ryogami = ryogamiPackage;
+  hyprcapture = import ../pkgs/hyprcapture {
+    inherit pkgs;
+    src = inputs.hyprcapture;
+  };
   hymission = import ../pkgs/hymission {
     inherit pkgs;
     src = inputs.hymission;
@@ -416,7 +420,6 @@ in
     })
     eww
     mako
-    awww
     hypridle
     hyprlock
     swayosd
@@ -429,10 +432,15 @@ in
     thunar
     yazi
 
-    # Capturas de pantalla
-    grim
-    slurp
-    satty
+    # Capturas de pantalla y grabación
+    hyprcapture
+    gpu-screen-recorder
+    (tesseract.override {
+      enableLanguages = [
+        "eng"
+        "spa"
+      ];
+    })
     imagemagick
 
     # Multimedia
@@ -604,6 +612,8 @@ in
   # markdownlint-cli lee ~/.markdownlintrc (verificado): apaga largo de línea y estilo de tablas.
   home.file.".markdownlintrc".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/markdownlint/.markdownlintrc";
+
+  home.file.".local/lib/hyprland/libhyprcapture.so".source = "${hyprcapture}/lib/libhyprcapture.so";
 
   home.file.".local/lib/hyprland/libhymission.so".source = "${hymission}/lib/libhymission.so";
 

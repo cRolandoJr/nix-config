@@ -13,6 +13,7 @@
 --   cd ~/.config/hypr && lua-language-server --check "$PWD/configs" \
 --       --configpath="$PWD/.luarc.json" --checklevel=Warning
 hl.plugin.load(os.getenv("HOME") .. "/.local/lib/hyprland/libhymission.so")
+hl.plugin.load(os.getenv("HOME") .. "/.local/lib/hyprland/libhyprcapture.so")
 require("configs.environments")
 require("configs.monitors")
 require("configs.settings")

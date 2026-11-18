@@ -288,22 +288,15 @@ hl.bind(
 )
 hl.bind("xf86audioprev", hl.dsp.exec_cmd("playerctl previous"), { locked = true, description = "Pista anterior" })
 
--- --- CAPTURAS DE PANTALLA ---
-hl.bind("Print", hl.dsp.exec_cmd("grim - | wl-copy"), { description = "Captura de pantalla completa al portapapeles" })
+-- --- CAPTURAS DE PANTALLA (HyprCapture) ---
+hl.bind("Print", function()
+	hl.plugin.hyprcapture.open("fullscreen")
+end, { description = "Captura de pantalla completa (HyprCapture)" })
 
--- -b 00000050: dim negro sutil (~31% alpha) en lugar del gris fuerte default.
--- -w 0: sin borde (el default es marco negro 2px).
-hl.bind(
-	"SUPER + SHIFT + C",
-	hl.dsp.exec_cmd([[grim -g "$(slurp -b 00000050 -w 0)" - | wl-copy]]),
-	{ description = "Captura de región al portapapeles" }
-)
+hl.bind("SUPER + SHIFT + C", function()
+	hl.plugin.hyprcapture.open("region")
+end, { description = "Captura de región (HyprCapture)" })
 
--- --early-exit cierra satty automáticamente al copiar/guardar (Ctrl+Enter en la UI).
-hl.bind(
-	"SUPER + CTRL + C",
-	hl.dsp.exec_cmd(
-		[[sh -c 'dir="$HOME/.local/share/screenshots"; mkdir -p "$dir"; grim -g "$(slurp -b 00000050 -w 0)" - | satty --filename - --output-filename "$dir/$(date +%Y%m%d-%H%M%S)-region.png" --early-exit --copy-command wl-copy']]
-	),
-	{ description = "Captura de región, anotar y guardar (satty)" }
-)
+hl.bind("SUPER + CTRL + C", function()
+	hl.plugin.hyprcapture.open_editor("region")
+end, { description = "Captura de región y anotar (HyprCapture)" })

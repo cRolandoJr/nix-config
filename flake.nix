@@ -34,6 +34,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    hyprcapture = {
+      url = "github:gfhdhytghd/HyprCapture/7ebc3f36f782d7b62ad7f20906f7c921aa27231f";
+      flake = false;
+    };
+
     hymission = {
       url = "github:gfhdhytghd/hymission/4fe476c29203b25b891e22198a330d8acab76d8f";
       flake = false;
