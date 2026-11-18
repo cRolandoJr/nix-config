@@ -428,7 +428,6 @@ in
     foot
     thunar
     yazi
-    xh
 
     # Capturas de pantalla
     grim
@@ -450,8 +449,6 @@ in
 
     # Productividad
     obsidian
-    libreoffice
-    khal
     tzdata
 
     # Dev: editores y git
@@ -593,8 +590,6 @@ in
     "foot".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/foot/.config/foot";
 
     "mako".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/mako/.config/mako";
-
-    "khal".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/khal/.config/khal";
 
     "qt6ct".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/qt6ct/.config/qt6ct";
 
