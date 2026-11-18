@@ -247,12 +247,12 @@ hl.bind(
 -- ambos togglean → double-toggle (visible en mute como "luz prende y vuelve").
 hl.bind(
 	"XF86AudioRaiseVolume",
-	hl.dsp.exec_cmd("swayosd-client --output-volume raise --max-volume 150"),
+	hl.dsp.exec_cmd("~/.config/hypr/scripts/volume-step.sh up osd"),
 	{ repeating = true, description = "Subir volumen" }
 )
 hl.bind(
 	"XF86AudioLowerVolume",
-	hl.dsp.exec_cmd("swayosd-client --output-volume lower"),
+	hl.dsp.exec_cmd("~/.config/hypr/scripts/volume-step.sh down osd"),
 	{ repeating = true, description = "Bajar volumen" }
 )
 hl.bind("XF86AudioMute", hl.dsp.exec_cmd("swayosd-client --output-volume mute-toggle"), { description = "Silenciar" })

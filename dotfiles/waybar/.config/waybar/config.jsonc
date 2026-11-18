@@ -88,8 +88,8 @@
     "format-muted": "<span size='12pt'>󰝟</span> {volume}%",
     "on-click": "~/.config/hypr/scripts/hub-toggle.sh",
     "on-click-right": "pavucontrol",
-    "on-scroll-up": "wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+",
-    "on-scroll-down": "wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%-",
+    "on-scroll-up": "~/.config/hypr/scripts/volume-step.sh up",
+    "on-scroll-down": "~/.config/hypr/scripts/volume-step.sh down",
     "format-icons": {
       "default": ["󰕿", "󰖀", "󰕾"],
     },
