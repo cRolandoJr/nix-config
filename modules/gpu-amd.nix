@@ -15,11 +15,6 @@
     enable32Bit = true;
     extraPackages = with pkgs; [
       rocmPackages.clr.icd
-      libva-vdpau-driver
-      libvdpau-va-gl
-    ];
-    extraPackages32 = with pkgs.driversi686Linux; [
-      libva-vdpau-driver
     ];
   };
 
@@ -29,7 +24,6 @@
     LIBVA_DRIVER_NAME = "radeonsi";
     VDPAU_DRIVER = "radeonsi";
     AMD_VULKAN_ICD = "RADV"; # forzar RADV, no amdvlk
-    RADV_PERFTEST = "gpl"; # SAM/ReBAR manejado por RADV en kernel 7+
   };
 
   environment.systemPackages = with pkgs; [
@@ -39,6 +33,4 @@
     libva-utils
     # lact lo instala services.lact.enable; no duplicar aquí
   ];
-
-  services.power-profiles-daemon.enable = true;
 }

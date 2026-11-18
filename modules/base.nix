@@ -30,6 +30,7 @@
       "flakes"
     ];
     auto-optimise-store = true;
+    download-buffer-size = 536870912;
     trusted-users = [
       "root"
       username
