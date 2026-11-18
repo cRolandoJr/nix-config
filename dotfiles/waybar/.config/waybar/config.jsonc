@@ -42,18 +42,6 @@
       "unlocked": "",
     },
   },
-
-  "custom/agenda": {
-    "exec": "$HOME/.config/hypr/scripts/waybar-agenda.sh",
-    "return-type": "json",
-    "interval": 60,
-    "format": "{}",
-    "max-length": 48,
-    "tooltip": true,
-    "on-click-right": "foot --app-id=foot_float ikhal",
-  },
-
-  // ─── NixOS chip — gen + flake status ─────────────────────────────────────
   //   Click izq → hub | Click der → foot en el flake dir (para resolver dirty)
   "custom/nixos": {
     "exec": "$HOME/.config/hypr/scripts/waybar-nixos-status.sh",
@@ -182,7 +170,10 @@
   // Mantener pantalla despierta (inhibe hypridle mientras está activado).
   "idle_inhibitor": {
     "format": "{icon}",
-    "format-icons": { "activated": "<span size='12pt'></span>", "deactivated": "<span size='12pt'></span>" },
+    "format-icons": {
+      "activated": "<span size='12pt'></span>",
+      "deactivated": "<span size='12pt'></span>",
+    },
     "tooltip-format-activated": "Idle inhibido — la pantalla no se bloquea",
     "tooltip-format-deactivated": "Idle normal",
   },
@@ -193,7 +184,12 @@
   // Sin "drawer": es un contenedor, no un plegable.
   "group/sistema": {
     "orientation": "horizontal",
-    "modules": ["custom/nixos", "hyprland/workspaces", "custom/layout", "keyboard-state"]
+    "modules": [
+      "custom/nixos",
+      "hyprland/workspaces",
+      "custom/layout",
+      "keyboard-state",
+    ],
   },
 
   "custom/layout": {
