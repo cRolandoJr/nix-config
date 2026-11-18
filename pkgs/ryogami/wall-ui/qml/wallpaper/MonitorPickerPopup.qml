@@ -21,7 +21,32 @@ Rectangle {
   property var _pendingItem: null
   property var _selectedOutputs: []
   property var _outputState: ({})
+  property int _focusedMonitorIdx: 0
   property var wallpaperService: null
+
+  function _toggleMonitor(idx) {
+    if (idx < 0 || idx >= _selectedOutputs.length) return
+    var copy = _selectedOutputs.slice()
+    var e = Object.assign({}, copy[idx])
+    e.selected = !e.selected
+    copy[idx] = e
+    _selectedOutputs = copy
+  }
+
+  function _toggleAllMonitors() {
+    if (_selectedOutputs.length === 0) return
+    var allSelected = true
+    for (var i = 0; i < _selectedOutputs.length; i++) {
+      if (!_selectedOutputs[i].selected) { allSelected = false; break }
+    }
+    var copy = []
+    for (var j = 0; j < _selectedOutputs.length; j++) {
+      var e = Object.assign({}, _selectedOutputs[j])
+      e.selected = !allSelected
+      copy.push(e)
+    }
+    _selectedOutputs = copy
+  }
   signal accepted(var item, var outputs, var audioMap, var volumeMap)
   signal cancelled()
   signal themeApplied(string scheme, string mode, int colorIndex)
@@ -102,9 +127,10 @@ Rectangle {
         })
       }
       monitorPicker._selectedOutputs = initial
+      monitorPicker._focusedMonitorIdx = 0
       monitorPicker._themeMode = Config.matugenMode
       monitorPicker._palettes = ({})
-      monitorPicker._refreshThemes()
+      if (Config.matugenEnabled) monitorPicker._refreshThemes()
       monitorPicker.visible = true
       monitorPicker.forceActiveFocus()
     })
@@ -192,7 +218,7 @@ Rectangle {
             if (!entry) return "transparent"
             return entry.selected
               ? (monitorPicker.colors ? Qt.rgba(monitorPicker.colors.primary.r, monitorPicker.colors.primary.g, monitorPicker.colors.primary.b, 0.4) : Qt.rgba(0.3, 0.4, 0.7, 0.4))
-              : "transparent"
+              : (index === monitorPicker._focusedMonitorIdx ? Qt.rgba(1, 1, 1, 0.28) : "transparent")
           }
           anchors.horizontalCenter: parent.horizontalCenter
 
@@ -540,6 +566,7 @@ Rectangle {
     }
 
     Rectangle {
+      visible: Config.matugenEnabled
       width: 1
       height: themePane.height
       color: monitorPicker.colors ? Qt.rgba(monitorPicker.colors.outline.r, monitorPicker.colors.outline.g, monitorPicker.colors.outline.b, 0.3) : Qt.rgba(1,1,1,0.1)
@@ -547,6 +574,7 @@ Rectangle {
 
     Column {
       id: themePane
+      visible: Config.matugenEnabled
       spacing: 6
       width: 220
 
@@ -731,5 +759,32 @@ Rectangle {
     event.accepted = true
     monitorPicker.cancelled()
     monitorPicker.close()
+  }
+
+  Keys.onPressed: function(event) {
+    var n = monitorPicker._selectedOutputs.length
+    if (event.key === Qt.Key_Up || event.key === Qt.Key_K) {
+      if (n > 0) monitorPicker._focusedMonitorIdx = (monitorPicker._focusedMonitorIdx - 1 + n) % n
+      event.accepted = true
+    } else if (event.key === Qt.Key_Down || event.key === Qt.Key_J) {
+      if (n > 0) monitorPicker._focusedMonitorIdx = (monitorPicker._focusedMonitorIdx + 1) % n
+      event.accepted = true
+    } else if (event.key === Qt.Key_Space) {
+      monitorPicker._toggleMonitor(monitorPicker._focusedMonitorIdx)
+      event.accepted = true
+    } else if (event.key === Qt.Key_A) {
+      monitorPicker._toggleAllMonitors()
+      event.accepted = true
+    } else if (event.key >= Qt.Key_1 && event.key <= Qt.Key_9) {
+      var idx = event.key - Qt.Key_1
+      if (idx < n) {
+        monitorPicker._focusedMonitorIdx = idx
+        monitorPicker._toggleMonitor(idx)
+      }
+      event.accepted = true
+    } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+      if (_acceptBtn.canAccept) _acceptBtn.clicked()
+      event.accepted = true
+    }
   }
 }

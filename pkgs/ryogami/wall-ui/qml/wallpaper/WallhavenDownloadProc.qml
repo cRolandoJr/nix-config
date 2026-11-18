@@ -38,7 +38,20 @@ Process {
     }
     onExited: function(exitCode, exitStatus) {
       var mime = _output.toLowerCase()
-      if (exitCode === 0 && mime.indexOf("image/") === 0) {
+      if (exitCode === 0 && mime === "image/gif") {
+        _moveProc.running = true
+      } else if (exitCode === 0 && mime.indexOf("image/") === 0) {
+        _cropProc.running = true
+      } else {
+        _cleanupProc.running = true
+      }
+    }
+  }
+
+  property var _cropProc: Process {
+    command: ["magick", dlProc.tmpDest, "-resize", "1920x1080^", "-gravity", "center", "-extent", "1920x1080", dlProc.tmpDest]
+    onExited: function(exitCode, exitStatus) {
+      if (exitCode === 0) {
         _moveProc.running = true
       } else {
         _cleanupProc.running = true

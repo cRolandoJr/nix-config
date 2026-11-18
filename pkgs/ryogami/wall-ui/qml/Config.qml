@@ -85,7 +85,7 @@ QtObject {
     readonly property bool randomIncludeStatic: _data.general?.randomIncludeStatic !== false
     readonly property bool randomIncludeVideo: _data.general?.randomIncludeVideo !== false
     readonly property bool randomIncludeWE: _data.general?.randomIncludeWE !== false
-    readonly property bool randomIncludeFavourites: _data.general?.randomIncludeFavourites !== false
+    readonly property bool randomIncludeFavourites: _data.general?.randomIncludeFavourites === true
     readonly property bool wallpaperPerMonitor: _data.general?.wallpaperPerMonitor === true
     readonly property int selectorBackdropOpacity: Math.max(0, Math.min(100, _data.general?.selectorBackdropOpacity ?? 0))
     readonly property bool notifyOnWallpaperChange: _data.general?.notifyOnWallpaperChange !== false
