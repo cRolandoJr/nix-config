@@ -12,6 +12,7 @@ Guía rápida de uso para **HyprCapture** en Hyprland (`hyprland.lua` + `binds.l
   - Arrastrá una caja para capturar un área.
   - Hacé **un clic sobre una ventana** para capturarla entera (gracias a `fusion_mode`).
 - **`SUPER + CTRL + C`**: igual que el anterior, pero abre el **editor de anotaciones** antes de guardar y copiar.
+- **`ALT + Print`**: inicia o detiene la **grabación** directamente (`record_toggle`).
 - **`Esc`** (o clic derecho): cancela sin guardar.
 
 Las capturas guardadas se almacenan en `~/Imágenes/Capturas` (configurado en `hyprland.lua` con `plugin.hyprcapture.save_dir`).

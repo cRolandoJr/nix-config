@@ -333,7 +333,7 @@ Item {
                     ? Qt.rgba(delegateItem.colors ? delegateItem.colors.primary.r : 0.5, delegateItem.colors ? delegateItem.colors.primary.g : 0.76, delegateItem.colors ? delegateItem.colors.primary.b : 0.29, 0.4)
                     : Qt.rgba(0, 0, 0, 0.6))
             Behavior on strokeColor { ColorAnimation { duration: Style.animNormal } }
-            strokeWidth: delegateItem.isCurrent ? 3 : 1
+            strokeWidth: delegateItem.isCurrent ? 1.5 : 1
             startX: delegateItem._tlOutX
             startY: 0
             PathLine { x: delegateItem._trInX; y: 0 }

@@ -617,6 +617,12 @@ in
 
   home.file.".local/lib/hyprland/libhymission.so".source = "${hymission}/lib/libhymission.so";
 
+  home.file.".local/lib/hyprland/libhyprfocus.so".source =
+    "${pkgs.hyprlandPlugins.hyprfocus}/lib/libhyprfocus.so";
+
+  home.file.".local/lib/hyprland/libhyprbars.so".source =
+    "${pkgs.hyprlandPlugins.hyprbars}/lib/libhyprbars.so";
+
   home.file.".local/bin/hymission-search-input".source =
     "${hymission}/libexec/hymission-search-input";
 

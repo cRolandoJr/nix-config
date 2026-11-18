@@ -1,19 +1,32 @@
--- ╔════════════════════════════════════════════════════════════════╗
--- ║   H  Y  P  R  L  A  N  D  ·  Deep Ocean                        ║
--- ║   cRolandoJr · github.com/cRolandoJr                           ║
--- ╚════════════════════════════════════════════════════════════════╝
---
--- Validar cambios SIN tocar la sesión activa (no corre nada, y detecta errores de
--- sintaxis, nombres de opción inexistentes y dispatchers que no existen):
---   Hyprland --config ~/.config/hypr/hyprland.lua --verify-config
---
--- Chequeo estático con el language server. El --configpath es OBLIGATORIO:
--- `--check` NO autodetecta el .luarc.json de al lado, y sin él tira ~200 falsos
--- "Undefined global hl".
---   cd ~/.config/hypr && lua-language-server --check "$PWD/configs" \
---       --configpath="$PWD/.luarc.json" --checklevel=Warning
+-- Hyprland · Deep Ocean
+-- Validar: Hyprland --config ~/.config/hypr/hyprland.lua --verify-config
 hl.plugin.load(os.getenv("HOME") .. "/.local/lib/hyprland/libhymission.so")
 hl.plugin.load(os.getenv("HOME") .. "/.local/lib/hyprland/libhyprcapture.so")
+hl.plugin.load(os.getenv("HOME") .. "/.local/lib/hyprland/libhyprfocus.so")
+hl.plugin.load(os.getenv("HOME") .. "/.local/lib/hyprland/libhyprbars.so")
+
+hl.config({
+	plugin = {
+		hyprfocus = {
+			keyboard_focus_animation = "flash",
+			mouse_focus_animation = "flash",
+			fade_opacity = 0.85,
+		},
+		hyprbars = {
+			enabled = true,
+			bar_height = 24,
+			bar_color = "rgb(0f172a)",
+			col = {
+				text = "rgb(e2e8f0)",
+			},
+			bar_text_size = 11,
+			bar_part_of_window = true,
+			bar_precedence_over_border = false,
+			bar_padding = 10,
+			bar_button_padding = 6,
+		},
+	},
+})
 require("configs.environments")
 require("configs.monitors")
 require("configs.settings")

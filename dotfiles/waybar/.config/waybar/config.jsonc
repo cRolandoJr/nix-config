@@ -16,12 +16,12 @@
   "reload_on_change": true,
   "reload_style_on_change": true,
 
-  "modules-left": ["group/sistema", "mpris"],
+  "modules-left": ["group/sistema", "hyprland/submap", "mpris"],
   "modules-center": ["hyprland/window"],
   // Todo visible: un modulo plegado es un modulo que se olvida. El orden va de
   // interactivos a estado pasivo, y termina en las anclas que no se mueven.
   "modules-right": [
-    "custom/agenda",
+    "privacy",
     "pulseaudio",
     "idle_inhibitor",
     "custom/gamemode",
@@ -46,7 +46,7 @@
   "custom/nixos": {
     "exec": "$HOME/.config/hypr/scripts/waybar-nixos-status.sh",
     "return-type": "json",
-    "interval": 10,
+    "interval": 60,
     "format": "{}",
     "tooltip": true,
     "on-click": "~/.config/hypr/scripts/hub-toggle.sh",
@@ -187,17 +187,41 @@
     "modules": [
       "custom/nixos",
       "hyprland/workspaces",
-      "custom/layout",
+      "hyprland/language",
       "keyboard-state",
     ],
   },
 
-  "custom/layout": {
-    "exec": "stdbuf -oL $HOME/.config/hypr/scripts/waybar-layout.sh",
-    "return-type": "json",
-    "format": "{}",
-    "restart-interval": 3,
+  "hyprland/language": {
+    "format": "{short}",
+    "format-en": "US",
+    "format-es": "LATAM",
+    "tooltip": true,
+    "tooltip-format": "{long}",
     "on-click": "hyprctl switchxkblayout current next",
+  },
+
+  "hyprland/submap": {
+    "format": "󰩨 {}",
+    "tooltip": false,
+  },
+
+  "privacy": {
+    "icon-spacing": 6,
+    "icon-size": 14,
+    "transition-duration": 200,
+    "modules": [
+      {
+        "type": "screenshare",
+        "tooltip": true,
+        "tooltip-icon-size": 18,
+      },
+      {
+        "type": "audio-in",
+        "tooltip": true,
+        "tooltip-icon-size": 18,
+      },
+    ],
   },
 
   // ─── Modo juego — libera k3s (6.7% CPU y 539 MiB en idle) ────────────────
@@ -206,7 +230,7 @@
   "custom/gamemode": {
     "exec": "$HOME/.config/hypr/scripts/waybar-gamemode.sh",
     "return-type": "json",
-    "interval": 10,
+    "interval": 30,
     "signal": 11,
     "format": "{}",
     "tooltip": true,

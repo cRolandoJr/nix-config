@@ -223,7 +223,7 @@ Item {
                 ? (hexItem.colors ? hexItem.colors.primary : Style.fallbackAccent)
                 : Qt.rgba(0, 0, 0, 0.5)
             Behavior on strokeColor { ColorAnimation { duration: Style.animFast } }
-            strokeWidth: hexItem.isSelected ? 3 : 1.5
+            strokeWidth: hexItem.isSelected ? 1.5 : 1
             startX: hexItem._cx + hexItem._r;                          startY: hexItem._cy
             PathLine { x: hexItem._cx + hexItem._r * hexItem._sin30;  y: hexItem._cy - hexItem._r * hexItem._cos30 }
             PathLine { x: hexItem._cx - hexItem._r * hexItem._sin30;  y: hexItem._cy - hexItem._r * hexItem._cos30 }

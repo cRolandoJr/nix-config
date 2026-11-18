@@ -1634,7 +1634,7 @@ Scope {
           anchors.fill: parent; anchors.margins: 4; radius: 6
           color: "transparent"
 
-          border.width: thumbGridView.hoveredIdx === gridThumbDelegate.index ? 2 : 0
+          border.width: thumbGridView.hoveredIdx === gridThumbDelegate.index ? 1 : 0
           border.color: wallpaperSelector.colors ? wallpaperSelector.colors.primary : "#ff8800"
           Behavior on border.width { NumberAnimation { duration: Style.animFast; easing.type: Easing.OutQuad } }
 
@@ -2085,7 +2085,7 @@ Scope {
           Rectangle {
             anchors.fill: parent; radius: 12
             color: "transparent"
-            border.width: 2
+            border.width: 1
             border.color: wallpaperSelector.colors ? wallpaperSelector.colors.primary : Style.fallbackAccent
           }
         }
@@ -2304,7 +2304,7 @@ Scope {
           Rectangle {
             anchors.fill: parent; radius: 12
             color: "transparent"
-            border.width: 2.5
+            border.width: 1
             border.color: wallpaperSelector.colors ? wallpaperSelector.colors.primary : Style.fallbackAccent
           }
         }
