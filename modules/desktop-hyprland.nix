@@ -91,6 +91,12 @@ in
 
   security.polkit.enable = true;
 
+  # Secret Service (org.freedesktop.secrets) + desbloqueo automático al iniciar sesión en SDDM.
+  # gcr-ssh-agent se deshabilita para no chocar con programs.ssh.startAgent en base.nix.
+  services.gnome.gnome-keyring.enable = true;
+  services.gnome.gcr-ssh-agent.enable = false;
+  security.pam.services.sddm.enableGnomeKeyring = true;
+
   systemd.packages = [ pkgs.hyprpolkitagent ];
   systemd.user.services.hyprpolkitagent.wantedBy = [ "graphical-session.target" ];
 
