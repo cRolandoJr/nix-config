@@ -668,13 +668,13 @@ in
       daemon_cfg="$HOME/.config/ryoku/ryogami.json"
       picker_cfg="$HOME/.config/ryogami-wall/config.json"
 
-      mkdir -p "$HOME/.config/ryoku" "$HOME/.config/ryogami-wall"
+      mkdir -p "$HOME/.config/ryoku" "$HOME/.config/ryogami-wall" "$HOME/Wallpapers"
       [ -f "$daemon_cfg" ] || echo '{}' > "$daemon_cfg"
       [ -f "$picker_cfg" ] || echo '{}' > "$picker_cfg"
 
       # El daemon NO expande `~`: con "~/Wallpapers" devuelve cero wallpapers y
       # no avisa. Por eso la ruta se interpola absoluta desde Nix.
-      ${pkgs.jq}/bin/jq '.paths.wallpaper = "${dotfilesDir}/Wallpapers"
+      ${pkgs.jq}/bin/jq '.paths.wallpaper = "${config.home.homeDirectory}/Wallpapers"
         | .features.matugen = false
         | .features.steam = false' "$daemon_cfg" > "$daemon_cfg.new"
       mv "$daemon_cfg.new" "$daemon_cfg"
@@ -682,7 +682,7 @@ in
       # matugen en false a proposito: sus plantillas escriben temas en
       # ~/.config/{kitty,yazi,qt6ct}. Hoy no rompe nada porque home-manager deja
       # esas rutas de solo lectura, pero no conviene depender de eso.
-      ${pkgs.jq}/bin/jq '.paths.wallpaper = "${dotfilesDir}/Wallpapers"
+      ${pkgs.jq}/bin/jq '.paths.wallpaper = "${config.home.homeDirectory}/Wallpapers"
         | .components.wallpaperSelector.displayMode = "slices"
         | .features.matugen = false
         | .features.steam = false
