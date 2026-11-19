@@ -67,7 +67,15 @@ hl.bind("SUPER + SHIFT + R", hl.dsp.exec_cmd("pkill -SIGUSR2 waybar"), { descrip
 hl.bind("SUPER + Q", hl.dsp.window.close(), { description = "Cerrar ventana" })
 hl.bind("SUPER + SHIFT + M", hl.dsp.exit(), { description = "Salir de Hyprland" })
 hl.bind("SUPER + F", hl.dsp.window.fullscreen(), { description = "Pantalla completa" })
-hl.bind("SUPER + V", hl.dsp.window.float({ action = "toggle" }), { description = "Alternar flotante" })
+hl.bind("SUPER + V", function()
+	local win = hl.get_active_window()
+	local was_floating = win and win.floating
+	hl.dispatch(hl.dsp.window.float({ action = "toggle" }))
+	if win and not was_floating then
+		hl.dispatch(hl.dsp.window.resize({ x = 1450, y = 800 }))
+		hl.dispatch(hl.dsp.window.center())
+	end
+end, { description = "Alternar flotante (1450x800 y centrar)" })
 hl.bind("SUPER + P", hl.dsp.window.pseudo(), { description = "Alternar pseudo-tiling" })
 hl.bind(
 	"SUPER + CTRL + N",
