@@ -498,6 +498,7 @@ in
 
     # Python + CodeGraphContext
     python3
+    pdfcraft
 
     # CGC requiere python3.12 (excluye tree-sitter en 3.13); lowPrio evita colisión
     # con python3 en nombres genéricos (bin/python3, etc.).
