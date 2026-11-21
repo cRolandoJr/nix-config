@@ -280,9 +280,13 @@ hl.bind("Print", function()
 	hl.plugin.hyprcapture.open("fullscreen")
 end, { description = "Captura de pantalla completa (HyprCapture)" })
 
-hl.bind("SUPER + SHIFT + C", function()
-	hl.plugin.hyprcapture.open("region")
-end, { description = "Captura de región (HyprCapture)" })
+hl.bind(
+	"SUPER + SHIFT + C",
+	hl.dsp.exec_cmd(
+		[[sh -c 'tmp=$(mktemp --suffix=.png) && trap "rm -f \"$tmp\"" EXIT && hyprcapture-shot region -o "$tmp" && wl-copy -t image/png < "$tmp"']]
+	),
+	{ description = "Captura de región solo al portapapeles (HyprCapture)" }
+)
 
 hl.bind("SUPER + CTRL + C", function()
 	hl.plugin.hyprcapture.open_editor("region")

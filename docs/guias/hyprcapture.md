@@ -8,14 +8,12 @@ Guía rápida de uso para **HyprCapture** en Hyprland (`hyprland.lua` + `binds.l
   - *Todos los monitores* (`all`, por defecto)
   - *Monitor actual* (`current`)
   - *Por monitor* (`per-monitor`)
-- **`SUPER + SHIFT + C`**: abre el modo **región** (`region`).
-  - Arrastrá una caja para capturar un área.
-  - Hacé **un clic sobre una ventana** para capturarla entera (gracias a `fusion_mode`).
+- **`SUPER + SHIFT + C`**: captura de **región solo al portapapeles** (no guarda archivo en disco, vía `hyprcapture-shot`).
 - **`SUPER + CTRL + C`**: igual que el anterior, pero abre el **editor de anotaciones** antes de guardar y copiar.
 - **`ALT + Print`**: inicia o detiene la **grabación** directamente (`record_toggle`).
 - **`Esc`** (o clic derecho): cancela sin guardar.
 
-Las capturas guardadas se almacenan en `~/Imágenes/Capturas` (configurado en `hyprland.lua` con `plugin.hyprcapture.save_dir`).
+Las capturas guardadas se almacenan en `~/Imágenes/Screenshots` (configurado en `hyprland.lua` con `plugin.hyprcapture.save_dir`).
 
 ## Editor de anotaciones (`SUPER + CTRL + C`)
 
@@ -43,7 +41,7 @@ Las capturas guardadas se almacenan en `~/Imágenes/Capturas` (configurado en `h
 - **`Espacio + arrastrar`** (o clic medio): mover el lienzo
 - **`Ctrl + 0`**: ajustar imagen a la pantalla
 - **`P`** o **`Ctrl + P`**: **Pin** (fija la captura flotando en el escritorio; se cierra con `Esc` o su botón `×`)
-- **`Enter`** o **`✓`**: confirmar (guarda en `~/Imágenes/Capturas` y copia al portapapeles)
+- **`Enter`** o **`✓`**: confirmar (guarda en `~/Imágenes/Screenshots` y copia al portapapeles)
 
 ## Funciones extra
 

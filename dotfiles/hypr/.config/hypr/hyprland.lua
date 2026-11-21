@@ -7,6 +7,11 @@ hl.plugin.load(os.getenv("HOME") .. "/.local/lib/hyprland/libhyprbars.so")
 
 hl.config({
 	plugin = {
+		hyprcapture = {
+			save_dir = os.getenv("HOME") .. "/Imágenes/Screenshots",
+			window_background = "real",
+			remember_settings = true,
+		},
 		hyprfocus = {
 			keyboard_focus_animation = "flash",
 			mouse_focus_animation = "flash",
