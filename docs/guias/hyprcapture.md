@@ -5,9 +5,9 @@ Guía rápida de uso para **HyprCapture** en Hyprland (`hyprland.lua` + `binds.l
 ## Atajos configurados
 
 - **`Print`**: abre el modo **pantalla completa** (`fullscreen`). En la barra inferior podés elegir:
-  - *Todos los monitores* (`all`, por defecto)
-  - *Monitor actual* (`current`)
-  - *Por monitor* (`per-monitor`)
+  - _Todos los monitores_ (`all`, por defecto)
+  - _Monitor actual_ (`current`)
+  - _Por monitor_ (`per-monitor`)
 - **`SUPER + SHIFT + C`**: captura de **región solo al portapapeles** (no guarda archivo en disco, vía `hyprcapture-shot`).
 - **`SUPER + CTRL + C`**: igual que el anterior, pero abre el **editor de anotaciones** antes de guardar y copiar.
 - **`ALT + Print`**: inicia o detiene la **grabación** directamente (`record_toggle`).
@@ -18,22 +18,24 @@ Las capturas guardadas se almacenan en `~/Imágenes/Screenshots` (configurado en
 ## Editor de anotaciones (`SUPER + CTRL + C`)
 
 ### Herramientas
-| Tecla | Herramienta |
-| --- | --- |
-| `V` | Seleccionar / mover anotaciones |
-| `R` | Rectángulo |
-| `Shift + D` | Rectángulo relleno |
-| `E` | Elipse |
-| `A` | Flecha |
-| `W` | Línea |
-| `D` | Lápiz |
-| `H` | Resaltador |
-| `T` | Texto (`Enter` nueva línea, `Ctrl + Enter` confirmar, `Esc` cancelar) |
-| `B` | Marcador numerado |
-| `G` | Mosaico (pixelado) |
-| `Shift + B` | Spotlight |
+
+| Tecla       | Herramienta                                                           |
+| ----------- | --------------------------------------------------------------------- |
+| `V`         | Seleccionar / mover anotaciones                                       |
+| `R`         | Rectángulo                                                            |
+| `Shift + D` | Rectángulo relleno                                                    |
+| `E`         | Elipse                                                                |
+| `A`         | Flecha                                                                |
+| `W`         | Línea                                                                 |
+| `D`         | Lápiz                                                                 |
+| `H`         | Resaltador                                                            |
+| `T`         | Texto (`Enter` nueva línea, `Ctrl + Enter` confirmar, `Esc` cancelar) |
+| `B`         | Marcador numerado                                                     |
+| `G`         | Mosaico (pixelado)                                                    |
+| `Shift + B` | Spotlight                                                             |
 
 ### Acciones y navegación
+
 - **`Q`**: abrir paleta de colores
 - **`Ctrl + Z`** / **`Z`**: deshacer
 - **`Ctrl + Shift + Z`** / **`Ctrl + Y`** / **`X`**: rehacer
@@ -54,4 +56,3 @@ Las capturas guardadas se almacenan en `~/Imágenes/Screenshots` (configurado en
   - **Swipe derecha**: cierra la miniatura.
   - **Swipe abajo**: borra el archivo y restaura el portapapeles anterior.
 - **CLI**: `hyprcapture-shot [region|fullscreen|window] [-o PATH] [--editor]`.
-

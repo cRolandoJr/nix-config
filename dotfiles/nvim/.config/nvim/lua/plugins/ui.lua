@@ -36,7 +36,7 @@ return {
                 diagnostics = "nvim_lsp",
                 always_show_bufferline = false,
                 offsets = {
-                    { filetype = "NvimTree", text = "Files", text_align = "left", separator = true },
+                    { filetype = "snacks_layout_box", text = "Files", text_align = "left", separator = true },
                 },
             },
         },

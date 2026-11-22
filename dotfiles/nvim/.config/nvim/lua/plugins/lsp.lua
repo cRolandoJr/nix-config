@@ -3,6 +3,21 @@
 -- config), ese server simplemente no se activa.
 -- Usa la API nativa de nvim 0.11+: vim.lsp.config + vim.lsp.enable.
 return {
+    -- API de Neovim/Snacks/Lazy en Lua sin falsos warnings
+    {
+        "folke/lazydev.nvim",
+        ft = "lua",
+        opts = {
+            library = {
+                { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+                { path = "snacks.nvim",        words = { "Snacks" } },
+            },
+        },
+    },
+
+    -- Schemas JSON/YAML (Kubernetes, Docker Compose, GitHub Actions, etc.)
+    { "b0o/schemastore.nvim", lazy = true },
+
     {
         "neovim/nvim-lspconfig",
         event = { "BufReadPre", "BufNewFile" },
@@ -39,9 +54,29 @@ return {
                 ts_ls   = { bin = "typescript-language-server" },
                 html    = { bin = "vscode-html-language-server" },
                 cssls   = { bin = "vscode-css-language-server" },
-                jsonls  = { bin = "vscode-json-language-server" },
-                yamlls  = { bin = "yaml-language-server" },
-                bashls  = { bin = "bash-language-server" },
+                jsonls  = {
+                    bin = "vscode-json-language-server",
+                    settings = {
+                        json = {
+                            schemas = require("schemastore").json.schemas(),
+                            validate = { enable = true },
+                        },
+                    },
+                },
+                yamlls  = {
+                    bin = "yaml-language-server",
+                    settings = {
+                        yaml = {
+                            schemaStore = { enable = false, url = "" },
+                            schemas = require("schemastore").yaml.schemas(),
+                        },
+                    },
+                },
+                helm_ls     = { bin = "helm_ls" },
+                nixd        = { bin = "nixd" },
+                ansiblels   = { bin = "ansible-language-server" },
+                terraformls = { bin = "terraform-ls" },
+                bashls      = { bin = "bash-language-server" },
                 lua_ls  = {
                     bin = "lua-language-server",
                     settings = {

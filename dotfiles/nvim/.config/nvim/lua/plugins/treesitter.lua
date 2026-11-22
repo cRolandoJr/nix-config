@@ -22,11 +22,11 @@ return {
             require("nvim-treesitter").install({
                 "bash", "c", "css", "dart", "diff", "dockerfile",
                 "go", "gomod", "gosum", "gowork",
-                "html", "javascript", "json", "json5",
+                "hcl", "html", "http", "javascript", "json", "json5",
                 "lua", "luadoc", "luap",
-                "markdown", "markdown_inline",
+                "markdown", "markdown_inline", "nix",
                 "python", "query", "regex", "rust",
-                "toml", "tsx", "typescript",
+                "terraform", "toml", "tsx", "typescript",
                 "vim", "vimdoc", "yaml",
             })
         end,
@@ -38,6 +38,16 @@ return {
         "windwp/nvim-ts-autotag",
         event = { "BufReadPost", "BufNewFile" },
         config = true,
+    },
+
+    -- Contexto sticky (muestra arriba la función/recurso/bloque actual)
+    {
+        "nvim-treesitter/nvim-treesitter-context",
+        event = { "BufReadPost", "BufNewFile" },
+        opts = {
+            mode = "cursor",
+            max_lines = 3,
+        },
     },
 
     -- textobjects rama "main": misma API nueva que treesitter. setup() solo

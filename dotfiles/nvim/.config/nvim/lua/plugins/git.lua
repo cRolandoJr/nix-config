@@ -33,9 +33,16 @@ return {
         },
     },
 
-    -- Comandos Git clásicos (:Git status, :Git blame, etc.)
+    -- Diffs visuales, historial de archivos y resolución de conflictos 3-way
     {
-        "tpope/vim-fugitive",
-        cmd = { "Git", "G", "Gdiffsplit", "Gread", "Gwrite", "Ggrep", "GMove", "GDelete", "GBrowse" },
+        "sindrets/diffview.nvim",
+        cmd = { "DiffviewOpen", "DiffviewClose", "DiffviewFileHistory" },
+        keys = {
+            { "<leader>gd", "<cmd>DiffviewOpen<cr>",          desc = "Diffview (repo)" },
+            { "<leader>gh", "<cmd>DiffviewFileHistory %<cr>", desc = "Historial del archivo" },
+            { "<leader>gH", "<cmd>DiffviewFileHistory<cr>",   desc = "Historial del repo" },
+            { "<leader>gq", "<cmd>DiffviewClose<cr>",         desc = "Cerrar Diffview" },
+        },
+        opts = {},
     },
 }

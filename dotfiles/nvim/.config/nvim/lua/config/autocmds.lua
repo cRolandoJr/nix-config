@@ -71,6 +71,28 @@ vim.api.nvim_create_autocmd("FileType", {
     end,
 })
 
+-- Neovim detecta `.tf` como `tf` (TinyFugue) por defecto; mapearlo a Terraform/HCL.
+vim.filetype.add({
+    extension = {
+        tf = "terraform",
+        tfvars = "terraform-vars",
+        hcl = "hcl",
+    },
+})
+
+-- Indentación de 2 espacios para lenguajes/formatos que lo usan por convención
+-- (Terraform/HCL, YAML/Ansible, JSON, Nix).
+vim.api.nvim_create_autocmd("FileType", {
+    group = augroup("two_space_indent"),
+    pattern = { "terraform", "hcl", "terraform-vars", "yaml", "yaml.ansible", "json", "jsonc", "nix" },
+    callback = function(args)
+        vim.bo[args.buf].expandtab = true
+        vim.bo[args.buf].shiftwidth = 2
+        vim.bo[args.buf].tabstop = 2
+        vim.bo[args.buf].softtabstop = 2
+    end,
+})
+
 -- GTK CSS (waybar, gtk-3.0/gtk.css, gtk-4.0/gtk.css): silenciar diagnósticos de cssls.
 --
 -- Por qué: cssls valida contra W3C CSS. GTK CSS es un superset que incluye

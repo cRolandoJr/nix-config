@@ -6,6 +6,20 @@ return {
         opts = {
             preset = "modern",
             delay = 300,
+            spec = {
+                { "<leader>b", group = "Buffers" },
+                { "<leader>c", group = "Código / LSP" },
+                { "<leader>d", group = "Debug (DAP)" },
+                { "<leader>f", group = "Buscar (Picker)" },
+                { "<leader>g", group = "Git" },
+                { "<leader>h", group = "Git Hunks" },
+                { "<leader>n", group = "Notificaciones" },
+                { "<leader>r", group = "HTTP / Rename" },
+                { "<leader>s", group = "Search & Replace" },
+                { "<leader>t", group = "Tests / Terminal" },
+                { "<leader>u", group = "UI / Toggles" },
+                { "<leader>x", group = "Diagnósticos (Trouble)" },
+            },
         },
     },
 
@@ -44,23 +58,7 @@ return {
         keys = {
             { "]t",         function() require("todo-comments").jump_next() end, desc = "TODO siguiente" },
             { "[t",         function() require("todo-comments").jump_prev() end, desc = "TODO anterior" },
-            { "<leader>ft", "<cmd>TodoTelescope<cr>",                              desc = "Buscar TODOs" },
-        },
-    },
-
-    -- Árbol de archivos clásico
-    {
-        "nvim-tree/nvim-tree.lua",
-        cmd = { "NvimTreeToggle", "NvimTreeFocus", "NvimTreeFindFile" },
-        keys = {
-            { "<F2>",       "<cmd>NvimTreeToggle<cr>",   desc = "Árbol de archivos" },
-            { "<leader>e",  "<cmd>NvimTreeFindFile<cr>", desc = "Localizar archivo actual" },
-        },
-        opts = {
-            view = { width = 32, side = "left" },
-            renderer = { group_empty = true, indent_markers = { enable = true } },
-            filters = { dotfiles = false },
-            git = { enable = true, ignore = false },
+            { "<leader>ft", function() Snacks.picker.todo_comments() end,        desc = "Buscar TODOs" },
         },
     },
 
@@ -77,5 +75,39 @@ return {
                 ["q"] = "actions.close",
             },
         },
+    },
+
+    -- Search & Replace en todo el proyecto (ripgrep interactivo)
+    {
+        "MagicDuck/grug-far.nvim",
+        cmd = "GrugFar",
+        keys = {
+            {
+                "<leader>sr",
+                function()
+                    local grug = require("grug-far")
+                    local ext = vim.bo.buftype == "" and vim.fn.expand("%:e")
+                    grug.open({
+                        transient = true,
+                        prefills = { filesFilter = ext and ext ~= "" and "*." .. ext or nil },
+                    })
+                end,
+                mode = { "n", "v" },
+                desc = "Search & Replace (GrugFar)",
+            },
+            {
+                "<leader>sR",
+                function() require("grug-far").open({ transient = true }) end,
+                desc = "Search & Replace (todo el repo)",
+            },
+        },
+        opts = { headerMaxWidth = 80 },
+    },
+
+    -- Textobjects inteligentes (vaq, cib, daf, etc.)
+    {
+        "echasnovski/mini.ai",
+        event = "VeryLazy",
+        opts = { n_lines = 500 },
     },
 }

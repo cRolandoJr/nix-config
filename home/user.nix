@@ -533,6 +533,10 @@ in
     typescript-language-server
     vscode-langservers-extracted
     yaml-language-server
+    ansible-language-server
+    terraform-ls
+    helm-ls
+    nixd
     bash-language-server
     lua-language-server
 
@@ -544,6 +548,7 @@ in
     rustfmt
     prettierd
     shfmt
+    terraform
 
     # Linters
     golangci-lint
@@ -551,7 +556,9 @@ in
     shellcheck
     markdownlint-cli
     yamllint
+    ansible-lint
     hadolint
+    tflint
   ];
 
   home.sessionPath = [ "$HOME/.local/bin" ];
@@ -625,6 +632,41 @@ in
 
   home.file.".local/bin/hymission-search-input".source =
     "${hymission}/libexec/hymission-search-input";
+
+  # El .desktop por defecto de nixpkgs usa `Terminal=true` y `Exec=nvim %F`, lo que
+  # hace que launchers/file managers caigan en `xterm` (fondo blanco y fuente fea).
+  # Forzamos `foot` explícitamente para que siempre abra con tu tema y fuente.
+  xdg.desktopEntries.nvim = {
+    name = "Neovim";
+    genericName = "Text Editor";
+    comment = "Edit text files";
+    exec = "foot -e nvim %F";
+    icon = "nvim";
+    terminal = false;
+    type = "Application";
+    categories = [
+      "Utility"
+      "TextEditor"
+      "Development"
+    ];
+    mimeType = [
+      "text/english"
+      "text/plain"
+      "text/x-makefile"
+      "text/x-c++hdr"
+      "text/x-c++src"
+      "text/x-chdr"
+      "text/x-csrc"
+      "text/x-java"
+      "text/x-moc"
+      "text/x-pascal"
+      "text/x-tcl"
+      "text/x-tex"
+      "application/x-shellscript"
+      "text/x-c"
+      "text/x-c++"
+    ];
+  };
 
   xdg.desktopEntries."org.telegram.desktop" = {
     name = "Telegram";

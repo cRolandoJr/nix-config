@@ -4,7 +4,6 @@ return {
         ft = { "dart" },
         dependencies = {
             "nvim-lua/plenary.nvim",
-            "stevearc/dressing.nvim",
         },
         opts = {
             lsp = {

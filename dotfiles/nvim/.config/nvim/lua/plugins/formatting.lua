@@ -33,6 +33,10 @@ return {
                 sh              = { "shfmt" },
                 bash            = { "shfmt" },
                 dart            = { "dart_format" },
+                terraform       = { "terraform_fmt", "tofu_fmt", stop_after_first = true },
+                ["terraform-vars"] = { "terraform_fmt", "tofu_fmt", stop_after_first = true },
+                hcl             = { "terraform_fmt", "tofu_fmt", stop_after_first = true },
+                nix             = { "nixfmt" },
             },
             -- Con --stdin-filepath (como lo invoca conform) stylua NO mira
             -- .styluaignore salvo que se le pase --respect-ignores.
