@@ -1,8 +1,4 @@
 {
-  config,
-  pkgs,
-  lib,
-  inputs,
   hostname,
   ...
 }:
@@ -24,6 +20,7 @@
     ../../modules/k3s.nix
     ../../modules/ollama.nix
     ../../modules/studio.nix
+    ../../modules/hardening.nix
   ];
 
   networking.hostName = hostname;

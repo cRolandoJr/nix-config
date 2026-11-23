@@ -1,7 +1,5 @@
 {
-  config,
   pkgs,
-  lib,
   username,
   ...
 }:
@@ -21,6 +19,7 @@
 
   hardware.uinput.enable = true;
   users.users.${username}.extraGroups = [ "uinput" ];
+  users.groups.uinput.gid = 997;
 
   programs.gamemode.enable = true;
 

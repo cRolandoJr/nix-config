@@ -33,4 +33,6 @@
   boot.consoleLogLevel = 0;
 
   boot.plymouth.enable = true;
+
+  boot.blacklistedKernelModules = [ "acpi_tad" ];
 }

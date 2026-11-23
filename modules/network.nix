@@ -1,5 +1,4 @@
 {
-  config,
   pkgs,
   lib,
   ...
@@ -23,8 +22,8 @@
   networking.firewall = {
     enable = true;
     allowedTCPPorts = [
-      8443 # gama23 backend HTTPS
-      8081 # gama23 backend HTTP
+      # 8443 # gama23 backend HTTPS
+      # 8081 # gama23 backend HTTP
     ];
     allowedUDPPorts = [ ];
   };
@@ -32,9 +31,6 @@
   hardware.bluetooth = {
     enable = true;
     powerOnBoot = true;
-    settings.General = {
-      controllerMode = "dual";
-    };
   };
   services.blueman.enable = true;
 
@@ -48,6 +44,7 @@
   services.resolved = {
     enable = true;
     settings.Resolve = {
+      LLMNR = "false";
       DNSSEC = "false";
       FallbackDNS = [
         "1.1.1.1"
