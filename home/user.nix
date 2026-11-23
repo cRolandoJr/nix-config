@@ -55,9 +55,18 @@ in
       pull.rebase = true;
       push.autoSetupRemote = true;
       core = {
-        editor = "vim";
+        editor = "nvim";
         excludesfile = "${config.home.homeDirectory}/.gitignore_global";
       };
+    };
+  };
+
+  programs.delta = {
+    enable = true;
+    enableGitIntegration = true;
+    options = {
+      navigate = true;
+      side-by-side = true;
     };
   };
 
@@ -169,6 +178,21 @@ in
   programs.fzf = {
     enable = true;
     enableZshIntegration = false;
+  };
+
+  programs.zoxide = {
+    enable = true;
+    enableZshIntegration = true;
+  };
+
+  programs.atuin = {
+    enable = true;
+    enableZshIntegration = true;
+    flags = [ "--disable-up-arrow" ];
+    settings = {
+      auto_sync = false;
+      update_check = false;
+    };
   };
 
   programs.firefox = {
@@ -476,6 +500,7 @@ in
     poppler-utils
     fastfetch
     nix-output-monitor
+    just
     postman
 
     # Infra: secretos
