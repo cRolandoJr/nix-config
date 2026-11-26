@@ -41,6 +41,11 @@
     ];
   };
 
+  services.openssh.settings = {
+    PermitRootLogin = "no";
+    PasswordAuthentication = false;
+  };
+
   services.resolved = {
     enable = true;
     settings.Resolve = {
