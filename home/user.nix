@@ -480,6 +480,7 @@ in
 
     # Productividad
     obsidian
+    chatgpt
     tzdata
 
     # Dev: editores y git
