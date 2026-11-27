@@ -39,10 +39,10 @@ Cuando quieras "instalar X" en NixOS, contestate **estas 3 preguntas** en orden:
 
 NixOS expone **dos catálogos distintos**. Buscar en el equivocado es el error más común al arrancar.
 
-| Catálogo | Para qué sirve | Dónde se busca | Comando local |
-|---|---|---|---|
-| **Packages** | Listado de binarios disponibles (~120k) | <https://search.nixos.org/packages> | `nix search nixpkgs <nombre>` |
-| **Options** | Opciones declarativas (servicios, hardware, programas configurables) | <https://search.nixos.org/options> | `man configuration.nix` (system), `man home-configuration.nix` (user) |
+| Catálogo     | Para qué sirve                                                       | Dónde se busca                      | Comando local                                                         |
+| ------------ | -------------------------------------------------------------------- | ----------------------------------- | --------------------------------------------------------------------- |
+| **Packages** | Listado de binarios disponibles (~120k)                              | <https://search.nixos.org/packages> | `nix search nixpkgs <nombre>`                                         |
+| **Options**  | Opciones declarativas (servicios, hardware, programas configurables) | <https://search.nixos.org/options>  | `man configuration.nix` (system), `man home-configuration.nix` (user) |
 
 ### Ejemplo concreto de ambas
 
@@ -51,7 +51,7 @@ Querés instalar k3s. Antes de editar, buscás:
 - **search.nixos.org/packages** → `k3s` → te dice que el paquete existe y la versión.
 - **search.nixos.org/options** → `services.k3s` → te muestra **todas** las opciones del módulo (`enable`, `role`, `tokenFile`, `extraFlags`, etc.) con tipo, default y descripción.
 
-Como k3s es un *daemon*, lo que te importa es el segundo: lo vas a configurar con `services.k3s.enable = true;`, no con un `environment.systemPackages = [ k3s ];` pelado.
+Como k3s es un _daemon_, lo que te importa es el segundo: lo vas a configurar con `services.k3s.enable = true;`, no con un `environment.systemPackages = [ k3s ];` pelado.
 
 ### `nix search` cuando no tenés internet
 
@@ -84,13 +84,13 @@ Tu repo está modularizado así:
 
 ### Cuándo va en cada uno
 
-| Va en `modules/` o `hosts/` (system) | Va en `home/` (user) |
-|---|---|
+| Va en `modules/` o `hosts/` (system)                                            | Va en `home/` (user)                     |
+| ------------------------------------------------------------------------------- | ---------------------------------------- |
 | Daemons que corren con systemd y necesita todos los usuarios (sshd, nginx, k3s) | CLI tools tuyos (kubectl, k9s, bat, eza) |
-| Hardware (bluetooth, sound, gráficos) | GUI apps (firefox, discord, obsidian) |
-| Display manager, kernel, filesystems | Dotfiles, temas, shell config |
-| Polkit, firewall, paquetes que necesita root | Editores y sus configs (neovim, vscode) |
-| Usuarios del sistema | Plugins/extensiones de tus programas |
+| Hardware (bluetooth, sound, gráficos)                                           | GUI apps (firefox, discord, obsidian)    |
+| Display manager, kernel, filesystems                                            | Dotfiles, temas, shell config            |
+| Polkit, firewall, paquetes que necesita root                                    | Editores y sus configs (neovim, vscode)  |
+| Usuarios del sistema                                                            | Plugins/extensiones de tus programas     |
 
 **Regla:** ¿necesita correr antes de que vos hagas login? → system. ¿Solo lo usás vos cuando trabajás? → user.
 
@@ -169,7 +169,7 @@ programs.firefox = {
 };
 ```
 
-Esto **además de instalar firefox**, configura el path del profile. Sumar `firefox` a `home.packages` *sin* el módulo te instala el binario pero no toca el profile.
+Esto **además de instalar firefox**, configura el path del profile. Sumar `firefox` a `home.packages` _sin_ el módulo te instala el binario pero no toca el profile.
 
 **Otro de tu repo** (`modules/desktop-hyprland.nix`, bloque `programs.hyprland`):
 
@@ -274,7 +274,7 @@ systemd.user.services.notify-layout = {
 
 **Diferencia clave con E:** este unit corre como `rolando`, no como root. Lo manejás con `systemctl --user`, no `sudo systemctl`.
 
-**Por qué `%h` y no `/home/rolando/`:** `%h` es un *specifier* de systemd que se expande al `$HOME` del usuario que corre el unit. Si el módulo se reutiliza en otro host o el username cambia, sigue funcionando sin edición. Con paths hardcodeados, el módulo queda atado a una persona concreta. Otros specifiers útiles: `%u` (nombre de usuario), `%H` (hostname), `%n` (nombre del unit). Ver `man systemd.unit` → sección *Specifiers*.
+**Por qué `%h` y no `/home/rolando/`:** `%h` es un _specifier_ de systemd que se expande al `$HOME` del usuario que corre el unit. Si el módulo se reutiliza en otro host o el username cambia, sigue funcionando sin edición. Con paths hardcodeados, el módulo queda atado a una persona concreta. Otros specifiers útiles: `%u` (nombre de usuario), `%H` (hostname), `%n` (nombre del unit). Ver `man systemd.unit` → sección _Specifiers_.
 
 ---
 
@@ -376,11 +376,11 @@ xdg.configFile."mako".source = config.lib.file.mkOutOfStoreSymlink
 
 Tu flujo habitual usa tres alias definidos en `home/user.nix`:
 
-| Alias | Expande a | Cuándo |
-|---|---|---|
-| `rebuild` | `nh os switch ~/projects/nix-config` | Compilar, activar como generación actual |
-| `rebuild-test` | `nh os test ~/projects/nix-config` | Activar temporalmente — se pierde al reboot |
-| `rebuild-boot` | `nh os boot ~/projects/nix-config` | Dejar listo para el próximo boot (kernel, initrd) |
+| Alias          | Expande a                            | Cuándo                                            |
+| -------------- | ------------------------------------ | ------------------------------------------------- |
+| `rebuild`      | `nh os switch ~/projects/nix-config` | Compilar, activar como generación actual          |
+| `rebuild-test` | `nh os test ~/projects/nix-config`   | Activar temporalmente — se pierde al reboot       |
+| `rebuild-boot` | `nh os boot ~/projects/nix-config`   | Dejar listo para el próximo boot (kernel, initrd) |
 
 Flujo recomendado:
 
@@ -393,13 +393,13 @@ git commit      # el commit queda embutido en la generación (ver 5.1)
 **Por qué `nh` en vez de `sudo nixos-rebuild switch --flake ...`:**
 `nh` es un wrapper que antes de aplicar te muestra un diff coloreado de paquetes (qué se agrega, qué se saca, qué cambia de versión) — comparable al `terraform plan` antes de un `apply`. También tiene output más legible que el scroll de hashes de nixos-rebuild.
 
-### `NH_NOM=1` — visualización del build en tiempo real
+### `NH_ROM=1` — visualización del build en tiempo real
 
 ```bash
-NH_NOM=1 rebuild       # activa nix-output-monitor (nom)
+NH_ROM=1 rebuild       # activa nix-output-monitor (nom)
 ```
 
-Cuando `NH_NOM=1` está definido, `nh` detecta la variable y pipa su output por `nix-output-monitor` (nom). En vez de un scroll de rutas del store, ves un árbol de derivaciones que se va construyendo en vivo — cuántos están en caché, cuáles están compilando, tiempo estimado.
+Cuando `NH_ROM=1` está definido, `nh` detecta la variable y pipa su output por `nix-output-monitor` (nom). En vez de un scroll de rutas del store, ves un árbol de derivaciones que se va construyendo en vivo — cuántos están en caché, cuáles están compilando, tiempo estimado.
 
 **Por qué no es el default:** nom agrega overhead y puede esconder mensajes de error si algo falla early. Para rebuilds complejos o cuando querés ver progreso: activalo. Para debugging de errores: mejor sin él.
 
@@ -430,12 +430,12 @@ Si el cambio toca el **stack gráfico base** (Mesa, wayland, libdrm, dbus, pipew
 
 `boot` evita esto: construye la generación y la deja como default del bootloader, pero **NO toca tu sesión actual**. El stack nuevo se carga limpio en el próximo arranque.
 
-| Tipo de cambio | Comando | Por qué |
-|---|---|---|
-| Editar dotfile, agregar paquete CLI | `rebuild` (switch) | Cambio chico, no toca la sesión gráfica |
-| `nix flake update` (update de canal) | `rebuild-boot` + `reboot` | Puede traer kernel/Mesa nuevos → reboot limpio |
-| Cambio de canal (stable↔unstable) o upgrade de release | `rebuild-boot` + `reboot` | Garantiza stack gráfico coherente, sin logout a mitad de activación |
-| Tocar kernel, drivers GPU, gráficos | `rebuild-boot` + `reboot` | Evita módulos del kernel viejo descargados mientras corrés uno nuevo |
+| Tipo de cambio                                         | Comando                   | Por qué                                                              |
+| ------------------------------------------------------ | ------------------------- | -------------------------------------------------------------------- |
+| Editar dotfile, agregar paquete CLI                    | `rebuild` (switch)        | Cambio chico, no toca la sesión gráfica                              |
+| `nix flake update` (update de canal)                   | `rebuild-boot` + `reboot` | Puede traer kernel/Mesa nuevos → reboot limpio                       |
+| Cambio de canal (stable↔unstable) o upgrade de release | `rebuild-boot` + `reboot` | Garantiza stack gráfico coherente, sin logout a mitad de activación  |
+| Tocar kernel, drivers GPU, gráficos                    | `rebuild-boot` + `reboot` | Evita módulos del kernel viejo descargados mientras corrés uno nuevo |
 
 **Síntoma típico del salto stable→unstable:** el primer `switch` hace logout (descarga mucho + reinicia gráficos), un segundo `switch` puede hacer logout otra vez sin crear generación nueva (completa una activación que quedó a medias), y recién el tercero corre limpio. Todo eso se evita con `rebuild-boot` + `reboot` desde el principio para cambios grandes.
 
@@ -445,7 +445,7 @@ Si el cambio toca el **stack gráfico base** (Mesa, wayland, libdrm, dbus, pipew
 
 ## 5.1 Versionado: qué commit es la generación que estoy corriendo
 
-**El problema:** cada `rebuild` crea una generación numerada en `/nix/var/nix/profiles/system-NN-link`. Podés bootear la gen 130 desde el menú. Pero una vez adentro, ¿qué commit de git *es* esa gen 130? Sin registro, perdés el hilo justo cuando más lo necesitás — cuando algo se rompió y estás en una generación vieja tratando de entender qué cambió.
+**El problema:** cada `rebuild` crea una generación numerada en `/nix/var/nix/profiles/system-NN-link`. Podés bootear la gen 130 desde el menú. Pero una vez adentro, ¿qué commit de git _es_ esa gen 130? Sin registro, perdés el hilo justo cuando más lo necesitás — cuando algo se rompió y estás en una generación vieja tratando de entender qué cambió.
 
 **La solución: `system.configurationRevision`.** Una línea en el flake que embute el commit en **cada** generación:
 
@@ -486,11 +486,11 @@ El resultado: cuando entrás a `~/projects/nix-config/`, direnv activa el devShe
 
 ### Los tres hooks activos
 
-| Hook | Herramienta | Qué detecta |
-|---|---|---|
-| **nixfmt** | nixfmt-rfc-style | Formato según RFC 166 (el estándar oficial de Nix) |
-| **statix** | statix | Anti-patrones: `let x = ...; in x`, `with pkgs; with lib;` anidados, etc. |
-| **deadnix** | deadnix | Bindings declarados pero nunca usados |
+| Hook        | Herramienta      | Qué detecta                                                               |
+| ----------- | ---------------- | ------------------------------------------------------------------------- |
+| **nixfmt**  | nixfmt-rfc-style | Formato según RFC 166 (el estándar oficial de Nix)                        |
+| **statix**  | statix           | Anti-patrones: `let x = ...; in x`, `with pkgs; with lib;` anidados, etc. |
+| **deadnix** | deadnix          | Bindings declarados pero nunca usados                                     |
 
 ### Configuraciones especiales que tenés
 
@@ -551,11 +551,11 @@ security.sudo = {
 
 **Por qué este approach es mejor:**
 
-| Opción | Comodidad | Seguridad | Cuándo usarla |
-|---|---|---|---|
-| `wheelNeedsPassword = false` | Maxima | Mínima | Jamás en producción; aceptable en lab sin red |
-| `wheelNeedsPassword = true` (default) | Pide password siempre | Buena | Setup básico seguro |
-| `extraRules` NOPASSWD granular | Pide solo cuando no está en la lista | Muy buena | Tu setup actual |
+| Opción                                | Comodidad                            | Seguridad | Cuándo usarla                                 |
+| ------------------------------------- | ------------------------------------ | --------- | --------------------------------------------- |
+| `wheelNeedsPassword = false`          | Maxima                               | Mínima    | Jamás en producción; aceptable en lab sin red |
+| `wheelNeedsPassword = true` (default) | Pide password siempre                | Buena     | Setup básico seguro                           |
+| `extraRules` NOPASSWD granular        | Pide solo cuando no está en la lista | Muy buena | Tu setup actual                               |
 
 La clave es que `nixos-rebuild`, `btrbk` y `nix-collect-garbage` son las tres operaciones que corrés frecuentemente y donde el password interrumpe el flujo. Todo lo demás sigue pidiendo autenticación.
 
@@ -727,10 +727,10 @@ En una instalación nueva disko la crea con ese nombre; en la máquina actual ya
 
 `disko.enableConfig` (default `true`) hace que disko **genere los `fileSystems`**, lo que choca con los que ya declara tu `hardware.nix`. Dos caminos:
 
-| `enableConfig` | Qué hace | Cuándo |
-|---|---|---|
-| `false` | solo formatea; `hardware.nix` sigue mandando | querés riesgo cero y solo versionar el layout |
-| `true` | genera `fileSystems`; se los sacás a `hardware.nix` | querés "clonar e instalar" de verdad |
+| `enableConfig` | Qué hace                                            | Cuándo                                        |
+| -------------- | --------------------------------------------------- | --------------------------------------------- |
+| `false`        | solo formatea; `hardware.nix` sigue mandando        | querés riesgo cero y solo versionar el layout |
+| `true`         | genera `fileSystems`; se los sacás a `hardware.nix` | querés "clonar e instalar" de verdad          |
 
 **Con `true`, verificá antes de switchear.** Es config de arranque: se diffean los `fileSystems` evaluados contra los del sistema corriendo, sin construir ni activar.
 
@@ -781,15 +781,15 @@ error: attribute 'satti' missing
 
 ### Top errores y qué significan
 
-| Mensaje | Causa común | Fix típico |
-|---|---|---|
-| `attribute 'X' missing` | Typo en paquete u opción | Buscar el nombre real en search.nixos.org |
-| `error: function called with unexpected argument 'X'` | La opción cambió de nombre entre versiones de nixpkgs | Buscar el nuevo nombre en search.nixos.org o changelog |
-| `error: infinite recursion encountered` | Referencia circular en `let` o `inherit` | Romper el ciclo, usar `lib.mkForce` o reestructurar |
-| `error: assertion '...' failed` | Combinación inválida (ej: dos display managers a la vez) | Leer la assertion para entender el conflicto |
-| `hash mismatch in fixed-output derivation` | Estás bajando algo y el hash declarado no coincide con el contenido | Copiar el hash real que te muestra el error |
-| `collision between '/nix/store/A-prog' and '/nix/store/B-prog'` | Dos paquetes proveen el mismo binario | Usar `lib.hiPrio` en uno, o sacar uno |
-| `error: builder for X failed with exit code 1` | Build de un paquete falló | Mirar el log que sigue — típicamente upstream tiene un bug en esa versión |
+| Mensaje                                                         | Causa común                                                         | Fix típico                                                                |
+| --------------------------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `attribute 'X' missing`                                         | Typo en paquete u opción                                            | Buscar el nombre real en search.nixos.org                                 |
+| `error: function called with unexpected argument 'X'`           | La opción cambió de nombre entre versiones de nixpkgs               | Buscar el nuevo nombre en search.nixos.org o changelog                    |
+| `error: infinite recursion encountered`                         | Referencia circular en `let` o `inherit`                            | Romper el ciclo, usar `lib.mkForce` o reestructurar                       |
+| `error: assertion '...' failed`                                 | Combinación inválida (ej: dos display managers a la vez)            | Leer la assertion para entender el conflicto                              |
+| `hash mismatch in fixed-output derivation`                      | Estás bajando algo y el hash declarado no coincide con el contenido | Copiar el hash real que te muestra el error                               |
+| `collision between '/nix/store/A-prog' and '/nix/store/B-prog'` | Dos paquetes proveen el mismo binario                               | Usar `lib.hiPrio` en uno, o sacar uno                                     |
+| `error: builder for X failed with exit code 1`                  | Build de un paquete falló                                           | Mirar el log que sigue — típicamente upstream tiene un bug en esa versión |
 
 ### `--show-trace` siempre que el error sea opaco
 
@@ -901,7 +901,7 @@ nixos-version --configuration-revision    # qué commit es esta generación
 
 # Aplicar (raw, sin aliases)
 nh os switch ~/projects/nix-config       # con UX bonita y diff
-NH_NOM=1 nh os switch ~/projects/nix-config  # mismo pero con árbol de build visual
+NH_ROM=1 nh os switch ~/projects/nix-config  # mismo pero con árbol de build visual
 
 # Validar sin aplicar
 nh os build ~/projects/nix-config        # compila en ./result, no activa
@@ -996,7 +996,7 @@ specialisation.battery.configuration = {
 3. La vía sin fricción es el script de activación directo
    (`/run/current-system/specialisation/battery/bin/switch-to-configuration switch`,
    con NOPASSWD quirúrgico solo para el arg `switch`) — `nixos-rebuild
-   --specialisation` funciona igual pero re-evalúa el flake entero (~10-30s al pedo).
+--specialisation` funciona igual pero re-evalúa el flake entero (~10-30s al pedo).
 
 **Fase 2 con gatillo:** medir a batería (`upower -i ... | grep energy-rate`, 5 min
 por perfil) y sumar ananicy/gamescope al mkForce SOLO si el ahorro de k3s+scx no alcanza.
@@ -1026,4 +1026,4 @@ aliases sobran.
 
 ---
 
-*Última actualización: 2026-06-04. Este doc vive en `~/Documentos/Guia-NixOS-Practica.md` — editalo libremente a medida que descubrís patrones nuevos.*
+_Última actualización: 2026-06-04. Este doc vive en `~/Documentos/Guia-NixOS-Practica.md` — editalo libremente a medida que descubrís patrones nuevos._

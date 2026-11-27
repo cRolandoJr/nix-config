@@ -67,7 +67,7 @@ genérico — verificado: `sudo -n systemctl stop sshd.service` sigue pidiendo c
 | `rebuild` (alias)                        | Eval + build + **activa** como generación actual   | Después de que `rebuild-test` pase OK.                                           |
 | `rebuild-boot` (alias)                   | Build + activa **solo al próximo boot**            | Si tocaste kernel/initrd/bootloader y quieres aplicar en reinicio.               |
 | `nixos-version --configuration-revision` | Imprime el commit de la generación booteada        | Cuando estás en una gen vieja y querés saber qué config es                       |
-| `NH_NOM=1 rebuild`                       | Igual que `rebuild` pero con árbol de build visual | Cuando quieras ver qué se está compilando en tiempo real                         |
+| `NH_ROM=1 rebuild`                       | Igual que `rebuild` pero con árbol de build visual | Cuando quieras ver qué se está compilando en tiempo real                         |
 | `nh os rollback`                         | Vuelve a la generación anterior                    | Si una build se rompió. Detalle en [runbooks/rollback](../runbooks/rollback.md). |
 
 **Flujo recomendado al tocar config:**
